@@ -1,14 +1,18 @@
-import { Text, ScrollView, Button, View } from 'react-native'
+import { ScrollView, Button } from 'react-native'
 import React from 'react'
-
-
-const explanation_html = "<div class=\"ud-text-md rt-scaffolding\" data-purpose=\"safely-set-inner-html:rich-text-viewer:html\" id=\"overall-explanation\">\n<p>Correct option:</p>\n<p><strong>3</strong></p>\n<p>When you launch a new EC2 instance, the EC2 service attempts to place the instance in such a\n                        way that all of your instances are spread out across underlying hardware to minimize correlated\n                        failures. You can use placement groups to influence the placement of a group of interdependent\n                        instances to meet the needs of your workload. Depending on the type of workload, you can create\n                        a placement group using one of the following placement strategies:</p>\n<p>Cluster placement group</p>\n<p>Partition placement group</p>\n<p>Spread placement group.</p>\n<p>A Spread placement group is a group of instances that are each placed on distinct racks, with\n                        each rack having its own network and power source.</p>\n<p>Spread placement groups are recommended for applications that have a small number of critical\n                        instances that should be kept separate from each other. Launching instances in a spread\n                        placement group reduces the risk of simultaneous failures that might occur when instances share\n                        the same racks.</p>\n<p>A spread placement group can span multiple Availability Zones in the same Region. You can have\n                        a maximum of seven running instances per Availability Zone per group. Therefore, to deploy 15\n                        EC2 instances in a single Spread placement group, the company needs to use 3 AZs.</p>\n<p>Spread placement group overview:\n                        {IMG_1}<span class=\"ud-component--base-components--open-full-size-image\">\n<div class=\"open-full-size-image--wrapper--R4gIm\" data-purpose=\"open-full-size-image\"><img alt=\"\" loading=\"eager\" src=\"https://assets-pt.media.datacumulus.com/aws-saa-pt/assets/pt5-q11-i1.jpg\"/><button class=\"ud-btn ud-btn-large ud-btn-link ud-heading-md open-full-size-image--backdrop--Zor3j\" type=\"button\"><svg aria-label=\"Larger image\" class=\"ud-icon ud-icon-large ud-icon-color-neutral\" focusable=\"false\" role=\"img\">\n<use xlink:href=\"#icon-search\"></use>\n</svg></button></div>\n</span>\n                        via - <a href=\"https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html\">https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html</a>\n</p>\n<p>Incorrect options:</p>\n<p><strong>7</strong></p>\n<p><strong>14</strong></p>\n<p><strong>15</strong></p>\n<p>These three options contradict the details provided in the explanation above, so these options\n                        are incorrect.</p>\n<p>Reference:</p>\n<p><a href=\"https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html\">https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html</a>\n</p>\n</div>"
-
+import RenderHtml from 'react-native-render-html';
 
 const Explanation = ({ explanation, setShowExplanation }) => {
+  const source = {
+    html: explanation,
+  };
+  console.log("Explanation rendered!", source)
   return (
     <ScrollView className="p-4 gap-4">
-      <Text>{explanation_html}</Text>
+      <RenderHtml
+        width={300}
+        source={source}
+      />
       <Button title="Close" onPress={() => setShowExplanation(false)} />
     </ScrollView>
   )

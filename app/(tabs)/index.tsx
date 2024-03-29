@@ -1,6 +1,5 @@
 import Explanation from '@/components/Explanation';
 import QuestionAndAnswers from '@/components/QuestionAndChoices';
-import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Button, TouchableOpacity } from 'react-native';
 
@@ -11,8 +10,6 @@ export default function App() {
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
   const [showNext, setShowNext] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
-
-  const router = useRouter();
 
   useEffect(() => {
     const fetchQuestions = async () => {
