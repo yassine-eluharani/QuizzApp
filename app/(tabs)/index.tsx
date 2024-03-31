@@ -77,14 +77,21 @@ export default function App() {
       />
 
       {showNext ?
-        <>
-          <TouchableOpacity onPress={handleNext} disabled={selectedAnswer === null} >
-            <Text>Next</Text>
+        <View className="flex-row justify-between items-center w-full">
+          <TouchableOpacity
+            className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-green-600 justify-center items-center"
+            onPress={() => setShowExplanation(true)}
+          >
+            <Text className="text-white font-extrabold">Explanation</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setShowExplanation(true)}>
-            <Text>Explanation</Text>
+          <TouchableOpacity
+            className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-blue-800 justify-center items-center"
+            disabled={selectedAnswer === null}
+            onPress={handleNext}
+          >
+            <Text className="text-white font-extrabold">Next -></Text>
           </TouchableOpacity>
-        </>
+        </View>
         :
         <Button title="Confirm" onPress={handleConfirm} disabled={selectedAnswer === null} />
       }
