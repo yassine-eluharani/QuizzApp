@@ -7,13 +7,15 @@ export default function TabLayout() {
   return (
     <Tabs>
       <Tabs.Screen name="index" options={{
-        tabBarLabel: 'tabs.explore',
-        tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
+        headerShown: false,
+        tabBarLabel: 'Home',
+        tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
       }} />
 
       <Tabs.Screen name="passTests" options={{
-        tabBarLabel: 'tabs.whishlist',
-        tabBarIcon: ({ color, size }) => <Ionicons name="heart-outline" size={size} color={color} />,
+        headerShown: false,
+        tabBarLabel: 'History',
+        tabBarIcon: ({ color, size }) => <Ionicons name="refresh-outline" size={size} color={color} />,
       }} />
     </Tabs>
   );
