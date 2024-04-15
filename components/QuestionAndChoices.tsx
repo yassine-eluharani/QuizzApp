@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 
-const QuestionAndAnswers = ({ question, choices, handleAnswer, selectedAnswer, isAnswerCorrect }) => {
+const QuestionAndAnswers = ({ question, choices, handleAnswer, selectedAnswer, isAnswerCorrect, correctChoice }) => {
   const cleanedQuestion = question.trim().replace(/\s+/g, ' ').replace(/\n+/g, '');
   const cleanedChoices = choices.map(choice => choice.trim().replace(/\s+/g, ' ').replace(/\n+/g, ''));
 

@@ -23,7 +23,7 @@ export default function App() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await require('@/assets/quizzes/quiz 1/questions.json');
+        const response = await require('@/assets/quizzes/quiz 2/questions.json');
         setQuestions(shuffleArray(response));
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -93,6 +93,7 @@ export default function App() {
           handleAnswer={handleAnswer}
           selectedAnswer={selectedAnswer}
           isAnswerCorrect={isAnswerCorrect}
+          correctChoice={currentQuestion.correct_answer}
         />
 
         {showNext ?

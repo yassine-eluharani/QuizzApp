@@ -6,10 +6,10 @@ const Explanation = ({ explanation, setShowExplanation }) => {
   const source = {
     html: `<div style="padding: 20px;">${explanation}</div>`,
   };
-  console.log("Explanation rendered!", source)
   return (
     <ScrollView>
       <RenderHtml
+        contentWidth={300}
         source={source}
       />
       <TouchableOpacity
