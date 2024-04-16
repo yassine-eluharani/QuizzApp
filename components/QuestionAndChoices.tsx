@@ -1,18 +1,26 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 
-const QuestionAndAnswers = ({ question, choices, handleAnswer, selectedAnswer, isAnswerCorrect, correctChoice }) => {
+const QuestionAndAnswers = ({
+  question,
+  choices,
+  handleAnswer,
+  selectedAnswer,
+  isAnswerCorrect,
+  correctChoices,
+}) => {
   const cleanedQuestion = question.trim().replace(/\s+/g, ' ').replace(/\n+/g, '');
   const cleanedChoices = choices.map(choice => choice.trim().replace(/\s+/g, ' ').replace(/\n+/g, ''));
 
-  const getChoiceStyle = (choice) => {
+  const getChoiceStyle = (choice, index) => {
     if (choice === selectedAnswer) {
-      if (isAnswerCorrect === true) {
-        return styles.correctChoice;
-      } else if (isAnswerCorrect === false) {
-        return styles.falseChoice;
-      } else {
+      if (isAnswerCorrect === null) {
+        console.log("is answer correct", correctChoices)
         return styles.selectedChoice;
+      } else if (isAnswerCorrect === true || correctChoices.includes(index)) {
+        return styles.correctChoice;
+      } else {
+        return styles.falseChoice;
       }
     } else {
       return styles.choice;
@@ -27,7 +35,7 @@ const QuestionAndAnswers = ({ question, choices, handleAnswer, selectedAnswer, i
           {cleanedChoices.map((choice, index) => (
             <TouchableOpacity
               key={index}
-              style={[styles.choiceContainer, getChoiceStyle(choice)]}
+              style={[styles.choiceContainer, getChoiceStyle(choice, index)]}
               onPress={() => handleAnswer(choice)}
               disabled={isAnswerCorrect !== null}
             >

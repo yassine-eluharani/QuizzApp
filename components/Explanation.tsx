@@ -1,5 +1,5 @@
-import { ScrollView, TouchableOpacity, Text } from 'react-native'
-import React from 'react'
+import React from 'react';
+import { ScrollView, TouchableOpacity, Text } from 'react-native';
 import RenderHtml from 'react-native-render-html';
 
 const Explanation = ({ explanation, setShowExplanation }) => {
@@ -8,10 +8,7 @@ const Explanation = ({ explanation, setShowExplanation }) => {
   };
   return (
     <ScrollView>
-      <RenderHtml
-        contentWidth={300}
-        source={source}
-      />
+      <RenderHtml contentWidth={300} source={source} />
       <TouchableOpacity
         className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-black justify-center items-center"
         onPress={() => setShowExplanation(false)}
@@ -19,7 +16,8 @@ const Explanation = ({ explanation, setShowExplanation }) => {
         <Text className="text-lg text-white font-extrabold">Close</Text>
       </TouchableOpacity>
     </ScrollView>
-  )
-}
+  );
+};
 
-export default Explanation
+export default Explanation;
+

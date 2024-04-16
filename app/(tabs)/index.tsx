@@ -24,7 +24,8 @@ export default function App() {
     const fetchQuestions = async () => {
       try {
         const response = await require('@/assets/quizzes/quiz 2/questions.json');
-        setQuestions(shuffleArray(response));
+        // setQuestions(shuffleArray(response));
+        setQuestions(response);
       } catch (error) {
         console.error('Error fetching questions:', error);
       }
@@ -40,8 +41,8 @@ export default function App() {
   };
 
   const handleConfirm = () => {
-    const correctAnswer = currentQuestion.correct_answer;
-    if (selectedAnswer === correctAnswer) {
+    const correctAnswers = currentQuestion.correct_answer_indices;
+    if (correctAnswers.includes(selectedAnswer)) {
       setIsAnswerCorrect(true);
     } else {
       setIsAnswerCorrect(false);
@@ -73,7 +74,7 @@ export default function App() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <Explanation
-          explanation={currentQuestion.explanation}
+          explanation={currentQuestion.explanation_html}
           setShowExplanation={setShowExplanation}
         />
       </SafeAreaView>
@@ -93,7 +94,7 @@ export default function App() {
           handleAnswer={handleAnswer}
           selectedAnswer={selectedAnswer}
           isAnswerCorrect={isAnswerCorrect}
-          correctChoice={currentQuestion.correct_answer}
+          correctChoices={currentQuestion.correct_answer_indices}
         />
 
         {showNext ?
