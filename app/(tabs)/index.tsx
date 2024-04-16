@@ -7,7 +7,7 @@ import { StyleSheet, View, Text, Button, TouchableOpacity, SafeAreaView } from '
 export default function App() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
   const [showNext, setShowNext] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -37,12 +37,20 @@ export default function App() {
   const currentQuestion = questions[currentQuestionIndex];
 
   const handleAnswer = (answer) => {
-    setSelectedAnswer(answer);
+    if (selectedAnswers.length < currentQuestion.correct_answer_indices.length || selectedAnswers.includes(answer)) {
+      setSelectedAnswers(prevAnswers => {
+        if (prevAnswers.includes(answer)) {
+          return prevAnswers.filter(a => a !== answer); // Deselect if already selected
+        } else {
+          return [...prevAnswers, answer]; // Add new answer
+        }
+      });
+    }
   };
 
   const handleConfirm = () => {
     const correctAnswers = currentQuestion.correct_answer_indices;
-    if (correctAnswers.includes(selectedAnswer)) {
+    if (correctAnswers.includes(selectedAnswers)) {
       setIsAnswerCorrect(true);
     } else {
       setIsAnswerCorrect(false);
@@ -53,7 +61,7 @@ export default function App() {
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer(null);
+      setSelectedAnswers([]);
       setIsAnswerCorrect(null);
       setShowNext(false);
     } else {
@@ -92,7 +100,7 @@ export default function App() {
           question={currentQuestion.question}
           choices={currentQuestion.choices}
           handleAnswer={handleAnswer}
-          selectedAnswer={selectedAnswer}
+          selectedAnswers={selectedAnswers}
           isAnswerCorrect={isAnswerCorrect}
           correctChoices={currentQuestion.correct_answer_indices}
         />
@@ -107,14 +115,14 @@ export default function App() {
             </TouchableOpacity>
             <TouchableOpacity
               className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-blue-800 justify-center items-center"
-              disabled={selectedAnswer === null}
+              disabled={selectedAnswers.length === 0}
               onPress={handleNext}
             >
               <Text className="text-white font-extrabold">Next -></Text>
             </TouchableOpacity>
           </View>
           :
-          <Button title="Confirm" onPress={handleConfirm} disabled={selectedAnswer === null} />
+          <Button title="Confirm" onPress={handleConfirm} disabled={selectedAnswers.length === 0} />
         }
       </View>
     </SafeAreaView>

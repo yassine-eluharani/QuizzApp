@@ -5,17 +5,16 @@ const QuestionAndAnswers = ({
   question,
   choices,
   handleAnswer,
-  selectedAnswer,
+  selectedAnswers,
   isAnswerCorrect,
   correctChoices,
 }) => {
   const cleanedQuestion = question.trim().replace(/\s+/g, ' ').replace(/\n+/g, '');
   const cleanedChoices = choices.map(choice => choice.trim().replace(/\s+/g, ' ').replace(/\n+/g, ''));
 
-  const getChoiceStyle = (choice, index) => {
-    if (choice === selectedAnswer) {
+  const getChoiceStyle = (index) => {
+    if (selectedAnswers.includes(index)) {
       if (isAnswerCorrect === null) {
-        console.log("is answer correct", correctChoices)
         return styles.selectedChoice;
       } else if (isAnswerCorrect === true || correctChoices.includes(index)) {
         return styles.correctChoice;
@@ -35,8 +34,8 @@ const QuestionAndAnswers = ({
           {cleanedChoices.map((choice, index) => (
             <TouchableOpacity
               key={index}
-              style={[styles.choiceContainer, getChoiceStyle(choice, index)]}
-              onPress={() => handleAnswer(choice)}
+              style={[styles.choiceContainer, getChoiceStyle(index)]}
+              onPress={() => handleAnswer(index)} // Pass index instead of choice
               disabled={isAnswerCorrect !== null}
             >
               <Text>{choice}</Text>
