@@ -3,8 +3,10 @@ import QuestionAndAnswers from '@/components/QuestionAndChoices';
 import TrackerBar from '@/components/TrackerBar';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Button, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useQuizContext } from '@/context/QuizContext';
 
 export default function App() {
+  const { selectedQuiz } = useQuizContext();
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
@@ -23,16 +25,28 @@ export default function App() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await require('@/assets/quizzes/quiz 2/questions.json');
-        // setQuestions(shuffleArray(response));
+        let filePath;
+        switch (selectedQuiz) {
+          case 'quiz 1':
+            filePath = require('@/assets/quizzes/quiz 1/questions.json');
+            break;
+          case 'quiz 2':
+            filePath = require('@/assets/quizzes/quiz 2/questions.json');
+            break;
+          // Add cases for other quizzes as needed
+          default:
+            throw new Error('Unknown quiz');
+        }
+        const response = await filePath;
         setQuestions(response);
+        // setQuestions(shuffleArray(response));
       } catch (error) {
         console.error('Error fetching questions:', error);
       }
     };
 
     fetchQuestions();
-  }, []);
+  }, [selectedQuiz]);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -92,6 +106,7 @@ export default function App() {
     <SafeAreaView className="flex-1 bg-white">
       <View style={styles.container}>
         <TrackerBar
+          selectedQuiz={selectedQuiz}
           currentQuestionIndex={currentQuestionIndex}
           totalQuestions={questions.length}
         />
