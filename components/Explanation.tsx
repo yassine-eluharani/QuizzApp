@@ -8,7 +8,11 @@ const Explanation = ({ explanation, setShowExplanation }) => {
   };
   return (
     <ScrollView>
-      <RenderHtml contentWidth={300} source={source} />
+      <RenderHtml
+        contentWidth={300}
+        source={source}
+        ignoredDomTags={["button"]}
+      />
       <TouchableOpacity
         className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-black justify-center items-center"
         onPress={() => setShowExplanation(false)}

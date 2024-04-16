@@ -33,13 +33,16 @@ export default function App() {
           case 'quiz 2':
             filePath = require('@/assets/quizzes/quiz 2/questions.json');
             break;
-          // Add cases for other quizzes as needed
           default:
             throw new Error('Unknown quiz');
         }
         const response = await filePath;
-        setQuestions(response);
-        // setQuestions(shuffleArray(response));
+        setQuestions(shuffleArray(response));
+        setCurrentQuestionIndex(0);
+        setSelectedAnswers([]);
+        setIsAnswerCorrect(null);
+        setShowNext(false);
+
       } catch (error) {
         console.error('Error fetching questions:', error);
       }
