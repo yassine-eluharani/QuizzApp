@@ -2,7 +2,7 @@ import Explanation from '@/components/Explanation';
 import QuestionAndAnswers from '@/components/QuestionAndChoices';
 import TrackerBar from '@/components/TrackerBar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Button, TouchableOpacity, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, Button, TouchableOpacity } from 'react-native';
 import { useQuizContext } from '@/context/QuizContext';
 
 export default function App() {
@@ -32,6 +32,21 @@ export default function App() {
             break;
           case 'quiz 2':
             filePath = require('@/assets/quizzes/quiz 2/questions.json');
+            break;
+          case 'quiz 3':
+            filePath = require('@/assets/quizzes/quiz 3/questions.json');
+            break;
+          case 'quiz 4':
+            filePath = require('@/assets/quizzes/quiz 4/questions.json');
+            break;
+          case 'quiz 5':
+            filePath = require('@/assets/quizzes/quiz 5/questions.json');
+            break;
+          case 'quiz 6':
+            filePath = require('@/assets/quizzes/quiz 6/questions.json');
+            break;
+          case 'quiz 7':
+            filePath = require('@/assets/quizzes/quiz 7/questions.json');
             break;
           default:
             throw new Error('Unknown quiz');
@@ -88,69 +103,71 @@ export default function App() {
 
   if (questions.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View style={styles.container}>
-          <Text>Loading...</Text>
-        </View>
-      </SafeAreaView>
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
     );
   }
   if (showExplanation) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <Explanation
-          explanation={currentQuestion.explanation_html}
-          setShowExplanation={setShowExplanation}
-        />
-      </SafeAreaView>
+      <Explanation
+        explanation={currentQuestion.explanation_html}
+        setShowExplanation={setShowExplanation}
+      />
     )
   }
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View style={styles.container}>
-        <TrackerBar
-          selectedQuiz={selectedQuiz}
-          currentQuestionIndex={currentQuestionIndex}
-          totalQuestions={questions.length}
-        />
+    <View style={styles.container}>
+      <TrackerBar
+        selectedQuiz={selectedQuiz}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+      />
 
-        <QuestionAndAnswers
-          question={currentQuestion.question}
-          choices={currentQuestion.choices}
-          handleAnswer={handleAnswer}
-          selectedAnswers={selectedAnswers}
-          isAnswerCorrect={isAnswerCorrect}
-          correctChoices={currentQuestion.correct_answer_indices}
-        />
+      <QuestionAndAnswers
+        question={currentQuestion.question}
+        choices={currentQuestion.choices}
+        handleAnswer={handleAnswer}
+        selectedAnswers={selectedAnswers}
+        isAnswerCorrect={isAnswerCorrect}
+        correctChoices={currentQuestion.correct_answer_indices}
+      />
 
-        {showNext ?
-          <View className="flex-row justify-between items-center w-full">
-            <TouchableOpacity
-              className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-green-600 justify-center items-center"
-              onPress={() => setShowExplanation(true)}
-            >
-              <Text className="text-white font-extrabold">Explanation</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-blue-800 justify-center items-center"
-              disabled={selectedAnswers.length === 0}
-              onPress={handleNext}
-            >
-              <Text className="text-white font-extrabold">Next -></Text>
-            </TouchableOpacity>
-          </View>
-          :
-          <Button title="Confirm" onPress={handleConfirm} disabled={selectedAnswers.length === 0} />
-        }
-      </View>
-    </SafeAreaView>
+      {showNext ?
+        <View className="flex-row justify-between items-center w-full">
+          <TouchableOpacity
+            className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-green-600 justify-center items-center"
+            onPress={() => setShowExplanation(true)}
+          >
+            <Text className="text-white font-extrabold">Explanation</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="border-2 border-black px-2 py-4 m-2 rounded-xl bg-blue-800 justify-center items-center"
+            disabled={selectedAnswers.length === 0}
+            onPress={handleNext}
+          >
+            <Text className="text-white font-extrabold">Next -></Text>
+          </TouchableOpacity>
+        </View>
+        :
+        <>
+          <TouchableOpacity
+            onPress={handleConfirm}
+            disabled={selectedAnswers.length === 0}
+            className={`p-3 mb-4 ${selectedAnswers.length === 0 ? 'bg-gray-300' : 'bg-[#3768b8]'} rounded`}
+          >
+            <Text className="text-white font-bold"> Confirm</Text>
+          </TouchableOpacity>
+        </>
+
+      }
+    </View >
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   }

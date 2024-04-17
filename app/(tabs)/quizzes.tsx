@@ -9,7 +9,11 @@ const QuizPage = () => {
   const quizzes = [
     { name: 'Quiz 1', value: 'quiz 1' },
     { name: 'Quiz 2', value: 'quiz 2' },
-    // Add more quizzes here as needed
+    { name: 'Quiz 3', value: 'quiz 3' },
+    { name: 'Quiz 4', value: 'quiz 4' },
+    { name: 'Quiz 5', value: 'quiz 5' },
+    { name: 'Quiz 6', value: 'quiz 6' },
+    { name: 'Quiz 7', value: 'quiz 7' },
   ];
 
   const handleSelectQuiz = (quizName) => {

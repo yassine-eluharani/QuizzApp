@@ -15,7 +15,7 @@ const TrackerBar = ({ currentQuestionIndex, totalQuestions, selectedQuiz }) => {
         progress={progress}
         width={null}
         color="#3768b8"
-        unfilledColor="#f0f0f0"
+        unfilledColor="#D3D3D3"
         borderWidth={0}
         borderRadius={0}
         height={10}
