@@ -1,33 +1,67 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { QuizProvider } from '@/context/QuizContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '@/constants/Colors';
+import { View } from 'react-native';
 
 export default function TabLayout() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <QuizProvider>
-        <Tabs screenOptions={{ tabBarActiveTintColor: '#3768b8' }}>
-          <Tabs.Screen name="index" options={{
-            headerShown: false,
-            tabBarLabel: 'Home',
-            tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-          }} />
-          <Tabs.Screen name="quizzes" options={{
-            headerShown: false,
-            tabBarLabel: 'Quizzes',
-            tabBarIcon: ({ color, size }) => <Ionicons name="list" size={size} color={color} />, // Assuming you have an appropriate icon for quizzes
-          }} />
-
-          <Tabs.Screen name="passTests" options={{
-            headerShown: false,
-            tabBarLabel: 'History',
-            tabBarIcon: ({ color, size }) => <Ionicons name="refresh-outline" size={size} color={color} />,
-          }} />
-        </Tabs>
-      </QuizProvider>
-    </SafeAreaView>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: Colors.tabBarActive,
+          tabBarInactiveTintColor: Colors.tabBarInactive,
+          tabBarStyle: {
+            backgroundColor: Colors.tabBar,
+            borderTopColor: Colors.tabBarBorder,
+            borderTopWidth: 1,
+            paddingBottom: 4,
+            height: 88,
+          },
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            tabBarLabel: 'Browse',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="grid" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="study"
+          options={{
+            tabBarLabel: 'Study',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="bookmark" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="stats"
+          options={{
+            tabBarLabel: 'Stats',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="stats-chart" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </View>
   );
 }
-

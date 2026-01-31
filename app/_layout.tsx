@@ -1,21 +1,21 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import * as NativeSplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { AppProvider, useAppContext } from '@/context/AppContext';
+import { Colors } from '@/constants/Colors';
+import { SplashScreen } from '@/components/ui/SplashScreen';
+import { OnboardingScreen } from '@/components/ui/OnboardingScreen';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+NativeSplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -23,14 +23,13 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      NativeSplashScreen.hideAsync();
     }
   }, [loaded]);
 
@@ -38,15 +37,55 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />
-    ;
+  return (
+    <AppProvider>
+      <StatusBar style="light" />
+      <RootNavigator />
+    </AppProvider>
+  );
 }
 
-function RootLayoutNav() {
+function RootNavigator() {
+  const { isLoaded, hasCompletedOnboarding, completeOnboarding } = useAppContext();
+
+  if (!isLoaded) {
+    return <SplashScreen />;
+  }
+
+  if (!hasCompletedOnboarding) {
+    return <OnboardingScreen onComplete={completeOnboarding} />;
+  }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false, headerTitle: '' }} />
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: Colors.background },
+        headerTintColor: Colors.textPrimary,
+        headerShadowVisible: false,
+        contentStyle: { backgroundColor: Colors.background },
+      }}
+    >
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="platform/[platformId]"
+        options={{ title: '', headerBackTitle: 'Browse' }}
+      />
+      <Stack.Screen
+        name="certification/[certId]"
+        options={{ title: '', headerBackTitle: 'Back' }}
+      />
+      <Stack.Screen
+        name="quiz/[quizId]"
+        options={{ headerShown: false, presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen
+        name="exam/[certId]"
+        options={{ headerShown: false, presentation: 'fullScreenModal' }}
+      />
+      <Stack.Screen
+        name="review/[attemptId]"
+        options={{ title: 'Review', headerBackTitle: 'Back' }}
+      />
     </Stack>
   );
 }

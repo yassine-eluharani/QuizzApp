@@ -1,0 +1,67 @@
+[
+  {
+    "id": "devops-cka-q1",
+    "question_number": "1",
+    "question": "A developer needs to deploy an application that consists of three replicas of a web server container. The deployment must ensure that if a pod fails, it is automatically replaced. Which Kubernetes resource should be used?",
+    "choices": [
+      "A Pod manifest with restartPolicy: Always",
+      "A ReplicaSet with replicas set to 3",
+      "A Deployment with replicas set to 3",
+      "Three individual Pod manifests"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<div><p><strong>Correct answer: A Deployment with replicas set to 3</strong></p><p>A Deployment is the recommended way to manage stateless applications in Kubernetes. It creates and manages a ReplicaSet, which in turn ensures the specified number of pod replicas are running at all times. If a pod fails, the ReplicaSet controller creates a replacement. Deployments also provide rolling updates, rollbacks, and scaling capabilities. A bare Pod with restartPolicy: Always only restarts the container within the same pod on the same node; it does not recreate the pod if the node fails. A standalone ReplicaSet works but does not support rolling updates. Individual Pod manifests provide no self-healing or scaling capabilities.</p></div>"
+  },
+  {
+    "id": "devops-cka-q2",
+    "question_number": "2",
+    "question": "An application running in a Kubernetes cluster needs to be accessible from outside the cluster on a specific port on each node. The cluster does not have a cloud load balancer. Which Service type should be used?",
+    "choices": [
+      "ClusterIP",
+      "NodePort",
+      "LoadBalancer",
+      "ExternalName"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: NodePort</strong></p><p>A NodePort Service exposes the application on a static port (in the range 30000-32767 by default) on every node in the cluster. External traffic can reach the application by connecting to any node's IP address on the allocated port. ClusterIP is the default Service type and only exposes the service internally within the cluster. LoadBalancer requires a cloud provider's load balancer integration, which is not available in this scenario. ExternalName maps a Service to an external DNS name and does not expose internal applications externally. NodePort is the simplest way to expose a service externally without a cloud load balancer.</p></div>"
+  },
+  {
+    "id": "devops-cka-q3",
+    "question_number": "3",
+    "question": "A cluster administrator needs to ensure that pods for a specific application can only be deployed in the 'production' namespace and that developers cannot create resources in other namespaces. Which Kubernetes mechanism should be used?",
+    "choices": [
+      "Pod Security Standards applied to the namespace",
+      "RBAC RoleBindings that grant developers permissions only in the 'production' namespace",
+      "Network Policies that restrict traffic to the 'production' namespace",
+      "Resource Quotas on all other namespaces set to zero"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: RBAC RoleBindings that grant developers permissions only in the 'production' namespace</strong></p><p>Kubernetes Role-Based Access Control (RBAC) allows administrators to define who can perform what actions on which resources. By creating a Role in the 'production' namespace with the necessary permissions (create, get, list pods, deployments, etc.) and binding it to the developer group via a RoleBinding, developers can only create resources in that namespace. Without roles or bindings in other namespaces, they have no permissions elsewhere. Pod Security Standards control security contexts, not namespace access. Network Policies control network traffic, not resource creation. Setting Resource Quotas to zero would prevent resource creation but is a workaround, not the proper access control mechanism.</p></div>"
+  },
+  {
+    "id": "devops-cka-q4",
+    "question_number": "4",
+    "question": "A team is deploying a multi-container pod where one container serves the web application and another container collects and forwards logs. How should these containers be defined?",
+    "choices": [
+      "As two separate Deployments with a shared PersistentVolume",
+      "As two containers in the same Pod spec sharing an emptyDir volume",
+      "As an init container and a main container in the same Pod",
+      "As two pods in the same ReplicaSet"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: As two containers in the same Pod spec sharing an emptyDir volume</strong></p><p>The sidecar pattern involves running a helper container alongside the main application container in the same Pod. Both containers share the pod's network namespace and can share storage volumes. An emptyDir volume is ideal for this case: the web application writes logs to the shared volume, and the sidecar container reads and forwards them. This is a classic sidecar pattern in Kubernetes. Separate Deployments would not co-locate the containers on the same node or share the same network namespace. An init container runs to completion before the main container starts, which is not appropriate for a continuously running log collector. A ReplicaSet manages identical pods, not multi-container pods.</p></div>"
+  },
+  {
+    "id": "devops-cka-q5",
+    "question_number": "5",
+    "question": "A Kubernetes administrator needs to limit the total CPU and memory that can be consumed by all pods in a namespace called 'dev'. What should the administrator create?",
+    "choices": [
+      "A LimitRange in the 'dev' namespace",
+      "A ResourceQuota in the 'dev' namespace",
+      "A PodDisruptionBudget in the 'dev' namespace",
+      "A HorizontalPodAutoscaler targeting the namespace"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: A ResourceQuota in the 'dev' namespace</strong></p><p>A ResourceQuota sets aggregate resource consumption limits for a namespace. It can limit the total amount of CPU, memory, storage, and the number of objects (pods, services, etc.) that can be created in the namespace. When a ResourceQuota is in place, pods must specify resource requests and limits, and the total cannot exceed the quota. A LimitRange sets default and maximum resource constraints for individual pods or containers, not the total namespace consumption. A PodDisruptionBudget specifies the minimum number of pods that must remain available during disruptions. A HorizontalPodAutoscaler scales individual deployments based on metrics, not namespace-wide resource limits.</p></div>"
+  }
+]

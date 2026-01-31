@@ -1,0 +1,67 @@
+[
+  {
+    "id": "gcp-ace-q1",
+    "question_number": "1",
+    "question": "A developer needs to create a Compute Engine instance that automatically shuts down during non-business hours to reduce costs. The instance runs a non-critical development workload. Which approach is MOST cost-effective?",
+    "choices": [
+      "Use a preemptible VM instance",
+      "Create a Cloud Scheduler job that triggers a Cloud Function to start and stop the instance on a schedule",
+      "Use a committed use discount for the instance",
+      "Create a managed instance group with autoscaling set to zero minimum instances"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: Create a Cloud Scheduler job that triggers a Cloud Function to start and stop the instance on a schedule</strong></p><p>Cloud Scheduler can trigger a Cloud Function on a cron schedule to start the instance in the morning and stop it in the evening, ensuring you only pay for compute during business hours. Preemptible VMs are cost-effective but can be terminated by Google at any time with only 30 seconds notice, which may not be suitable even for development. Committed use discounts require a 1 or 3-year commitment and assume continuous usage. A managed instance group with zero minimum instances would recreate the instance each time, losing any local state.</p></div>"
+  },
+  {
+    "id": "gcp-ace-q2",
+    "question_number": "2",
+    "question": "A company needs to store 50 TB of log files that will be accessed less than once a year but must be retrievable within 24 hours when needed. Which Cloud Storage class should be used to minimize costs?",
+    "choices": [
+      "Standard storage class",
+      "Nearline storage class",
+      "Coldline storage class",
+      "Archive storage class"
+    ],
+    "correct_answer_indices": [3],
+    "explanation_html": "<div><p><strong>Correct answer: Archive storage class</strong></p><p>Archive storage is the lowest-cost storage option in Google Cloud Storage, designed for data that is accessed less than once a year. It has a minimum storage duration of 365 days and higher retrieval costs, but the storage cost is significantly lower than other classes. Data is still accessible within milliseconds (same as other classes), well within the 24-hour requirement. Standard storage is for frequently accessed data. Nearline is for data accessed less than once a month. Coldline is for data accessed less than once a quarter. Since the data is accessed less than once a year, Archive is the most cost-effective choice.</p></div>"
+  },
+  {
+    "id": "gcp-ace-q3",
+    "question_number": "3",
+    "question": "An organization wants to grant a contractor read-only access to a specific Cloud Storage bucket without giving access to any other resources in the project. Which IAM approach should be used?",
+    "choices": [
+      "Grant the contractor the roles/viewer role at the project level",
+      "Grant the contractor the roles/storage.objectViewer role on the specific bucket",
+      "Create a custom role with storage.buckets.list permission and assign it at the project level",
+      "Share the bucket using a signed URL that expires in 30 days"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: Grant the contractor the roles/storage.objectViewer role on the specific bucket</strong></p><p>The roles/storage.objectViewer predefined role grants read-only access to objects in Cloud Storage. By assigning this role at the bucket level (rather than the project level), the contractor can only access objects in that specific bucket and nothing else in the project. This follows the principle of least privilege. The roles/viewer role at the project level would grant read access to all resources in the project. A custom role with buckets.list would allow listing all buckets but not reading objects. Signed URLs are temporary and would need to be regenerated, making them impractical for ongoing access.</p></div>"
+  },
+  {
+    "id": "gcp-ace-q4",
+    "question_number": "4",
+    "question": "A company needs to allow communication between two VPC networks in different projects within the same organization. The IP address ranges do not overlap. Which networking feature should be configured?",
+    "choices": [
+      "Shared VPC",
+      "VPC Network Peering",
+      "Cloud VPN tunnel between the two VPCs",
+      "Cloud Interconnect"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: VPC Network Peering</strong></p><p>VPC Network Peering allows two VPC networks to connect so that resources in each network can communicate using internal IP addresses. It works across different projects and even different organizations. The peered networks remain administratively separate while enabling connectivity. Traffic stays within Google's network and does not traverse the public internet. Shared VPC allows resources in different projects to use a common VPC network, which is different from connecting two existing VPCs. Cloud VPN encrypts traffic over the internet and adds unnecessary latency and cost for intra-Google connectivity. Cloud Interconnect is for connecting on-premises networks to Google Cloud.</p></div>"
+  },
+  {
+    "id": "gcp-ace-q5",
+    "question_number": "5",
+    "question": "A developer needs to automate the deployment of Google Cloud resources from a local machine. They want to authenticate, set the project, and configure a default region. Which sequence of gcloud commands should they run?",
+    "choices": [
+      "gcloud init → gcloud auth login → gcloud config set project → gcloud config set compute/region",
+      "gcloud auth login → gcloud config set project PROJECT_ID → gcloud config set compute/region REGION",
+      "gcloud auth activate-service-account → gcloud config set project → gcloud config set compute/zone",
+      "gcloud components install → gcloud auth login → gcloud config set project"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: gcloud auth login → gcloud config set project PROJECT_ID → gcloud config set compute/region REGION</strong></p><p>The correct sequence for setting up gcloud on a local machine is: first authenticate with 'gcloud auth login' which opens a browser for OAuth authentication, then set the default project with 'gcloud config set project PROJECT_ID', and finally configure the default region with 'gcloud config set compute/region REGION'. While 'gcloud init' is an interactive wizard that combines these steps, the question asks for individual commands. Service account activation is for non-interactive environments like CI/CD pipelines, not local development. 'gcloud components install' is for adding SDK components, not for initial configuration.</p></div>"
+  }
+]

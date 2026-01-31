@@ -1,0 +1,67 @@
+[
+  {
+    "id": "aws-dva-q1",
+    "question_number": "1",
+    "question": "A developer is building a serverless application using AWS Lambda. The function needs to process messages from an Amazon SQS queue. The function occasionally fails due to downstream service timeouts. What should the developer configure to prevent the same message from being processed repeatedly while still ensuring no messages are lost?",
+    "choices": [
+      "Increase the visibility timeout of the SQS queue to be greater than the Lambda function timeout",
+      "Enable long polling on the SQS queue",
+      "Set the Lambda function concurrency to 1",
+      "Configure the SQS queue as a FIFO queue"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<div><p><strong>Correct answer: Increase the visibility timeout of the SQS queue to be greater than the Lambda function timeout</strong></p><p>When a Lambda function reads a message from an SQS queue, the message becomes invisible to other consumers for the duration of the visibility timeout. If the Lambda function takes longer than the visibility timeout to process the message, the message becomes visible again and can be processed by another invocation, resulting in duplicate processing. Setting the visibility timeout to at least 6 times the Lambda function timeout is the recommended best practice. Long polling helps reduce costs but does not address duplicate processing. Setting concurrency to 1 would create a bottleneck. Using a FIFO queue changes ordering guarantees but does not address the timeout issue.</p></div>"
+  },
+  {
+    "id": "aws-dva-q2",
+    "question_number": "2",
+    "question": "A developer needs to store session data for a web application. The data must be accessible with single-digit millisecond latency, and the application needs to handle unpredictable traffic spikes. Which DynamoDB capacity mode should the developer choose?",
+    "choices": [
+      "Provisioned capacity mode with Auto Scaling enabled",
+      "On-demand capacity mode",
+      "Provisioned capacity mode with reserved capacity",
+      "Global tables with provisioned capacity"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: On-demand capacity mode</strong></p><p>DynamoDB on-demand capacity mode is ideal for applications with unpredictable traffic patterns. It automatically scales to accommodate workload demands and you pay per request. While provisioned capacity with Auto Scaling can also handle variable traffic, it requires time to scale up and may throttle requests during sudden spikes. On-demand mode handles spikes instantly without any capacity planning. Reserved capacity is for stable, predictable workloads. Global tables address multi-region replication, not traffic spikes.</p></div>"
+  },
+  {
+    "id": "aws-dva-q3",
+    "question_number": "3",
+    "question": "A company exposes a REST API through Amazon API Gateway. The API is backed by AWS Lambda functions. The company wants to limit the number of requests from individual clients to prevent abuse. Which API Gateway feature should be used?",
+    "choices": [
+      "API Gateway resource policies",
+      "API Gateway usage plans with API keys",
+      "AWS WAF integration with API Gateway",
+      "Lambda authorizers"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: API Gateway usage plans with API keys</strong></p><p>Usage plans in API Gateway allow you to define throttle limits and quota limits for individual API keys. By creating a usage plan and associating API keys with it, you can control how many requests each client (identified by their API key) can make within a given time period. Resource policies control access at the API level, not per-client throttling. AWS WAF can provide rate-based rules but is not the primary mechanism for per-client usage control. Lambda authorizers handle authentication and authorization, not rate limiting.</p></div>"
+  },
+  {
+    "id": "aws-dva-q4",
+    "question_number": "4",
+    "question": "A development team is using AWS CodeDeploy to deploy an application to Amazon EC2 instances. They want to ensure that if the new deployment fails, the application automatically rolls back to the last known good version. Which CodeDeploy configuration achieves this?",
+    "choices": [
+      "Configure a CloudWatch alarm and enable automatic rollback on alarm threshold breach",
+      "Enable automatic rollback for deployment failures in the deployment group settings",
+      "Use an in-place deployment with a custom rollback script in the AppSpec file",
+      "Set the minimum healthy hosts to 100% in the deployment configuration"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: Enable automatic rollback for deployment failures in the deployment group settings</strong></p><p>AWS CodeDeploy supports automatic rollback when a deployment fails or when a CloudWatch alarm threshold is met. By enabling the automatic rollback option for deployment failures in the deployment group configuration, CodeDeploy will automatically redeploy the last known good revision if the current deployment fails. While CloudWatch alarms can also trigger rollbacks, they are for monitoring-based rollbacks, not direct failure rollbacks. Custom rollback scripts add unnecessary complexity. Setting minimum healthy hosts to 100% would cause deployments to fail if even one instance is unhealthy but does not configure rollback behavior.</p></div>"
+  },
+  {
+    "id": "aws-dva-q5",
+    "question_number": "5",
+    "question": "A developer is troubleshooting performance issues in a microservices application running on AWS. The application uses Lambda functions, DynamoDB, and SQS. The developer needs to identify which service is causing latency. Which AWS service provides end-to-end tracing across these services?",
+    "choices": [
+      "Amazon CloudWatch Logs Insights",
+      "AWS CloudTrail",
+      "AWS X-Ray",
+      "Amazon CloudWatch Metrics"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<div><p><strong>Correct answer: AWS X-Ray</strong></p><p>AWS X-Ray is designed for analyzing and debugging distributed applications. It provides end-to-end tracing of requests as they travel through your application, creating a service map that shows the relationships between services and the latency at each step. X-Ray integrates natively with Lambda, DynamoDB, SQS, and many other AWS services. CloudWatch Logs Insights is useful for querying log data but does not provide distributed tracing. CloudTrail records API calls for auditing, not application performance tracing. CloudWatch Metrics provides service-level metrics but not request-level tracing across services.</p></div>"
+  }
+]

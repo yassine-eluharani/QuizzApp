@@ -1,0 +1,67 @@
+[
+  {
+    "id": "azure-az900-q1",
+    "question_number": "1",
+    "question": "A company wants to deploy resources in Azure and ensure that the resources are physically close to users in both Europe and North America. What should the company use to achieve this?",
+    "choices": [
+      "Azure Availability Zones within a single region",
+      "Azure regions in Europe and North America",
+      "A single Azure region with geo-redundant storage",
+      "Azure Resource Manager templates deployed to one region"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: Azure regions in Europe and North America</strong></p><p>Azure regions are geographical areas containing one or more data centers. By deploying resources to regions in both Europe and North America, the company ensures low latency for users in both locations. Availability Zones provide redundancy within a single region, not across geographies. Geo-redundant storage replicates data to a secondary region for disaster recovery but does not deploy compute resources closer to users. Deploying to a single region would not address the proximity requirement for users in both continents.</p></div>"
+  },
+  {
+    "id": "azure-az900-q2",
+    "question_number": "2",
+    "question": "An administrator needs to organize Azure resources for different departments (HR, Finance, Engineering) so that each department can manage its own resources independently and have separate billing. What is the recommended approach?",
+    "choices": [
+      "Create a separate resource group for each department within one subscription",
+      "Create a separate Azure subscription for each department",
+      "Create separate management groups for each department",
+      "Use tags to label resources by department within a single resource group"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: Create a separate Azure subscription for each department</strong></p><p>Azure subscriptions serve as a billing boundary and an access control boundary. By creating separate subscriptions for each department, each department gets its own billing statement, can manage its own resources independently, and access control can be applied at the subscription level. Resource groups organize resources but do not provide separate billing. Management groups are used to manage policies and access across multiple subscriptions, not for departmental separation. Tags help categorize resources for cost tracking but do not provide separate billing or independent resource management.</p></div>"
+  },
+  {
+    "id": "azure-az900-q3",
+    "question_number": "3",
+    "question": "Which cloud service model requires the customer to manage the operating system, runtime, and application while the cloud provider manages the underlying hardware and virtualization?",
+    "choices": [
+      "Software as a Service (SaaS)",
+      "Platform as a Service (PaaS)",
+      "Infrastructure as a Service (IaaS)",
+      "Function as a Service (FaaS)"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<div><p><strong>Correct answer: Infrastructure as a Service (IaaS)</strong></p><p>In the IaaS model, the cloud provider manages the physical hardware, networking, and virtualization layer. The customer is responsible for the operating system, middleware, runtime, and applications. Examples include Azure Virtual Machines. In PaaS, the provider also manages the OS and runtime (e.g., Azure App Service). In SaaS, the provider manages everything and the customer only uses the application (e.g., Microsoft 365). FaaS (e.g., Azure Functions) is a subset of PaaS where the provider manages everything except the function code.</p></div>"
+  },
+  {
+    "id": "azure-az900-q4",
+    "question_number": "4",
+    "question": "A resource group in Azure is being deleted. What happens to the resources contained within that resource group?",
+    "choices": [
+      "The resources are moved to the default resource group",
+      "The resources are preserved but become unmanaged",
+      "All resources within the resource group are also deleted",
+      "The deletion fails if the resource group contains any resources"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<div><p><strong>Correct answer: All resources within the resource group are also deleted</strong></p><p>In Azure, a resource group is a logical container for resources. When you delete a resource group, all the resources contained within it are also deleted. This is by design and is one of the key behaviors to understand about resource groups. Resources are not moved to another group or preserved in an unmanaged state. The deletion does not fail due to existing resources; it cascades to all contained resources. This makes resource groups useful for managing the lifecycle of related resources together.</p></div>"
+  },
+  {
+    "id": "azure-az900-q5",
+    "question_number": "5",
+    "question": "A company wants to implement single sign-on (SSO) for its cloud and on-premises applications, and enforce multi-factor authentication for all users. Which Azure service should they use?",
+    "choices": [
+      "Azure Key Vault",
+      "Azure Active Directory (Microsoft Entra ID)",
+      "Azure Policy",
+      "Azure Information Protection"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<div><p><strong>Correct answer: Azure Active Directory (Microsoft Entra ID)</strong></p><p>Azure Active Directory (now Microsoft Entra ID) is Microsoft's cloud-based identity and access management service. It provides single sign-on (SSO) for thousands of SaaS applications and on-premises applications, multi-factor authentication (MFA), conditional access policies, and identity protection. Azure Key Vault is for managing secrets, keys, and certificates. Azure Policy enforces organizational standards on resources. Azure Information Protection is for classifying and protecting documents and emails.</p></div>"
+  }
+]
