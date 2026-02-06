@@ -3,6 +3,10 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "REVENUECAT_APPLE_API_KEY": "",
+        "REVENUECAT_GOOGLE_API_KEY": ""
       }
     },
     "preview2": {
@@ -13,6 +17,14 @@
     "preview3": {
       "developmentClient": true
     },
-    "production": {}
+    "production": {
+      "android": {
+        "enableProguardInReleaseBuilds": true
+      },
+      "env": {
+        "REVENUECAT_APPLE_API_KEY": "",
+        "REVENUECAT_GOOGLE_API_KEY": ""
+      }
+    }
   }
 }

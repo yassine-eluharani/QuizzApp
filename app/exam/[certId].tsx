@@ -9,6 +9,8 @@ import ScoreSummary from '@/components/quiz/ScoreSummary';
 import Button from '@/components/ui/Button';
 import { useExamSession } from '@/hooks/useExamSession';
 import { useAppContext } from '@/context/AppContext';
+import { usePurchase } from '@/context/PurchaseContext';
+import { isExamAccessible } from '@/lib/entitlements';
 import { getCertification } from '@/assets/data/catalog';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
@@ -19,9 +21,17 @@ export default function ExamScreen() {
   const { certId } = useLocalSearchParams<{ certId: string }>();
   const router = useRouter();
   const { isBookmarked, toggleBookmark } = useAppContext();
+  const { isPro, showPaywall } = usePurchase();
   const certResult = getCertification(certId);
 
-  const session = useExamSession(certId);
+  useEffect(() => {
+    if (!isExamAccessible(isPro)) {
+      showPaywall();
+      router.back();
+    }
+  }, [isPro]);
+
+  const session = useExamSession(certId, isPro);
   const [showExplanation, setShowExplanation] = useState(false);
   const [completedAttempt, setCompletedAttempt] = useState<QuizAttempt | null>(null);
 
@@ -98,7 +108,7 @@ export default function ExamScreen() {
             certId,
             quizId: `${certId}-exam`,
             dateAdded: new Date().toISOString(),
-          })
+          }, isPro, showPaywall)
         }
         isBookmarked={isBookmarked(questionId)}
       />

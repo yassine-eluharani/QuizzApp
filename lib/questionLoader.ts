@@ -1,4 +1,5 @@
 import { Question } from '@/types/quiz';
+import { isQuizAccessible, FREE_QUIZZES } from '@/lib/entitlements';
 
 const questionFiles: Record<string, Question[]> = {
   // AWS Solutions Architect
@@ -29,13 +30,14 @@ const questionFiles: Record<string, Question[]> = {
   'devops-docker-quiz-1': require('@/assets/data/questions/devops/docker-dca/quiz-1.json'),
 };
 
-export function loadQuizQuestions(quizId: string): Question[] {
+export function loadQuizQuestions(quizId: string, isPro: boolean = true): Question[] {
+  if (!isQuizAccessible(quizId, isPro)) return [];
   return questionFiles[quizId] ?? [];
 }
 
-export function loadCertQuestions(certId: string): Question[] {
+export function loadCertQuestions(certId: string, isPro: boolean = true): Question[] {
   return Object.entries(questionFiles)
-    .filter(([key]) => key.startsWith(certId))
+    .filter(([key]) => key.startsWith(certId) && isQuizAccessible(key, isPro))
     .flatMap(([, questions]) => questions);
 }
 

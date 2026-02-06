@@ -28,7 +28,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
@@ -39,7 +40,9 @@
       },
       "eas": {
         "projectId": "054e69a7-e155-4633-9c2f-2738fefe0283"
-      }
+      },
+      "revenueCatAppleApiKey": "",
+      "revenueCatGoogleApiKey": ""
     }
   }
 }

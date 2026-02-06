@@ -16,13 +16,13 @@ interface QuizSessionState {
   answers: AnswerRecord[];
 }
 
-export function useQuizSession(quizId: string) {
+export function useQuizSession(quizId: string, isPro: boolean = false) {
   const { addAttempt, recordStudySession } = useAppContext();
   const meta = getQuizMeta(quizId);
   const startTime = useRef(Date.now());
 
   const [state, setState] = useState<QuizSessionState>(() => {
-    const raw = loadQuizQuestions(quizId);
+    const raw = loadQuizQuestions(quizId, isPro);
     const questions = shuffleArray(raw);
     startTime.current = Date.now();
     return {

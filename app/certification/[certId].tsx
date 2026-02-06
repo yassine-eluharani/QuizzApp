@@ -6,17 +6,20 @@ import QuizListItem from '@/components/browse/QuizListItem';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
+import ProBadge from '@/components/paywall/ProBadge';
 import { getCertification } from '@/assets/data/catalog';
 import { useAppContext } from '@/context/AppContext';
+import { usePurchase } from '@/context/PurchaseContext';
+import { isQuizAccessible, isExamAccessible } from '@/lib/entitlements';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
 import { Ionicons } from '@expo/vector-icons';
-import { formatTime } from '@/lib/utils';
 
 export default function CertificationScreen() {
   const { certId } = useLocalSearchParams<{ certId: string }>();
   const router = useRouter();
   const { getBestScore, getAttemptsForCert } = useAppContext();
+  const { isPro, showPaywall } = usePurchase();
   const result = getCertification(certId);
 
   if (!result) {
@@ -29,6 +32,7 @@ export default function CertificationScreen() {
 
   const { certification: cert, platform } = result;
   const attempts = getAttemptsForCert(cert.id);
+  const examLocked = !isExamAccessible(isPro);
 
   return (
     <>
@@ -58,18 +62,25 @@ export default function CertificationScreen() {
         {/* Practice Exam */}
         <Card style={styles.examCard}>
           <View style={styles.examHeader}>
-            <Ionicons name="school" size={24} color={platform.color} />
+            <Ionicons name="school" size={24} color={examLocked ? Colors.textMuted : platform.color} />
             <ThemedText variant="title" style={styles.examTitle}>
               Practice Exam
             </ThemedText>
+            {examLocked && <ProBadge />}
           </View>
           <ThemedText variant="body" style={styles.examDesc}>
             Simulate real exam conditions with {cert.totalExamQuestions} random questions and a {cert.examDuration}-minute timer.
           </ThemedText>
           <Button
-            title="Start Practice Exam"
-            onPress={() => router.push(`/exam/${cert.id}` as Href)}
-            color={platform.color}
+            title={examLocked ? 'Unlock with Pro' : 'Start Practice Exam'}
+            onPress={() => {
+              if (examLocked) {
+                showPaywall();
+              } else {
+                router.push(`/exam/${cert.id}` as Href);
+              }
+            }}
+            color={examLocked ? Colors.primary : platform.color}
             style={styles.examButton}
           />
         </Card>
@@ -79,15 +90,25 @@ export default function CertificationScreen() {
           Quizzes
         </ThemedText>
 
-        {cert.quizzes.map(quiz => (
-          <QuizListItem
-            key={quiz.id}
-            quiz={quiz}
-            platformColor={platform.color}
-            bestScore={getBestScore(quiz.id)}
-            onPress={() => router.push(`/quiz/${quiz.id}` as Href)}
-          />
-        ))}
+        {cert.quizzes.map(quiz => {
+          const locked = !isQuizAccessible(quiz.id, isPro);
+          return (
+            <QuizListItem
+              key={quiz.id}
+              quiz={quiz}
+              platformColor={platform.color}
+              bestScore={locked ? null : getBestScore(quiz.id)}
+              isLocked={locked}
+              onPress={() => {
+                if (locked) {
+                  showPaywall();
+                } else {
+                  router.push(`/quiz/${quiz.id}` as Href);
+                }
+              }}
+            />
+          );
+        })}
 
         {/* Recent Attempts */}
         {attempts.length > 0 && (
@@ -163,9 +184,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: Theme.spacing.sm,
+    gap: Theme.spacing.sm,
   },
   examTitle: {
-    marginLeft: Theme.spacing.sm,
+    flex: 1,
   },
   examDesc: {
     marginBottom: Theme.spacing.md,

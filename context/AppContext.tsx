@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { QuizAttempt, BookmarkMeta, StreakData } from '@/types/quiz';
 import * as Storage from '@/lib/storage';
+import { canAddBookmark, FREE_BOOKMARK_LIMIT } from '@/lib/entitlements';
 
 interface AppState {
   history: QuizAttempt[];
@@ -13,7 +15,7 @@ interface AppState {
 
 interface AppContextType extends AppState {
   addAttempt: (attempt: QuizAttempt) => Promise<void>;
-  toggleBookmark: (questionId: string, meta?: BookmarkMeta) => Promise<void>;
+  toggleBookmark: (questionId: string, meta?: BookmarkMeta, isPro?: boolean, onLimitReached?: () => void) => Promise<void>;
   isBookmarked: (questionId: string) => boolean;
   recordStudySession: () => Promise<void>;
   getBestScore: (quizId: string) => number | null;
@@ -51,14 +53,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({ ...prev, history }));
   }, []);
 
-  const toggleBookmark = useCallback(async (questionId: string, meta?: BookmarkMeta) => {
+  const toggleBookmark = useCallback(async (questionId: string, meta?: BookmarkMeta, isPro: boolean = true, onLimitReached?: () => void) => {
+    const isCurrentlyBookmarked = state.bookmarks.includes(questionId);
+    if (!isCurrentlyBookmarked && !canAddBookmark(state.bookmarks.length, isPro)) {
+      if (onLimitReached) {
+        onLimitReached();
+      } else {
+        Alert.alert('Bookmark Limit', `Free users can save up to ${FREE_BOOKMARK_LIMIT} bookmarks. Upgrade to Pro for unlimited bookmarks.`);
+      }
+      return;
+    }
     const result = await Storage.toggleBookmark(questionId, meta);
     setState(prev => ({
       ...prev,
       bookmarks: result.bookmarks,
       bookmarksMeta: result.bookmarksMeta,
     }));
-  }, []);
+  }, [state.bookmarks]);
 
   const isBookmarked = useCallback((questionId: string) => {
     return state.bookmarks.includes(questionId);

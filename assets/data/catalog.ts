@@ -17,13 +17,13 @@ export const platforms: Platform[] = [
         passingScore: 72,
         totalExamQuestions: 65,
         quizzes: [
-          { id: 'aws-saa-quiz-1', name: 'Quiz 1', certificationId: 'aws-saa', questionCount: 65 },
-          { id: 'aws-saa-quiz-2', name: 'Quiz 2', certificationId: 'aws-saa', questionCount: 65 },
-          { id: 'aws-saa-quiz-3', name: 'Quiz 3', certificationId: 'aws-saa', questionCount: 65 },
-          { id: 'aws-saa-quiz-4', name: 'Quiz 4', certificationId: 'aws-saa', questionCount: 65 },
-          { id: 'aws-saa-quiz-5', name: 'Quiz 5', certificationId: 'aws-saa', questionCount: 65 },
-          { id: 'aws-saa-quiz-6', name: 'Quiz 6', certificationId: 'aws-saa', questionCount: 65 },
-          { id: 'aws-saa-quiz-7', name: 'Quiz 7', certificationId: 'aws-saa', questionCount: 65 },
+          { id: 'aws-saa-quiz-1', name: 'Quiz 1', certificationId: 'aws-saa', questionCount: 65, isFree: true },
+          { id: 'aws-saa-quiz-2', name: 'Quiz 2', certificationId: 'aws-saa', questionCount: 65, isFree: false },
+          { id: 'aws-saa-quiz-3', name: 'Quiz 3', certificationId: 'aws-saa', questionCount: 65, isFree: false },
+          { id: 'aws-saa-quiz-4', name: 'Quiz 4', certificationId: 'aws-saa', questionCount: 65, isFree: false },
+          { id: 'aws-saa-quiz-5', name: 'Quiz 5', certificationId: 'aws-saa', questionCount: 65, isFree: false },
+          { id: 'aws-saa-quiz-6', name: 'Quiz 6', certificationId: 'aws-saa', questionCount: 65, isFree: false },
+          { id: 'aws-saa-quiz-7', name: 'Quiz 7', certificationId: 'aws-saa', questionCount: 65, isFree: false },
         ],
       },
       {
@@ -35,7 +35,7 @@ export const platforms: Platform[] = [
         passingScore: 72,
         totalExamQuestions: 65,
         quizzes: [
-          { id: 'aws-dva-quiz-1', name: 'Quiz 1', certificationId: 'aws-dva', questionCount: 5 },
+          { id: 'aws-dva-quiz-1', name: 'Quiz 1', certificationId: 'aws-dva', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -47,7 +47,7 @@ export const platforms: Platform[] = [
         passingScore: 72,
         totalExamQuestions: 65,
         quizzes: [
-          { id: 'aws-soa-quiz-1', name: 'Quiz 1', certificationId: 'aws-soa', questionCount: 5 },
+          { id: 'aws-soa-quiz-1', name: 'Quiz 1', certificationId: 'aws-soa', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -59,7 +59,7 @@ export const platforms: Platform[] = [
         passingScore: 75,
         totalExamQuestions: 75,
         quizzes: [
-          { id: 'aws-dop-quiz-1', name: 'Quiz 1', certificationId: 'aws-dop', questionCount: 5 },
+          { id: 'aws-dop-quiz-1', name: 'Quiz 1', certificationId: 'aws-dop', questionCount: 5, isFree: false },
         ],
       },
     ],
@@ -80,7 +80,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 50,
         quizzes: [
-          { id: 'azure-az900-quiz-1', name: 'Quiz 1', certificationId: 'azure-az900', questionCount: 5 },
+          { id: 'azure-az900-quiz-1', name: 'Quiz 1', certificationId: 'azure-az900', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -92,7 +92,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 55,
         quizzes: [
-          { id: 'azure-az104-quiz-1', name: 'Quiz 1', certificationId: 'azure-az104', questionCount: 5 },
+          { id: 'azure-az104-quiz-1', name: 'Quiz 1', certificationId: 'azure-az104', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -104,7 +104,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 50,
         quizzes: [
-          { id: 'azure-az305-quiz-1', name: 'Quiz 1', certificationId: 'azure-az305', questionCount: 5 },
+          { id: 'azure-az305-quiz-1', name: 'Quiz 1', certificationId: 'azure-az305', questionCount: 5, isFree: false },
         ],
       },
     ],
@@ -125,7 +125,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 50,
         quizzes: [
-          { id: 'gcp-ace-quiz-1', name: 'Quiz 1', certificationId: 'gcp-ace', questionCount: 5 },
+          { id: 'gcp-ace-quiz-1', name: 'Quiz 1', certificationId: 'gcp-ace', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -137,7 +137,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 50,
         quizzes: [
-          { id: 'gcp-pca-quiz-1', name: 'Quiz 1', certificationId: 'gcp-pca', questionCount: 5 },
+          { id: 'gcp-pca-quiz-1', name: 'Quiz 1', certificationId: 'gcp-pca', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -149,7 +149,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 50,
         quizzes: [
-          { id: 'gcp-pde-quiz-1', name: 'Quiz 1', certificationId: 'gcp-pde', questionCount: 5 },
+          { id: 'gcp-pde-quiz-1', name: 'Quiz 1', certificationId: 'gcp-pde', questionCount: 5, isFree: false },
         ],
       },
     ],
@@ -170,7 +170,7 @@ export const platforms: Platform[] = [
         passingScore: 70,
         totalExamQuestions: 57,
         quizzes: [
-          { id: 'devops-terraform-quiz-1', name: 'Quiz 1', certificationId: 'devops-terraform', questionCount: 5 },
+          { id: 'devops-terraform-quiz-1', name: 'Quiz 1', certificationId: 'devops-terraform', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -182,7 +182,7 @@ export const platforms: Platform[] = [
         passingScore: 66,
         totalExamQuestions: 17,
         quizzes: [
-          { id: 'devops-cka-quiz-1', name: 'Quiz 1', certificationId: 'devops-cka', questionCount: 5 },
+          { id: 'devops-cka-quiz-1', name: 'Quiz 1', certificationId: 'devops-cka', questionCount: 5, isFree: false },
         ],
       },
       {
@@ -194,7 +194,7 @@ export const platforms: Platform[] = [
         passingScore: 65,
         totalExamQuestions: 55,
         quizzes: [
-          { id: 'devops-docker-quiz-1', name: 'Quiz 1', certificationId: 'devops-docker', questionCount: 5 },
+          { id: 'devops-docker-quiz-1', name: 'Quiz 1', certificationId: 'devops-docker', questionCount: 5, isFree: false },
         ],
       },
     ],

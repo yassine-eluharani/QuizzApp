@@ -4,12 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ThemedText from '@/components/ui/ThemedText';
 import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import ProBadge from '@/components/paywall/ProBadge';
 import { useAppContext } from '@/context/AppContext';
+import { usePurchase } from '@/context/PurchaseContext';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
 
 export default function ProfileScreen() {
   const { streaks, history, bookmarks } = useAppContext();
+  const { isPro, showPaywall, restorePurchases } = usePurchase();
 
   const totalQuestions = history.reduce((s, a) => s + a.totalQuestions, 0);
   const totalCorrect = history.reduce((s, a) => s + a.score, 0);
@@ -21,9 +25,30 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Ionicons name="person" size={40} color={Colors.primary} />
           </View>
-          <ThemedText variant="heading" style={styles.title}>CloudPrep</ThemedText>
+          <View style={styles.nameRow}>
+            <ThemedText variant="heading" style={styles.title}>CloudPrep</ThemedText>
+            {isPro && <ProBadge size="md" />}
+          </View>
           <ThemedText variant="body">Your learning journey</ThemedText>
         </View>
+
+        {/* Pro Status Card */}
+        {!isPro && (
+          <Card style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="rocket" size={24} color={Colors.primary} />
+              <ThemedText variant="title" style={styles.cardTitle}>Upgrade to Pro</ThemedText>
+            </View>
+            <ThemedText variant="body" style={styles.proDesc}>
+              Unlock all quizzes, practice exams, and unlimited bookmarks.
+            </ThemedText>
+            <Button
+              title="Unlock CloudPrep Pro"
+              onPress={showPaywall}
+              style={styles.proButton}
+            />
+          </Card>
+        )}
 
         {/* Streak Card */}
         <Card style={styles.card}>
@@ -86,6 +111,14 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
+        {/* Restore Purchases */}
+        <Button
+          title="Restore Purchases"
+          onPress={() => { restorePurchases(); }}
+          variant="secondary"
+          style={styles.restoreButton}
+        />
+
         <ThemedText variant="caption" style={styles.version}>
           CloudPrep v1.0.0
         </ThemedText>
@@ -120,6 +153,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Theme.spacing.md,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Theme.spacing.sm,
+  },
   title: {
     marginBottom: Theme.spacing.xs,
   },
@@ -133,6 +171,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     marginLeft: Theme.spacing.sm,
+  },
+  proDesc: {
+    marginBottom: Theme.spacing.md,
+    color: Colors.textSecondary,
+  },
+  proButton: {
+    marginTop: Theme.spacing.xs,
   },
   streakGrid: {
     flexDirection: 'row',
@@ -157,6 +202,9 @@ const styles = StyleSheet.create({
     paddingBottom: Theme.spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+  },
+  restoreButton: {
+    marginTop: Theme.spacing.md,
   },
   version: {
     textAlign: 'center',

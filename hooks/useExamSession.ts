@@ -17,7 +17,7 @@ interface ExamSessionState {
   answers: AnswerRecord[];
 }
 
-export function useExamSession(certId: string) {
+export function useExamSession(certId: string, isPro: boolean = false) {
   const { addAttempt, recordStudySession } = useAppContext();
   const result = getCertification(certId);
   const cert = result?.certification;
@@ -30,7 +30,7 @@ export function useExamSession(certId: string) {
   const startTime = useRef(Date.now());
 
   const [state, setState] = useState<ExamSessionState>(() => {
-    const allQuestions = loadCertQuestions(certId);
+    const allQuestions = loadCertQuestions(certId, isPro);
     const shuffled = shuffleArray(allQuestions);
     const selected = shuffled.slice(0, Math.min(questionCount, shuffled.length));
     startTime.current = Date.now();

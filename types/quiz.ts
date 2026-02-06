@@ -23,6 +23,13 @@ export interface QuizMeta {
   name: string;
   certificationId: string;
   questionCount: number;
+  isFree?: boolean;
+}
+
+export interface EntitlementStatus {
+  isPro: boolean;
+  source: 'revenuecat' | 'cache' | 'none';
+  productId?: string;
 }
 
 export interface Question {

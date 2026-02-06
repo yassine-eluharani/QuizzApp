@@ -3,6 +3,8 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ThemedText from '@/components/ui/ThemedText';
 import Badge from '@/components/ui/Badge';
+import ProBadge from '@/components/paywall/ProBadge';
+import LockedOverlay from '@/components/paywall/LockedOverlay';
 import { QuizMeta } from '@/types/quiz';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
@@ -12,17 +14,23 @@ interface QuizListItemProps {
   platformColor: string;
   bestScore?: number | null;
   onPress: () => void;
+  isLocked?: boolean;
 }
 
-export default function QuizListItem({ quiz, platformColor, bestScore, onPress }: QuizListItemProps) {
+export default function QuizListItem({ quiz, platformColor, bestScore, onPress, isLocked }: QuizListItemProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
-      <View style={[styles.dot, { backgroundColor: platformColor }]} />
+      <View style={[styles.dot, { backgroundColor: isLocked ? Colors.textMuted : platformColor }]} />
       <View style={styles.content}>
-        <ThemedText variant="bodyLarge">{quiz.name}</ThemedText>
+        <View style={styles.nameRow}>
+          <ThemedText variant="bodyLarge">{quiz.name}</ThemedText>
+          {isLocked && <ProBadge />}
+        </View>
         <ThemedText variant="caption">{quiz.questionCount} questions</ThemedText>
       </View>
-      {bestScore !== null && bestScore !== undefined ? (
+      {isLocked ? (
+        <LockedOverlay />
+      ) : bestScore !== null && bestScore !== undefined ? (
         <Badge
           text={`${Math.round(bestScore)}%`}
           color={bestScore >= 70 ? Colors.success : Colors.warning}
@@ -53,5 +61,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Theme.spacing.sm,
   },
 });

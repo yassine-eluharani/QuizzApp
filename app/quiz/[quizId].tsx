@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,8 @@ import ScoreSummary from '@/components/quiz/ScoreSummary';
 import Button from '@/components/ui/Button';
 import { useQuizSession } from '@/hooks/useQuizSession';
 import { useAppContext } from '@/context/AppContext';
+import { usePurchase } from '@/context/PurchaseContext';
+import { isQuizAccessible } from '@/lib/entitlements';
 import { getQuizMeta } from '@/assets/data/catalog';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
@@ -18,9 +20,17 @@ export default function QuizScreen() {
   const { quizId } = useLocalSearchParams<{ quizId: string }>();
   const router = useRouter();
   const { isBookmarked, toggleBookmark } = useAppContext();
+  const { isPro, showPaywall } = usePurchase();
   const meta = getQuizMeta(quizId);
 
-  const session = useQuizSession(quizId);
+  useEffect(() => {
+    if (!isQuizAccessible(quizId, isPro)) {
+      showPaywall();
+      router.back();
+    }
+  }, [quizId, isPro]);
+
+  const session = useQuizSession(quizId, isPro);
   const [showExplanation, setShowExplanation] = useState(false);
   const [completedAttempt, setCompletedAttempt] = useState<QuizAttempt | null>(null);
 
@@ -75,7 +85,7 @@ export default function QuizScreen() {
             certId: meta?.certification.id || '',
             quizId,
             dateAdded: new Date().toISOString(),
-          })
+          }, isPro, showPaywall)
         }
         isBookmarked={isBookmarked(questionId)}
       />

@@ -5,6 +5,8 @@ import * as NativeSplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { AppProvider, useAppContext } from '@/context/AppContext';
+import { PurchaseProvider } from '@/context/PurchaseContext';
+import Paywall from '@/components/paywall/Paywall';
 import { Colors } from '@/constants/Colors';
 import { SplashScreen } from '@/components/ui/SplashScreen';
 import { OnboardingScreen } from '@/components/ui/OnboardingScreen';
@@ -39,8 +41,11 @@ export default function RootLayout() {
 
   return (
     <AppProvider>
-      <StatusBar style="light" />
-      <RootNavigator />
+      <PurchaseProvider>
+        <StatusBar style="light" />
+        <RootNavigator />
+        <Paywall />
+      </PurchaseProvider>
     </AppProvider>
   );
 }
