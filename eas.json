@@ -1,6 +1,17 @@
 {
+  "cli": {
+    "version": ">= 5.0.0"
+  },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
     "preview": {
+      "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
@@ -9,21 +20,32 @@
         "REVENUECAT_GOOGLE_API_KEY": ""
       }
     },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      }
-    },
-    "preview3": {
-      "developmentClient": true
-    },
     "production": {
+      "distribution": "store",
       "android": {
-        "enableProguardInReleaseBuilds": true
+        "buildType": "app-bundle",
+        "enableProguardInReleaseBuilds": true,
+        "enableShrinkResourcesInReleaseBuilds": true
+      },
+      "ios": {
+        "resourceClass": "m-medium"
       },
       "env": {
         "REVENUECAT_APPLE_API_KEY": "",
         "REVENUECAT_GOOGLE_API_KEY": ""
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "",
+        "ascAppId": "",
+        "appleTeamId": ""
+      },
+      "android": {
+        "serviceAccountKeyPath": "",
+        "track": "internal"
       }
     }
   }

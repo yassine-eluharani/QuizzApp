@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import * as PurchasesLib from '@/lib/purchases';
-import { runIntegrityChecks } from '@/lib/security';
+import {
+  runIntegrityChecks,
+  validateIntegrity,
+  getSecurityState,
+  detectClockManipulation,
+} from '@/lib/security';
 
 interface PurchaseContextType {
   isPro: boolean;
@@ -15,40 +20,120 @@ interface PurchaseContextType {
 
 const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
 
+// Integrity check interval (5 minutes)
+const INTEGRITY_CHECK_INTERVAL = 5 * 60 * 1000;
+
 export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   const [isPro, setIsPro] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const appState = useRef(AppState.currentState);
+  const lastIntegrityCheck = useRef(0);
+  const integrityCheckCount = useRef(0);
 
-  useEffect(() => {
-    runIntegrityChecks();
-    (async () => {
-      await PurchasesLib.initPurchases();
+  // Run periodic integrity validation
+  const performIntegrityCheck = useCallback(async () => {
+    const now = Date.now();
+
+    // Don't check too frequently
+    if (now - lastIntegrityCheck.current < INTEGRITY_CHECK_INTERVAL) {
+      return;
+    }
+
+    lastIntegrityCheck.current = now;
+    integrityCheckCount.current++;
+
+    // Check for clock manipulation
+    if (detectClockManipulation()) {
+      // Clock was manipulated - re-validate pro status
       const pro = await PurchasesLib.checkProAccess();
       setIsPro(pro);
-      setIsLoading(false);
-    })();
+      return;
+    }
+
+    // Periodic integrity validation
+    const isValid = await validateIntegrity();
+
+    // In production, if integrity fails repeatedly, we could take action
+    // For now, we just re-validate the pro status
+    if (!isValid && integrityCheckCount.current > 3) {
+      const pro = await PurchasesLib.checkProAccess();
+      setIsPro(pro);
+    }
   }, []);
 
+  // Initialize on mount
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      // Run initial integrity checks
+      await runIntegrityChecks();
+
+      // Initialize purchases
+      await PurchasesLib.initPurchases();
+
+      // Check pro access
+      const pro = await PurchasesLib.checkProAccess();
+
+      if (mounted) {
+        setIsPro(pro);
+        setIsLoading(false);
+        lastIntegrityCheck.current = Date.now();
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Re-check on app state changes
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextState === 'active') {
+        // App came to foreground - re-validate
+        await performIntegrityCheck();
+
         const pro = await PurchasesLib.checkProAccess();
         setIsPro(pro);
       }
       appState.current = nextState;
     });
+
     return () => subscription.remove();
-  }, []);
+  }, [performIntegrityCheck]);
+
+  // Periodic integrity checks while app is active
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (appState.current === 'active') {
+        performIntegrityCheck();
+      }
+    }, INTEGRITY_CHECK_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [performIntegrityCheck]);
 
   const purchasePro = useCallback(async () => {
-    const result = await PurchasesLib.purchasePro();
-    if (result) {
-      setIsPro(true);
-      setPaywallVisible(false);
+    try {
+      // Validate integrity before purchase
+      const securityState = getSecurityState();
+      if (!securityState.integrityValid && !__DEV__) {
+        // Log but don't block in most cases
+        // The purchase flow has its own integrity check
+      }
+
+      const result = await PurchasesLib.purchasePro();
+      if (result) {
+        setIsPro(true);
+        setPaywallVisible(false);
+      }
+      return result;
+    } catch (error) {
+      // Re-throw to let UI handle the error
+      throw error;
     }
-    return result;
   }, []);
 
   const restorePurchases = useCallback(async () => {
@@ -63,10 +148,22 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   const showPaywall = useCallback(() => setPaywallVisible(true), []);
   const hidePaywall = useCallback(() => setPaywallVisible(false), []);
 
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = React.useMemo(
+    () => ({
+      isPro,
+      isLoading,
+      purchasePro,
+      restorePurchases,
+      showPaywall,
+      hidePaywall,
+      paywallVisible,
+    }),
+    [isPro, isLoading, purchasePro, restorePurchases, showPaywall, hidePaywall, paywallVisible]
+  );
+
   return (
-    <PurchaseContext.Provider
-      value={{ isPro, isLoading, purchasePro, restorePurchases, showPaywall, hidePaywall, paywallVisible }}
-    >
+    <PurchaseContext.Provider value={contextValue}>
       {children}
     </PurchaseContext.Provider>
   );
@@ -74,6 +171,8 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
 
 export function usePurchase() {
   const context = useContext(PurchaseContext);
-  if (!context) throw new Error('usePurchase must be used within PurchaseProvider');
+  if (!context) {
+    throw new Error('usePurchase must be used within PurchaseProvider');
+  }
   return context;
 }
