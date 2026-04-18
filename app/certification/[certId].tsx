@@ -14,6 +14,7 @@ import { isQuizAccessible, isExamAccessible } from '@/lib/entitlements';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
 import { Ionicons } from '@expo/vector-icons';
+import { ExamDomain } from '@/types/quiz';
 
 export default function CertificationScreen() {
   const { certId } = useLocalSearchParams<{ certId: string }>();
@@ -31,13 +32,17 @@ export default function CertificationScreen() {
   }
 
   const { certification: cert, platform } = result;
+  const { examInfo, freeSample } = cert;
   const attempts = getAttemptsForCert(cert.id);
   const examLocked = !isExamAccessible(isPro);
+  const sampleBestScore = getBestScore(freeSample.quizId);
 
   return (
     <>
       <Stack.Screen options={{ title: cert.code }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+
+        {/* Header */}
         <View style={styles.header}>
           <Badge text={cert.code} color={platform.color} />
           <ThemedText variant="title" style={styles.certName}>
@@ -46,20 +51,92 @@ export default function CertificationScreen() {
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <Ionicons name="time-outline" size={14} color={Colors.textMuted} />
-              <ThemedText variant="caption"> {cert.examDuration} min</ThemedText>
+              <ThemedText variant="caption"> {examInfo.duration} min</ThemedText>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="checkmark-circle-outline" size={14} color={Colors.textMuted} />
-              <ThemedText variant="caption"> Pass: {cert.passingScore}%</ThemedText>
+              <ThemedText variant="caption"> Pass: {examInfo.passingScore}%</ThemedText>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="help-circle-outline" size={14} color={Colors.textMuted} />
-              <ThemedText variant="caption"> {cert.totalExamQuestions} questions</ThemedText>
+              <ThemedText variant="caption"> {examInfo.questionCount} questions</ThemedText>
             </View>
           </View>
         </View>
 
-        {/* Practice Exam */}
+        {/* Exam Info */}
+        <Card style={styles.infoCard}>
+          <ThemedText variant="label" style={styles.infoTitle}>About the Exam</ThemedText>
+
+          <View style={styles.infoRow}>
+            <Ionicons name="document-text-outline" size={16} color={Colors.textMuted} />
+            <ThemedText variant="caption" style={styles.infoText}>
+              {examInfo.questionTypes.join(' · ')}
+            </ThemedText>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Ionicons name="location-outline" size={16} color={Colors.textMuted} />
+            <ThemedText variant="caption" style={styles.infoText}>
+              {examInfo.delivery.join(' & ')}
+            </ThemedText>
+          </View>
+
+          {examInfo.note && (
+            <View style={styles.noteRow}>
+              <Ionicons name="information-circle-outline" size={15} color={Colors.warning} />
+              <ThemedText variant="caption" style={[styles.infoText, { color: Colors.warning }]}>
+                {examInfo.note}
+              </ThemedText>
+            </View>
+          )}
+
+          <ThemedText variant="label" style={styles.domainsLabel}>Exam Domains</ThemedText>
+          {examInfo.domains.map((domain: ExamDomain) => (
+            <View key={domain.name} style={styles.domainRow}>
+              <View style={styles.domainLabelRow}>
+                <ThemedText variant="caption" style={styles.domainName}>{domain.name}</ThemedText>
+                <ThemedText variant="caption" style={{ color: platform.color }}>
+                  {domain.percentage}%
+                </ThemedText>
+              </View>
+              <View style={styles.barTrack}>
+                <View
+                  style={[
+                    styles.barFill,
+                    { width: `${domain.percentage}%` as any, backgroundColor: platform.color },
+                  ]}
+                />
+              </View>
+            </View>
+          ))}
+        </Card>
+
+        {/* Free Sample */}
+        <ThemedText variant="label" style={styles.sectionLabel}>Free Sample</ThemedText>
+        <Card style={styles.sampleCard}>
+          <View style={styles.sampleHeader}>
+            <Ionicons name="gift-outline" size={22} color={Colors.success} />
+            <View style={styles.sampleTitleBlock}>
+              <ThemedText variant="bodyLarge">Try {freeSample.questionCount} Questions — Free</ThemedText>
+              <ThemedText variant="caption">Get a feel for the style before going Pro</ThemedText>
+            </View>
+            {sampleBestScore !== null && sampleBestScore !== undefined && (
+              <Badge
+                text={`${Math.round(sampleBestScore)}%`}
+                color={sampleBestScore >= examInfo.passingScore ? Colors.success : Colors.warning}
+              />
+            )}
+          </View>
+          <Button
+            title="Start Free Sample"
+            onPress={() => router.push(`/quiz/${freeSample.quizId}` as Href)}
+            color={Colors.success}
+            style={styles.sampleButton}
+          />
+        </Card>
+
+        {/* Practice Exam (Pro) */}
         <Card style={styles.examCard}>
           <View style={styles.examHeader}>
             <Ionicons name="school" size={24} color={examLocked ? Colors.textMuted : platform.color} />
@@ -69,7 +146,7 @@ export default function CertificationScreen() {
             {examLocked && <ProBadge />}
           </View>
           <ThemedText variant="body" style={styles.examDesc}>
-            Simulate real exam conditions with {cert.totalExamQuestions} random questions and a {cert.examDuration}-minute timer.
+            Simulate real exam conditions with {examInfo.questionCount} random questions and a {examInfo.duration}-minute timer.
           </ThemedText>
           <Button
             title={examLocked ? 'Unlock with Pro' : 'Start Practice Exam'}
@@ -85,11 +162,10 @@ export default function CertificationScreen() {
           />
         </Card>
 
-        {/* Quiz List */}
+        {/* Quiz List (Pro) */}
         <ThemedText variant="label" style={styles.sectionLabel}>
           Quizzes
         </ThemedText>
-
         {cert.quizzes.map(quiz => {
           const locked = !isQuizAccessible(quiz.id, isPro);
           return (
@@ -125,7 +201,11 @@ export default function CertificationScreen() {
                 <View style={styles.attemptRow}>
                   <View>
                     <ThemedText variant="bodyLarge">
-                      {attempt.mode === 'exam' ? 'Practice Exam' : attempt.quizId.split('-').pop()?.replace('quiz', 'Quiz ')}
+                      {attempt.mode === 'exam'
+                        ? 'Practice Exam'
+                        : attempt.quizId.endsWith('-sample')
+                          ? 'Free Sample'
+                          : attempt.quizId.split('-').pop()?.replace('quiz', 'Quiz ')}
                     </ThemedText>
                     <ThemedText variant="caption">
                       {new Date(attempt.date).toLocaleDateString()}
@@ -133,7 +213,7 @@ export default function CertificationScreen() {
                   </View>
                   <ThemedText
                     variant="title"
-                    color={attempt.percentage >= cert.passingScore ? Colors.success : Colors.error}
+                    color={attempt.percentage >= examInfo.passingScore ? Colors.success : Colors.error}
                   >
                     {Math.round(attempt.percentage)}%
                   </ThemedText>
@@ -177,6 +257,79 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+
+  // Exam Info card
+  infoCard: {
+    marginBottom: Theme.spacing.xl,
+  },
+  infoTitle: {
+    marginBottom: Theme.spacing.md,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Theme.spacing.sm,
+    marginBottom: Theme.spacing.sm,
+  },
+  noteRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Theme.spacing.sm,
+    marginBottom: Theme.spacing.sm,
+    marginTop: Theme.spacing.xs,
+  },
+  infoText: {
+    flex: 1,
+    color: Colors.textMuted,
+  },
+  domainsLabel: {
+    marginTop: Theme.spacing.md,
+    marginBottom: Theme.spacing.sm,
+  },
+  domainRow: {
+    marginBottom: Theme.spacing.sm,
+  },
+  domainLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  domainName: {
+    flex: 1,
+    color: Colors.text,
+    marginRight: Theme.spacing.sm,
+  },
+  barTrack: {
+    height: 4,
+    backgroundColor: Colors.border,
+    borderRadius: 2,
+  },
+  barFill: {
+    height: 4,
+    borderRadius: 2,
+  },
+
+  // Free sample
+  sectionLabel: {
+    marginBottom: Theme.spacing.sm,
+  },
+  sampleCard: {
+    marginBottom: Theme.spacing.md,
+  },
+  sampleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Theme.spacing.md,
+    marginBottom: Theme.spacing.md,
+  },
+  sampleTitleBlock: {
+    flex: 1,
+  },
+  sampleButton: {
+    marginTop: Theme.spacing.xs,
+  },
+
+  // Practice exam
   examCard: {
     marginBottom: Theme.spacing.xl,
   },
@@ -195,9 +348,8 @@ const styles = StyleSheet.create({
   examButton: {
     marginTop: Theme.spacing.xs,
   },
-  sectionLabel: {
-    marginBottom: Theme.spacing.md,
-  },
+
+  // Attempts
   attemptCard: {
     marginBottom: Theme.spacing.sm,
     padding: Theme.spacing.md,

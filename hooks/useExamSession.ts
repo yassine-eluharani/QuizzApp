@@ -23,8 +23,8 @@ export function useExamSession(certId: string, isPro: boolean = false) {
   const cert = result?.certification;
   const platform = result?.platform;
 
-  const duration = (cert?.examDuration || 60) * 60;
-  const questionCount = cert?.totalExamQuestions || 20;
+  const duration = (cert?.examInfo.duration || 60) * 60;
+  const questionCount = cert?.examInfo.questionCount || 20;
 
   const timer = useTimer(duration);
   const startTime = useRef(Date.now());

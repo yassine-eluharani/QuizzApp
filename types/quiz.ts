@@ -7,15 +7,34 @@ export interface Platform {
   certifications: Certification[];
 }
 
+export interface ExamDomain {
+  name: string;
+  percentage: number;
+}
+
+export interface ExamInfo {
+  questionCount: number;
+  duration: number;           // minutes
+  passingScore: number;       // percentage, e.g. 72
+  questionTypes: string[];    // e.g. ["Multiple Choice", "Multiple Select"]
+  delivery: string[];         // e.g. ["Testing Center", "Online Proctored"]
+  domains: ExamDomain[];
+  note?: string;              // optional caveat (e.g. performance-based, range percentages)
+}
+
+export interface FreeSample {
+  quizId: string;             // e.g. "aws-saa-sample"
+  questionCount: number;
+}
+
 export interface Certification {
   id: string;
   name: string;
   code: string;
   platformId: string;
-  examDuration: number;
-  passingScore: number;
-  totalExamQuestions: number;
-  quizzes: QuizMeta[];
+  examInfo: ExamInfo;
+  freeSample: FreeSample;
+  quizzes: QuizMeta[];        // pro quizzes only
 }
 
 export interface QuizMeta {
@@ -23,7 +42,6 @@ export interface QuizMeta {
   name: string;
   certificationId: string;
   questionCount: number;
-  isFree?: boolean;
 }
 
 export interface EntitlementStatus {

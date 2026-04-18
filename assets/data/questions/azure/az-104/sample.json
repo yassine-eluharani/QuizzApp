@@ -1,0 +1,77 @@
+[
+  {
+    "id": "azure-az104-q1",
+    "question_number": "1",
+    "question": "An administrator needs to allow traffic on port 443 to a subnet while blocking all other inbound traffic. The administrator creates a Network Security Group (NSG) with a custom rule to allow HTTPS. However, the application is still not accessible. What is the MOST likely cause?",
+    "choices": [
+      "The NSG is not associated with the subnet or the network interface of the VM",
+      "The NSG default rules are blocking all outbound traffic",
+      "The custom rule priority number is too low (higher priority) than the default deny rule",
+      "NSGs cannot be used to filter traffic to subnets, only to individual NICs"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: The NSG is not associated with the subnet or the network interface of the VM</strong></p><p>An NSG must be explicitly associated with a subnet or a network interface (NIC) for its rules to take effect. Simply creating an NSG with the correct rules is not enough; it must be attached to the appropriate resource. NSG default rules allow outbound traffic by default, so outbound is not the issue. Custom rule priority does not conflict with default deny in this scenario since custom rules are evaluated before the default deny-all rule. NSGs can be associated with both subnets and individual NICs.</p></div>"
+  },
+  {
+    "id": "azure-az104-q2",
+    "question_number": "2",
+    "question": "A company has two virtual networks (VNet-A in East US and VNet-B in West US) that need to communicate with each other. The address spaces do not overlap. What should the administrator configure?",
+    "choices": [
+      "Deploy a VPN Gateway in each VNet",
+      "Configure VNet peering between VNet-A and VNet-B",
+      "Create a shared subnet between both VNets",
+      "Configure Azure ExpressRoute for VNet-to-VNet connectivity"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Configure VNet peering between VNet-A and VNet-B</strong></p><p>Azure VNet peering allows you to seamlessly connect two Azure virtual networks. The traffic between peered VNets uses the Microsoft backbone infrastructure and never traverses the public internet. VNet peering works across regions (global VNet peering). It provides low-latency, high-bandwidth connectivity. VPN Gateways can also connect VNets but add latency and cost. You cannot create shared subnets between VNets. ExpressRoute is designed for connecting on-premises networks to Azure, not for VNet-to-VNet connectivity.</p></div>"
+  },
+  {
+    "id": "azure-az104-q3",
+    "question_number": "3",
+    "question": "An administrator needs to create an Azure Storage account that provides the lowest cost for storing large amounts of infrequently accessed data that must be available within milliseconds when accessed. Which access tier should be selected?",
+    "choices": [
+      "Hot access tier",
+      "Cool access tier",
+      "Archive access tier",
+      "Premium access tier"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Cool access tier</strong></p><p>The Cool access tier is optimized for storing data that is infrequently accessed and stored for at least 30 days. It offers lower storage costs compared to the Hot tier, while still providing millisecond access latency. The Hot tier has higher storage costs but lower access costs, making it better for frequently accessed data. The Archive tier has the lowest storage cost but requires rehydration before access, which can take hours. The Premium tier provides high performance for frequently accessed data with the highest storage costs.</p></div>"
+  },
+  {
+    "id": "azure-az104-q4",
+    "question_number": "4",
+    "question": "An administrator needs to grant a user the ability to manage virtual machines in a specific resource group, but the user should not be able to manage any other resources or access other resource groups. Which approach follows the principle of least privilege?",
+    "choices": [
+      "Assign the user the Owner role at the subscription level",
+      "Assign the user the Virtual Machine Contributor role at the resource group level",
+      "Assign the user the Contributor role at the resource group level",
+      "Add the user to the Global Administrator role in Azure AD"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Assign the user the Virtual Machine Contributor role at the resource group level</strong></p><p>The Virtual Machine Contributor built-in role allows management of virtual machines but not access to the virtual network or storage account they are connected to. Assigning this role at the resource group scope limits the user's permissions to only that specific resource group. The Owner role grants full access including the ability to assign roles to others. The Contributor role at the resource group level would allow managing all resource types, not just VMs. The Global Administrator role is an Azure AD role that grants broad administrative access across the entire tenant.</p></div>"
+  },
+  {
+    "id": "azure-az104-q5",
+    "question_number": "5",
+    "question": "A web application requires traffic to be distributed across multiple virtual machines in a single region. The application uses HTTPS and needs SSL offloading, cookie-based session affinity, and URL-based routing. Which Azure service should the administrator use?",
+    "choices": [
+      "Azure Traffic Manager",
+      "Azure Load Balancer (Standard SKU)",
+      "Azure Application Gateway",
+      "Azure Front Door"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Azure Application Gateway</strong></p><p>Azure Application Gateway is a Layer 7 (application layer) load balancer that supports SSL/TLS offloading, cookie-based session affinity, and URL path-based routing. It is designed for web applications within a single region. Azure Traffic Manager is a DNS-based global load balancer and does not support SSL offloading or URL routing. Azure Load Balancer operates at Layer 4 (TCP/UDP) and does not support SSL offloading or URL-based routing. Azure Front Door provides global load balancing with Layer 7 capabilities but is designed for multi-region scenarios rather than single-region deployments.</p></div>"
+  }
+]

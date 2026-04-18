@@ -1,0 +1,77 @@
+[
+  {
+    "id": "devops-tf-q1",
+    "question_number": "1",
+    "question": "A team member accidentally deletes the Terraform state file stored locally. The infrastructure managed by Terraform still exists in the cloud. What is the BEST way to recover?",
+    "choices": [
+      "Run 'terraform destroy' and recreate all resources",
+      "Use 'terraform import' to import each existing resource back into the state",
+      "Run 'terraform plan' to regenerate the state file automatically",
+      "Run 'terraform init' to recreate the state file from the configuration"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Use 'terraform import' to import each existing resource back into the state</strong></p><p>When the state file is lost but the infrastructure still exists, 'terraform import' can be used to bring existing resources back under Terraform management by importing them into a new state file. Each resource must be imported individually by specifying the resource address and the cloud resource ID. Running 'terraform destroy' would fail without a state file and is destructive. 'terraform plan' requires an existing state file to compare against and cannot regenerate one from scratch. 'terraform init' initializes the working directory and backend but does not recreate state from existing infrastructure. To prevent this situation, teams should use remote state backends with versioning.</p></div>"
+  },
+  {
+    "id": "devops-tf-q2",
+    "question_number": "2",
+    "question": "A Terraform configuration needs to deploy resources to both AWS and Azure in the same project. How should the engineer configure the providers?",
+    "choices": [
+      "Terraform only supports one provider per configuration, so two separate configurations are needed",
+      "Define both the 'aws' and 'azurerm' provider blocks in the configuration and reference them in the respective resources",
+      "Use a single 'multi-cloud' provider that supports both AWS and Azure",
+      "Create provider aliases and use them in a single resource block to deploy to both clouds"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Define both the 'aws' and 'azurerm' provider blocks in the configuration and reference them in the respective resources</strong></p><p>Terraform supports multiple providers in a single configuration. You can define separate provider blocks for AWS and Azure, each with their own authentication and configuration. Resources are associated with their respective providers based on the resource type prefix (e.g., 'aws_instance' uses the AWS provider, 'azurerm_virtual_machine' uses the Azure provider). Terraform is not limited to one provider per configuration. There is no 'multi-cloud' provider. Provider aliases are used when you need multiple configurations of the same provider (e.g., deploying to multiple AWS regions), not for combining different providers into a single resource.</p></div>"
+  },
+  {
+    "id": "devops-tf-q3",
+    "question_number": "3",
+    "question": "A team wants to reuse a Terraform configuration for creating VPCs across multiple projects. The configuration should accept parameters like CIDR block, region, and tags. What is the recommended approach?",
+    "choices": [
+      "Copy and paste the configuration into each project and modify the values",
+      "Create a Terraform module with input variables for CIDR block, region, and tags",
+      "Use Terraform workspaces to manage different VPC configurations",
+      "Define all VPCs in a single configuration file using count"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Create a Terraform module with input variables for CIDR block, region, and tags</strong></p><p>Terraform modules are the primary mechanism for reusing configurations. A module encapsulates a set of resources and exposes input variables for customization and output values for integration. By creating a VPC module with variables for CIDR block, region, and tags, teams can reuse the module across projects while customizing it for each use case. Copy-pasting leads to configuration drift and maintenance burden. Workspaces manage multiple state files for the same configuration (e.g., dev/staging/prod environments) but do not parameterize configurations. Using count in a single file does not support different projects or provide reusability.</p></div>"
+  },
+  {
+    "id": "devops-tf-q4",
+    "question_number": "4",
+    "question": "An engineer needs to pass a database password to a Terraform configuration without storing it in the .tf files or version control. Which method is the MOST secure?",
+    "choices": [
+      "Define the variable with a default value in variables.tf",
+      "Use a terraform.tfvars file committed to version control",
+      "Set the value using the TF_VAR_db_password environment variable and mark the variable as sensitive",
+      "Hard-code the password in the provider configuration block"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Set the value using the TF_VAR_db_password environment variable and mark the variable as sensitive</strong></p><p>Terraform automatically reads environment variables prefixed with 'TF_VAR_' and uses them as variable values. By setting the password as an environment variable, it never appears in any Terraform configuration files or version control. Marking the variable as 'sensitive = true' in the variable declaration prevents Terraform from displaying the value in plan output or logs. Defining a default value in variables.tf would expose the password in code. Committing a tfvars file to version control exposes secrets. Hard-coding passwords in configuration is the worst practice. For production environments, consider integrating with a secrets manager like HashiCorp Vault.</p></div>"
+  },
+  {
+    "id": "devops-tf-q5",
+    "question_number": "5",
+    "question": "A team uses Terraform to manage infrastructure for development, staging, and production environments. The configurations are identical except for instance sizes and counts. What is the recommended way to manage these environments?",
+    "choices": [
+      "Maintain three completely separate Terraform configurations",
+      "Use Terraform workspaces combined with variable files specific to each environment",
+      "Use a single workspace and manually change variable values before each apply",
+      "Use Git branches for each environment with identical configurations"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Use Terraform workspaces combined with variable files specific to each environment</strong></p><p>Terraform workspaces allow you to manage multiple distinct sets of infrastructure resources from a single configuration. Each workspace maintains its own state file. By combining workspaces with environment-specific variable files (e.g., dev.tfvars, staging.tfvars, prod.tfvars), you can use the same configuration with different parameter values. This avoids code duplication while keeping environments isolated. Separate configurations lead to drift between environments. Manually changing variables is error-prone. Git branches for environments create merge conflicts and divergence over time. Some teams prefer directory-based separation as an alternative, but workspaces with variable files are a clean, scalable approach.</p></div>"
+  }
+]

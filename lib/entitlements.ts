@@ -3,7 +3,6 @@
  * Public API for checking content access - delegates to accessControl for validation
  */
 
-import { getQuizMeta } from '@/assets/data/catalog';
 import {
   validateContentAccess,
   validateExamAccess,
@@ -11,47 +10,43 @@ import {
   getBookmarkLimit as _getLimit,
 } from './accessControl';
 
-// Re-export for backward compatibility, but actual logic is in accessControl
-export const FREE_QUIZZES = new Set(['aws-saa-quiz-1']);
 export const FREE_BOOKMARK_LIMIT = 10;
 
 /**
- * Check if a quiz is accessible to the user
- * Uses multi-layer validation to prevent tampering
+ * Sample quizzes (ending in -sample) are free for all users.
+ */
+export function isSampleQuiz(quizId: string): boolean {
+  return quizId.endsWith('-sample');
+}
+
+/**
+ * Check if a quiz is accessible to the user.
  */
 export function isQuizAccessible(quizId: string, isPro: boolean): boolean {
   // DEV BYPASS - remove before production
   if (__DEV__) return true;
 
-  // Primary validation through access control
-  const accessValid = validateContentAccess(quizId, isPro);
+  if (isSampleQuiz(quizId)) return true;
 
-  // Secondary validation through catalog metadata
-  const meta = getQuizMeta(quizId);
-  const metaValid = meta?.quiz.isFree === true || isPro;
-
-  // Both checks must pass for free content
-  // Pro users bypass the meta check requirement
-  if (isPro) return accessValid;
-  return accessValid && metaValid;
+  return validateContentAccess(quizId, isPro);
 }
 
 /**
- * Check if practice exams are accessible
+ * Check if practice exams are accessible.
  */
 export function isExamAccessible(isPro: boolean): boolean {
   return validateExamAccess(isPro);
 }
 
 /**
- * Check if user can add more bookmarks
+ * Check if user can add more bookmarks.
  */
 export function canAddBookmark(currentCount: number, isPro: boolean): boolean {
   return validateBookmarkLimit(currentCount, isPro);
 }
 
 /**
- * Get the bookmark limit for display purposes
+ * Get the bookmark limit for display purposes.
  */
 export function getBookmarkLimitForDisplay(isPro: boolean): number | string {
   const limit = _getLimit(isPro);
@@ -59,27 +54,13 @@ export function getBookmarkLimitForDisplay(isPro: boolean): number | string {
 }
 
 /**
- * Check if a quiz is marked as free in the catalog
- */
-export function isQuizFree(quizId: string): boolean {
-  const meta = getQuizMeta(quizId);
-  return meta?.quiz.isFree === true;
-}
-
-/**
- * Get access status summary for a quiz
+ * Get access status summary for a quiz.
  */
 export function getQuizAccessStatus(quizId: string, isPro: boolean): {
   accessible: boolean;
-  reason: 'free' | 'pro' | 'locked';
+  reason: 'sample' | 'pro' | 'locked';
 } {
-  if (isPro) {
-    return { accessible: true, reason: 'pro' };
-  }
-
-  if (isQuizFree(quizId) && validateContentAccess(quizId, false)) {
-    return { accessible: true, reason: 'free' };
-  }
-
+  if (isSampleQuiz(quizId)) return { accessible: true, reason: 'sample' };
+  if (isPro) return { accessible: true, reason: 'pro' };
   return { accessible: false, reason: 'locked' };
 }

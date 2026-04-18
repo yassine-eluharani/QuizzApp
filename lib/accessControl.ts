@@ -5,18 +5,15 @@
 
 import { getSecurityState, detectClockManipulation } from './security';
 
-// Obfuscated constants - split across module to make patching harder
-const _a = [0x61, 0x77, 0x73]; // 'aws'
-const _s = [0x73, 0x61, 0x61]; // 'saa'
-const _q = [0x71, 0x75, 0x69, 0x7a]; // 'quiz'
-const _n = [0x31]; // '1'
+// Obfuscated suffix bytes for '-sample'
+const _sfx = [0x2d, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65]; // '-sample'
 
 function _d(arr: number[]): string {
   return String.fromCharCode(...arr);
 }
 
-function _buildFreeId(): string {
-  return `${_d(_a)}-${_d(_s)}-${_d(_q)}-${_d(_n)}`;
+function _isSample(quizId: string): boolean {
+  return quizId.endsWith(_d(_sfx));
 }
 
 // Multiple validation functions - makes single-point patching harder
@@ -24,23 +21,21 @@ type ValidationFn = (quizId: string, isPro: boolean) => boolean;
 
 const _v1: ValidationFn = (quizId, isPro) => {
   if (isPro) return true;
-  const freeId = _buildFreeId();
-  return quizId === freeId;
+  return _isSample(quizId);
 };
 
 const _v2: ValidationFn = (quizId, isPro) => {
-  // Secondary check - validates the quiz ID format
   if (!quizId || typeof quizId !== 'string') return false;
   if (isPro) return true;
-  return quizId.startsWith(_d(_a)) && quizId.includes(_d(_q)) && quizId.endsWith(_d(_n));
+  return _isSample(quizId);
 };
 
 const _v3: ValidationFn = (quizId, isPro) => {
-  // Tertiary check - hash-based validation
-  const freeHash = hashString(_buildFreeId());
-  const inputHash = hashString(quizId);
   if (isPro) return true;
-  return freeHash === inputHash;
+  const suffix = _d(_sfx);
+  const suffixHash = hashString(suffix);
+  const inputSuffix = quizId.slice(-suffix.length);
+  return hashString(inputSuffix) === suffixHash;
 };
 
 // Simple string hash for comparison
@@ -111,13 +106,8 @@ export function getBookmarkLimit(isPro: boolean): number {
 // Validate that a quiz ID is properly formatted
 export function isValidQuizId(quizId: string): boolean {
   if (!quizId || typeof quizId !== 'string') return false;
-
-  // Must match pattern: platform-cert-quiz-number
-  const parts = quizId.split('-');
-  if (parts.length < 3) return false;
-
-  const hasQuiz = parts.some(p => p === _d(_q));
-  return hasQuiz;
+  // Matches: platform-cert-quiz-N  OR  platform-cert-sample
+  return /^[a-z0-9]+-[a-z0-9]+-(?:quiz-\d+|sample)$/.test(quizId);
 }
 
 // Check if content should be accessible (combines all checks)

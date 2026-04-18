@@ -1,0 +1,227 @@
+[
+  {
+    "id": "aws-dva-q001",
+    "question_number": "1",
+    "question": "A developer is building a serverless application using AWS Lambda. The function needs to process messages from an Amazon SQS standard queue. The function occasionally fails due to downstream service timeouts. What should the developer configure to prevent the same message from being processed repeatedly while still ensuring no messages are lost?",
+    "choices": [
+      "Increase the SQS visibility timeout to be at least 6 times the Lambda function timeout",
+      "Enable long polling on the SQS queue",
+      "Set the Lambda function reserved concurrency to 1",
+      "Configure the SQS queue as a FIFO queue"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Increase the SQS visibility timeout to be at least 6 times the Lambda function timeout</strong></p><p>When Lambda reads a message from SQS, the message becomes invisible for the duration of the visibility timeout. If processing takes longer than the visibility timeout, the message reappears and can be processed again. AWS recommends setting the visibility timeout to at least 6 times the Lambda function timeout to allow for retries. Long polling reduces empty API calls but does not address duplicate processing. Setting concurrency to 1 creates a bottleneck. FIFO queues enforce ordering but do not resolve the timeout/duplicate issue.</p><p>Reference: <a href='https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html'>https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q002",
+    "question_number": "2",
+    "question": "A developer needs to store session data for a web application with unpredictable traffic spikes. The data must be accessible with single-digit millisecond latency. Which DynamoDB capacity mode should the developer choose?",
+    "choices": [
+      "Provisioned capacity mode with Auto Scaling enabled",
+      "On-demand capacity mode",
+      "Provisioned capacity mode with reserved capacity",
+      "Global tables with provisioned capacity"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: On-demand capacity mode</strong></p><p>DynamoDB on-demand mode instantly accommodates workload demands without capacity planning. It is ideal for unpredictable traffic and you pay per request. Provisioned with Auto Scaling can lag during sudden spikes. Reserved capacity suits stable, predictable workloads. Global tables address multi-region replication, not traffic spikes.</p><p>Reference: <a href='https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html'>https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q003",
+    "question_number": "3",
+    "question": "A company exposes a REST API via Amazon API Gateway backed by Lambda. They want to limit requests per individual client to prevent abuse. Which feature should be used?",
+    "choices": [
+      "API Gateway resource policies",
+      "API Gateway usage plans with API keys",
+      "AWS WAF integration with API Gateway",
+      "Lambda authorizers"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: API Gateway usage plans with API keys</strong></p><p>Usage plans define throttle and quota limits per API key, enabling per-client rate limiting. Resource policies control access at the API level. WAF provides IP-based rate limiting but is not designed for per-client key throttling. Lambda authorizers handle authentication, not rate limiting.</p><p>Reference: <a href='https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-usage-plans.html'>https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-usage-plans.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q004",
+    "question_number": "4",
+    "question": "A team uses AWS CodeDeploy to deploy to EC2 instances. If the deployment fails, the application must automatically revert to the last good version. Which configuration achieves this?",
+    "choices": [
+      "Configure a CloudWatch alarm and enable alarm-triggered rollback",
+      "Enable automatic rollback on deployment failure in the deployment group settings",
+      "Use in-place deployment with a custom rollback script in the AppSpec file",
+      "Set the minimum healthy hosts to 100% in the deployment configuration"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Enable automatic rollback on deployment failure in the deployment group settings</strong></p><p>CodeDeploy supports automatic rollback when a deployment fails. Enabling this in the deployment group causes CodeDeploy to redeploy the last successful revision automatically. CloudWatch alarm rollbacks are for monitoring-based scenarios, not direct failure rollback. Custom scripts add complexity and are not built-in rollback. Setting minimum healthy hosts to 100% prevents some rollouts but does not configure rollback behavior.</p><p>Reference: <a href='https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html'>https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q005",
+    "question_number": "5",
+    "question": "A developer is troubleshooting latency in a microservices app using Lambda, DynamoDB, and SQS. They need to identify which service is causing slowness. Which AWS service provides end-to-end distributed tracing?",
+    "choices": [
+      "Amazon CloudWatch Logs Insights",
+      "AWS CloudTrail",
+      "AWS X-Ray",
+      "Amazon CloudWatch Metrics"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: AWS X-Ray</strong></p><p>AWS X-Ray provides end-to-end tracing of requests across distributed services, creating a visual service map with per-segment latency. It integrates natively with Lambda, DynamoDB, SQS, and API Gateway. CloudWatch Logs Insights queries log data but does not trace requests across services. CloudTrail records API calls for auditing. CloudWatch Metrics provides aggregate service metrics, not request-level distributed traces.</p><p>Reference: <a href='https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html'>https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q006",
+    "question_number": "6",
+    "question": "A Lambda function needs to access a third-party API key securely. The key must be encrypted at rest and the function must retrieve it at runtime without hardcoding it. What is the recommended approach?",
+    "choices": [
+      "Store the API key in a Lambda environment variable encrypted with the default Lambda service key",
+      "Store the API key in AWS Secrets Manager and retrieve it using the SDK at runtime",
+      "Hardcode the API key in the Lambda deployment package and rotate it monthly",
+      "Store the API key in an S3 bucket with server-side encryption and read it on startup"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Store the API key in AWS Secrets Manager and retrieve it using the SDK at runtime</strong></p><p>AWS Secrets Manager is purpose-built for storing, rotating, and retrieving secrets. It encrypts secrets using KMS, supports automatic rotation, and provides fine-grained IAM access control. Lambda environment variables are encrypted at rest but do not support automatic rotation and are visible in the Lambda console. Hardcoding secrets is a security anti-pattern. S3 can store secrets but lacks the secret lifecycle management features of Secrets Manager.</p><p>Reference: <a href='https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html'>https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q007",
+    "question_number": "7",
+    "question": "A developer wants to share a common set of Python libraries (numpy, pandas) across multiple Lambda functions without including them in every deployment package. What is the best approach?",
+    "choices": [
+      "Create a Lambda layer containing the libraries and attach it to each function",
+      "Upload the libraries to S3 and download them on each Lambda cold start",
+      "Include the libraries in every Lambda deployment package separately",
+      "Use an EFS mount to share the libraries across Lambda functions"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Create a Lambda layer containing the libraries and attach it to each function</strong></p><p>Lambda layers allow you to package and share libraries, custom runtimes, or configuration files across multiple Lambda functions. Layers are extracted to /opt in the execution environment and are included in the deployment package size limit. Downloading from S3 on every cold start adds latency. Duplicating libraries in every package increases deployment size and maintenance burden. EFS is a valid option for very large dependencies but layers are simpler and the preferred approach for standard library sharing.</p><p>Reference: <a href='https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html'>https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q008",
+    "question_number": "8",
+    "question": "A DynamoDB table stores order data. Queries frequently filter by customerId (partition key) and need to sort results by orderDate. Sometimes queries also filter by orderStatus. Which index design is most efficient?",
+    "choices": [
+      "Create a Local Secondary Index (LSI) with customerId as partition key and orderDate as sort key",
+      "Create a Global Secondary Index (GSI) with orderStatus as partition key and orderDate as sort key",
+      "Create a Local Secondary Index (LSI) with customerId as partition key and orderStatus as sort key",
+      "Use a Scan operation with a FilterExpression for all queries"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Create a Local Secondary Index (LSI) with customerId as partition key and orderDate as sort key</strong></p><p>An LSI shares the same partition key as the base table (customerId) but uses a different sort key (orderDate), enabling efficient range queries within a partition. LSIs must be created at table creation time. For filtering by orderStatus, you can use FilterExpression after retrieving sorted results. A GSI with orderStatus as partition key distributes data differently and would require scanning all orders of a status. A Scan with FilterExpression reads the entire table and is inefficient.</p><p>Reference: <a href='https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LSI.html'>https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/LSI.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q009",
+    "question_number": "9",
+    "question": "A developer needs to generate a time-limited URL that allows an unauthenticated user to download a private object from S3. What should the developer use?",
+    "choices": [
+      "S3 bucket policy with a condition on the IP address",
+      "S3 pre-signed URL generated with valid AWS credentials",
+      "CloudFront signed URL with an OAC",
+      "S3 access point with a public policy"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: S3 pre-signed URL generated with valid AWS credentials</strong></p><p>A pre-signed URL grants temporary access to a private S3 object. The URL is generated using the creator's credentials and includes an expiration time. Anyone with the URL can access the object until it expires, without needing AWS credentials. S3 bucket policies control access at the bucket level, not per-object time-limited access. CloudFront signed URLs are valid for distribution-level access control but require CloudFront setup. S3 access points with public policies would make the object permanently public.</p><p>Reference: <a href='https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html'>https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q010",
+    "question_number": "10",
+    "question": "An SQS queue receives thousands of small messages per second. A Lambda function processes them in batches. Processing has been slow and some messages are expiring. What change will most improve throughput?",
+    "choices": [
+      "Increase the SQS message retention period",
+      "Increase the Lambda batch size and enable batch window",
+      "Switch from a standard queue to a FIFO queue",
+      "Reduce the Lambda function memory allocation"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Increase the Lambda batch size and enable batch window</strong></p><p>Increasing the batch size (up to 10,000 for standard queues) allows Lambda to process more messages per invocation, reducing overhead. The batch window setting (up to 300 seconds) allows Lambda to accumulate messages before invoking, improving efficiency for high-throughput scenarios. Increasing retention prevents expiry but does not improve throughput. FIFO queues have lower throughput limits than standard queues. Reducing memory decreases processing speed.</p><p>Reference: <a href='https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html'>https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q011",
+    "question_number": "11",
+    "question": "A Lambda function occasionally receives malformed messages from SQS that cause it to fail. After several retries the messages should be moved aside for investigation without blocking processing. What should the developer configure?",
+    "choices": [
+      "Set the SQS visibility timeout to 0 for failed messages",
+      "Configure a Dead Letter Queue (DLQ) on the SQS queue with a maxReceiveCount",
+      "Set the Lambda function reserved concurrency to handle retries",
+      "Enable SQS long polling to reduce failed message rate"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Configure a Dead Letter Queue (DLQ) on the SQS queue with a maxReceiveCount</strong></p><p>A Dead Letter Queue receives messages that have been received more than the maxReceiveCount number of times without being successfully deleted. This isolates poison-pill messages for later inspection while allowing healthy messages to continue processing. Setting visibility timeout to 0 makes messages immediately visible, causing infinite retries. Reserved concurrency controls parallelism, not message failure handling. Long polling reduces empty receives but does not handle persistent failures.</p><p>Reference: <a href='https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html'>https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q012",
+    "question_number": "12",
+    "question": "A developer needs to ensure a Lambda function can handle a burst of 500 concurrent invocations for a critical payment processing service without being affected by other Lambda functions in the same account. What should be configured?",
+    "choices": [
+      "Set the Lambda function timeout to the maximum value",
+      "Configure reserved concurrency of 500 on the function",
+      "Enable provisioned concurrency of 500 on the function",
+      "Increase the Lambda memory to the maximum value"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Configure reserved concurrency of 500 on the function</strong></p><p>Reserved concurrency guarantees a set number of concurrent executions exclusively for a function, preventing it from being throttled by other functions and preventing it from consuming all account-level concurrency. Provisioned concurrency pre-warms execution environments to eliminate cold starts but does not reserve capacity away from other functions. Timeout controls execution duration, not concurrency. Memory affects performance, not concurrency limits.</p><p>Reference: <a href='https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html'>https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q013",
+    "question_number": "13",
+    "question": "A developer is uploading a 10 GB file to Amazon S3. The upload fails partway through due to a network error. What is the most efficient way to handle this scenario?",
+    "choices": [
+      "Re-upload the entire file from the beginning after each failure",
+      "Use the S3 multipart upload API with checkpointing to resume failed parts",
+      "Compress the file below 5 GB before uploading to use the standard PUT API",
+      "Upload the file to EC2 first then copy to S3 using the AWS CLI"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Use the S3 multipart upload API with checkpointing to resume failed parts</strong></p><p>S3 multipart upload splits a file into parts (minimum 5 MB each, up to 10,000 parts) that are uploaded independently. If a part fails, only that part needs to be retried, not the entire file. Multipart upload is required for objects larger than 5 GB and recommended for objects larger than 100 MB. Re-uploading the entire file is wasteful. Files over 5 GB cannot be uploaded with a single PUT request. Routing through EC2 adds unnecessary cost and latency.</p><p>Reference: <a href='https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html'>https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q014",
+    "question_number": "14",
+    "question": "A DynamoDB table has a partition key of userId and sort key of timestamp. A query retrieves all items for a userId. The developer notices strongly consistent reads are significantly more expensive than eventually consistent reads. When is a strongly consistent read required?",
+    "choices": [
+      "When reading data that was written more than 1 second ago",
+      "When reading data immediately after a write and the application requires the latest value",
+      "When querying across multiple partitions",
+      "When using a Global Secondary Index"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: When reading data immediately after a write and the application requires the latest value</strong></p><p>DynamoDB strongly consistent reads return the most up-to-date data, reflecting all writes that received a successful response prior to the read. They are necessary when your application requires read-your-writes consistency \u2014 for example, reading immediately after writing. Eventually consistent reads may reflect slightly stale data (usually within one second). Strongly consistent reads are not required based on write age. GSIs only support eventually consistent reads, not strongly consistent. Cross-partition queries use the same consistency model per partition.</p><p>Reference: <a href='https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html'>https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadConsistency.html</a></p></div>"
+  },
+  {
+    "id": "aws-dva-q015",
+    "question_number": "15",
+    "question": "A developer needs to implement real-time processing of clickstream data from a website. The application must process records in the order they arrive per user session and replay data if needed. Which service is most appropriate?",
+    "choices": [
+      "Amazon SQS Standard Queue",
+      "Amazon SQS FIFO Queue",
+      "Amazon Kinesis Data Streams",
+      "Amazon SNS with Lambda"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Amazon Kinesis Data Streams</strong></p><p>Kinesis Data Streams provides ordered, replayable streams of records partitioned by a shard. Records in a shard are ordered and consumers can reprocess data by seeking to a specific position using sequence numbers or timestamps. Kinesis retains data for 24 hours by default (up to 365 days). SQS Standard queues do not guarantee ordering. SQS FIFO queues guarantee ordering but do not support replay. SNS is a pub/sub system without ordering or replay capabilities.</p><p>Reference: <a href='https://docs.aws.amazon.com/streams/latest/dev/introduction.html'>https://docs.aws.amazon.com/streams/latest/dev/introduction.html</a></p></div>"
+  }
+]

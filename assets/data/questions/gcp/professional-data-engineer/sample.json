@@ -1,0 +1,77 @@
+[
+  {
+    "id": "gcp-pde-q1",
+    "question_number": "1",
+    "question": "A company stores transactional data in BigQuery partitioned by date. Analysts frequently query only the last 7 days of data, but the table contains 3 years of data. Query costs are unexpectedly high. What should the data engineer do to reduce costs while maintaining query performance?",
+    "choices": [
+      "Export old data to Cloud Storage and delete it from BigQuery",
+      "Require analysts to use partition filters in their queries by setting the 'require_partition_filter' option on the table",
+      "Convert the table from partitioned to clustered",
+      "Move the table to a multi-region dataset for better pricing"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Require analysts to use partition filters in their queries by setting the 'require_partition_filter' option on the table</strong></p><p>BigQuery charges based on the amount of data scanned by a query. If analysts run queries without a partition filter (WHERE clause on the partition column), BigQuery scans the entire table, leading to high costs. By enabling 'require_partition_filter' on the table, queries without a partition filter will be rejected, forcing analysts to specify a date range. This ensures only relevant partitions are scanned, dramatically reducing costs. Exporting old data is disruptive and may be needed for compliance. Converting to clustered without partitioning removes the partition pruning benefit. Multi-region datasets do not reduce query costs.</p></div>"
+  },
+  {
+    "id": "gcp-pde-q2",
+    "question_number": "2",
+    "question": "A streaming data pipeline must process clickstream events in real-time, apply sessionization logic using a 30-minute gap duration, and write the results to BigQuery. Which combination of services should the data engineer use?",
+    "choices": [
+      "Cloud Pub/Sub \u2192 Dataflow with session windows \u2192 BigQuery",
+      "Cloud Pub/Sub \u2192 Dataproc with Spark Streaming \u2192 BigQuery",
+      "Kafka on GKE \u2192 Cloud Functions \u2192 BigQuery",
+      "Cloud Pub/Sub \u2192 Cloud Composer \u2192 BigQuery"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Cloud Pub/Sub \u2192 Dataflow with session windows \u2192 BigQuery</strong></p><p>Cloud Pub/Sub provides reliable, scalable message ingestion for streaming data. Apache Beam (executed on Dataflow) natively supports session windows, which group events that occur within a specified gap duration (30 minutes in this case). Dataflow is fully managed and auto-scales based on the incoming data volume. The BigQuery I/O connector in Dataflow enables efficient streaming writes to BigQuery. Dataproc with Spark Streaming could work but requires cluster management. Cloud Functions are not designed for complex windowing operations. Cloud Composer is a workflow orchestration tool (Apache Airflow), not a stream processing engine.</p></div>"
+  },
+  {
+    "id": "gcp-pde-q3",
+    "question_number": "3",
+    "question": "A data engineering team needs to publish events from multiple microservices and ensure that each event is processed exactly once by multiple independent consumer applications. Which Pub/Sub configuration achieves this?",
+    "choices": [
+      "Create one topic and one shared subscription for all consumers",
+      "Create one topic and a separate subscription for each consumer application",
+      "Create a separate topic for each consumer application",
+      "Create one topic with a pull subscription and enable message ordering"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Create one topic and a separate subscription for each consumer application</strong></p><p>In Cloud Pub/Sub, each subscription receives a copy of every message published to the topic. By creating a separate subscription for each consumer application, each application independently receives and processes all messages. This is the fan-out pattern. A single shared subscription would distribute messages among consumers (load balancing), meaning each message is processed by only one consumer. Creating separate topics would require publishers to publish to multiple topics. Message ordering ensures in-order delivery within an ordering key but does not address the fan-out requirement. Pub/Sub provides at-least-once delivery; exactly-once processing is achieved through Dataflow's exactly-once semantics or idempotent consumers.</p></div>"
+  },
+  {
+    "id": "gcp-pde-q4",
+    "question_number": "4",
+    "question": "A company needs to migrate an on-premises Hadoop cluster running Apache Spark and Hive jobs to Google Cloud. The jobs run for 2-4 hours daily and the cluster is idle the rest of the time. The company wants to minimize costs. Which approach should the data engineer recommend?",
+    "choices": [
+      "Create a persistent Dataproc cluster that runs 24/7",
+      "Use ephemeral Dataproc clusters that are created before each job and deleted after completion",
+      "Migrate all jobs to Dataflow using Apache Beam",
+      "Run Hadoop on Compute Engine instances with a scheduled start/stop script"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Use ephemeral Dataproc clusters that are created before each job and deleted after completion</strong></p><p>Ephemeral (job-scoped) Dataproc clusters are created when a job needs to run and deleted immediately after the job completes. Since the jobs only run 2-4 hours daily, this approach avoids paying for idle cluster time during the remaining 20+ hours. Dataproc clusters can be created in about 90 seconds, making this practical for daily jobs. Store data in Cloud Storage (instead of HDFS) to decouple storage from compute. A persistent 24/7 cluster wastes resources during idle hours. Migrating all jobs to Dataflow requires rewriting Spark and Hive jobs, which is costly and time-consuming. Managing Hadoop on Compute Engine loses the benefits of a managed service.</p></div>"
+  },
+  {
+    "id": "gcp-pde-q5",
+    "question_number": "5",
+    "question": "A data pipeline ingests files uploaded to a Cloud Storage bucket into BigQuery. The files arrive at unpredictable intervals and vary in size from 1 MB to 10 GB. The data must be available in BigQuery within 15 minutes of upload. Which approach is MOST reliable?",
+    "choices": [
+      "Schedule a BigQuery load job to run every 15 minutes using Cloud Scheduler",
+      "Use a Cloud Storage event notification to trigger a Cloud Function that runs a BigQuery load job",
+      "Configure a BigQuery transfer service to monitor the bucket",
+      "Use a Dataflow streaming pipeline that monitors the Cloud Storage bucket"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Use a Cloud Storage event notification to trigger a Cloud Function that runs a BigQuery load job</strong></p><p>Cloud Storage can publish notifications to Pub/Sub when objects are created. A Cloud Function (triggered by Pub/Sub or directly by Cloud Storage events) can initiate a BigQuery load job for the newly uploaded file. This event-driven approach ensures data is loaded immediately after arrival, well within the 15-minute window. Scheduled jobs running every 15 minutes could miss the window if a file arrives just after a scheduled run. BigQuery Data Transfer Service supports scheduled transfers from specific sources but does not support arbitrary Cloud Storage monitoring. A Dataflow streaming pipeline would work but is over-engineered for a file-loading use case and incurs continuous running costs.</p></div>"
+  }
+]

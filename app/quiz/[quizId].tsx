@@ -39,7 +39,7 @@ export default function QuizScreen() {
       <SafeAreaView style={styles.safe}>
         <ScoreSummary
           attempt={completedAttempt}
-          passingScore={meta?.certification.passingScore || 70}
+          passingScore={meta?.certification.examInfo.passingScore || 70}
           accentColor={session.platformColor}
           onReview={() => {
             router.replace(`/review/${completedAttempt.id}` as Href);

@@ -50,7 +50,7 @@ export default function ExamScreen() {
       <SafeAreaView style={styles.safe}>
         <ScoreSummary
           attempt={completedAttempt}
-          passingScore={certResult?.certification.passingScore || 70}
+          passingScore={certResult?.certification.examInfo.passingScore || 70}
           accentColor={session.platformColor}
           onReview={() => {
             router.replace(`/review/${completedAttempt.id}` as Href);

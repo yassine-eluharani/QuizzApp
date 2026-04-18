@@ -40,7 +40,7 @@ export default function CertificationCard({
         </ThemedText>
         <ThemedText variant="caption">{totalQuestions} questions</ThemedText>
         {bestScore !== null && bestScore !== undefined && (
-          <ThemedText variant="caption" color={bestScore >= certification.passingScore ? Colors.success : Colors.warning}>
+          <ThemedText variant="caption" color={bestScore >= certification.examInfo.passingScore ? Colors.success : Colors.warning}>
             Best: {Math.round(bestScore)}%
           </ThemedText>
         )}

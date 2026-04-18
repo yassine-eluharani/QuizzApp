@@ -1,0 +1,77 @@
+[
+  {
+    "id": "azure-az305-q1",
+    "question_number": "1",
+    "question": "A company is designing a multi-tier web application that must remain available even if an entire Azure region goes down. The application uses Azure SQL Database and Azure App Service. Which architecture pattern should the solutions architect recommend?",
+    "choices": [
+      "Deploy to multiple Availability Zones within a single region with zone-redundant services",
+      "Deploy to two Azure regions in an active-passive configuration with Azure Traffic Manager and Azure SQL geo-replication",
+      "Deploy to a single region with premium-tier services and automated backups",
+      "Deploy to two Azure regions in an active-active configuration without a global load balancer"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Deploy to two Azure regions in an active-passive configuration with Azure Traffic Manager and Azure SQL geo-replication</strong></p><p>To survive a complete regional outage, the application must be deployed across multiple regions. An active-passive configuration with Azure Traffic Manager provides DNS-based failover to the secondary region. Azure SQL geo-replication asynchronously replicates data to the secondary region, enabling failover with minimal data loss. Availability Zones protect against data center failures within a region but not regional outages. A single-region deployment cannot survive a regional outage regardless of the service tier. Active-active without a global load balancer would not properly route traffic or handle failover.</p></div>"
+  },
+  {
+    "id": "azure-az305-q2",
+    "question_number": "2",
+    "question": "An architect is designing a solution that processes millions of IoT device messages per day. The messages must be ingested in real-time, processed within seconds, and stored for long-term analytics. Which combination of Azure services is MOST appropriate?",
+    "choices": [
+      "Azure Service Bus \u2192 Azure Functions \u2192 Azure SQL Database",
+      "Azure Event Hubs \u2192 Azure Stream Analytics \u2192 Azure Data Lake Storage",
+      "Azure Queue Storage \u2192 Azure Logic Apps \u2192 Azure Cosmos DB",
+      "Azure IoT Hub \u2192 Azure Batch \u2192 Azure Blob Storage"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Azure Event Hubs \u2192 Azure Stream Analytics \u2192 Azure Data Lake Storage</strong></p><p>Azure Event Hubs is designed for high-throughput event ingestion, capable of receiving millions of events per second. Azure Stream Analytics processes the data in real-time with SQL-like queries, enabling windowed aggregations and pattern detection within seconds. Azure Data Lake Storage provides cost-effective, scalable storage optimized for analytics workloads. Service Bus is designed for enterprise messaging patterns, not high-throughput telemetry. Queue Storage lacks the throughput needed for millions of messages. Azure Batch is for scheduled batch processing, not real-time processing.</p></div>"
+  },
+  {
+    "id": "azure-az305-q3",
+    "question_number": "3",
+    "question": "A financial services company requires that their disaster recovery solution has an RPO of less than 5 minutes and an RTO of less than 1 hour for their critical Azure Virtual Machines. Which disaster recovery solution meets these requirements?",
+    "choices": [
+      "Azure Backup with daily backup schedules",
+      "Azure Site Recovery with continuous replication to a secondary region",
+      "Azure VM snapshots taken every 4 hours and stored in geo-redundant storage",
+      "Export VM images to Azure Blob Storage in another region weekly"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Azure Site Recovery with continuous replication to a secondary region</strong></p><p>Azure Site Recovery (ASR) provides continuous replication of Azure VMs to a secondary region with an RPO as low as a few seconds. In the event of a disaster, ASR can failover VMs to the secondary region within minutes, meeting the RTO requirement of less than 1 hour. ASR provides application-consistent snapshots and supports recovery plans for orchestrated failover. Azure Backup with daily schedules would have an RPO of 24 hours. VM snapshots every 4 hours exceed the 5-minute RPO requirement. Weekly image exports would have an RPO of 7 days.</p></div>"
+  },
+  {
+    "id": "azure-az305-q4",
+    "question_number": "4",
+    "question": "A company is migrating to Azure and needs to implement a Zero Trust identity architecture. Users must be verified every time they access resources, and access should be granted based on device health, user location, and real-time risk assessment. Which combination should the architect recommend?",
+    "choices": [
+      "Azure AD (Microsoft Entra ID) with Conditional Access policies and Microsoft Entra ID Protection",
+      "Azure AD with basic MFA and IP-based firewall rules",
+      "On-premises Active Directory with a VPN connection to Azure",
+      "Azure AD B2C with social identity providers"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Azure AD (Microsoft Entra ID) with Conditional Access policies and Microsoft Entra ID Protection</strong></p><p>Azure AD Conditional Access is the core policy engine for Zero Trust architecture in Microsoft's ecosystem. It evaluates signals such as user identity, device compliance, location, application, and real-time risk level before granting access. Microsoft Entra ID Protection uses machine learning to detect risky sign-ins and compromised identities in real-time. Together they enable continuous verification of every access request. Basic MFA with IP-based rules lacks the granularity of Conditional Access. On-premises AD with VPN follows a perimeter-based security model, not Zero Trust. Azure AD B2C is for customer-facing applications, not enterprise Zero Trust.</p></div>"
+  },
+  {
+    "id": "azure-az305-q5",
+    "question_number": "5",
+    "question": "An architect needs to design a network topology for a large enterprise with multiple VNets across different Azure regions. The VNets must communicate with each other and with on-premises data centers through a centralized connectivity model. Which architecture should be recommended?",
+    "choices": [
+      "Create full-mesh VNet peering between all VNets",
+      "Use Azure Virtual WAN with hub-and-spoke topology",
+      "Deploy VPN Gateways in each VNet for point-to-point connections",
+      "Use Azure ExpressRoute with a single VNet containing all resources"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<div><p><strong>Correct answer: Use Azure Virtual WAN with hub-and-spoke topology</strong></p><p>Azure Virtual WAN provides a centralized hub-and-spoke network architecture that simplifies large-scale connectivity. It supports transitive routing between VNets, integration with on-premises networks via VPN and ExpressRoute, and scales across multiple regions with interconnected hubs. Full-mesh VNet peering becomes unmanageable at scale and does not support transitive routing. Deploying VPN Gateways in each VNet creates excessive complexity and cost. A single VNet for all resources is not practical for large enterprises and limits scalability, security segmentation, and regional deployment.</p></div>"
+  }
+]
