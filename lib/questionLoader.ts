@@ -14,6 +14,8 @@ const questionFiles: Record<string, Question[]> = {
   'aws-saa-quiz-7': require('@/assets/data/questions/aws/solutions-architect/quiz-7.json'),
   // AWS Developer Associate
   'aws-dva-quiz-1': require('@/assets/data/questions/aws/developer-associate/quiz-1.json'),
+  'aws-dva-quiz-2': require('@/assets/data/questions/aws/developer-associate/quiz-2.json'),
+  'aws-dva-quiz-3': require('@/assets/data/questions/aws/developer-associate/quiz-3.json'),
   // AWS SysOps Admin
   'aws-soa-quiz-1': require('@/assets/data/questions/aws/sysops-admin/quiz-1.json'),
   // AWS DevOps Professional

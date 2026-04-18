@@ -20,6 +20,9 @@ export const FREE_BOOKMARK_LIMIT = 10;
  * Uses multi-layer validation to prevent tampering
  */
 export function isQuizAccessible(quizId: string, isPro: boolean): boolean {
+  // DEV BYPASS - remove before production
+  if (__DEV__) return true;
+
   // Primary validation through access control
   const accessValid = validateContentAccess(quizId, isPro);
 

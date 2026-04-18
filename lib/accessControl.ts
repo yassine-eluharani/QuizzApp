@@ -56,6 +56,9 @@ function hashString(str: string): number {
 
 // Multi-layer access validation
 export function validateContentAccess(quizId: string, isPro: boolean): boolean {
+  // DEV BYPASS - remove before production
+  if (__DEV__) return true;
+
   // Check for clock manipulation (potential tampering)
   if (detectClockManipulation()) {
     return false;

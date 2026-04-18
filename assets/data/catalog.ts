@@ -35,7 +35,9 @@ export const platforms: Platform[] = [
         passingScore: 72,
         totalExamQuestions: 65,
         quizzes: [
-          { id: 'aws-dva-quiz-1', name: 'Quiz 1', certificationId: 'aws-dva', questionCount: 5, isFree: false },
+          { id: 'aws-dva-quiz-1', name: 'Quiz 1', certificationId: 'aws-dva', questionCount: 65, isFree: false },
+          { id: 'aws-dva-quiz-2', name: 'Quiz 2', certificationId: 'aws-dva', questionCount: 65, isFree: false },
+          { id: 'aws-dva-quiz-3', name: 'Quiz 3', certificationId: 'aws-dva', questionCount: 65, isFree: false },
         ],
       },
       {
