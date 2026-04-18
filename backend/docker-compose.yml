@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cloudprep
+      POSTGRES_USER: cloudprep
+      POSTGRES_PASSWORD: cloudprep
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudprep -d cloudprep"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://cloudprep:cloudprep@db:5432/cloudprep
+      REVENUECAT_SECRET_KEY: ${REVENUECAT_SECRET_KEY:-sk_placeholder}
+      REVENUECAT_ENTITLEMENT_ID: ${REVENUECAT_ENTITLEMENT_ID:-pro}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:-local-dev-admin-key}
+
+volumes:
+  postgres_data:

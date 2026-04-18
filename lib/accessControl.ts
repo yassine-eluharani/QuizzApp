@@ -7,13 +7,15 @@ import { getSecurityState, detectClockManipulation } from './security';
 
 // Obfuscated suffix bytes for '-sample'
 const _sfx = [0x2d, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65]; // '-sample'
+// Obfuscated suffix bytes for '-quiz-1'
+const _sfx2 = [0x2d, 0x71, 0x75, 0x69, 0x7a, 0x2d, 0x31]; // '-quiz-1'
 
 function _d(arr: number[]): string {
   return String.fromCharCode(...arr);
 }
 
-function _isSample(quizId: string): boolean {
-  return quizId.endsWith(_d(_sfx));
+function _isFreeQuiz(quizId: string): boolean {
+  return quizId.endsWith(_d(_sfx)) || quizId.endsWith(_d(_sfx2));
 }
 
 // Multiple validation functions - makes single-point patching harder
@@ -21,21 +23,24 @@ type ValidationFn = (quizId: string, isPro: boolean) => boolean;
 
 const _v1: ValidationFn = (quizId, isPro) => {
   if (isPro) return true;
-  return _isSample(quizId);
+  return _isFreeQuiz(quizId);
 };
 
 const _v2: ValidationFn = (quizId, isPro) => {
   if (!quizId || typeof quizId !== 'string') return false;
   if (isPro) return true;
-  return _isSample(quizId);
+  return _isFreeQuiz(quizId);
 };
 
 const _v3: ValidationFn = (quizId, isPro) => {
   if (isPro) return true;
-  const suffix = _d(_sfx);
-  const suffixHash = hashString(suffix);
-  const inputSuffix = quizId.slice(-suffix.length);
-  return hashString(inputSuffix) === suffixHash;
+  const sample = _d(_sfx);
+  const first = _d(_sfx2);
+  const sampleHash = hashString(sample);
+  const firstHash = hashString(first);
+  const sampleSuffix = quizId.slice(-sample.length);
+  const firstSuffix = quizId.slice(-first.length);
+  return hashString(sampleSuffix) === sampleHash || hashString(firstSuffix) === firstHash;
 };
 
 // Simple string hash for comparison
@@ -51,9 +56,6 @@ function hashString(str: string): number {
 
 // Multi-layer access validation
 export function validateContentAccess(quizId: string, isPro: boolean): boolean {
-  // DEV BYPASS - remove before production
-  if (__DEV__) return true;
-
   // Check for clock manipulation (potential tampering)
   if (detectClockManipulation()) {
     return false;
@@ -87,7 +89,7 @@ export function validateExamAccess(isPro: boolean): boolean {
 }
 
 // Bookmark limit validation
-const _bl = 0x0A; // 10 in hex
+const _bl = 0x19; // 25 in hex
 
 export function validateBookmarkLimit(currentCount: number, isPro: boolean): boolean {
   if (typeof currentCount !== 'number' || currentCount < 0) {
