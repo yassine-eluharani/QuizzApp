@@ -1,22 +1,38 @@
-import { Platform, NativeModules } from 'react-native';
+import { Platform } from 'react-native';
 import * as Application from 'expo-application';
 import * as Device from 'expo-device';
 import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
+import { hmac } from '@noble/hashes/hmac.js';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex, hexToBytes, utf8ToBytes } from '@noble/hashes/utils.js';
 
-// Obfuscated bundle identifiers
-const _b = ['com', 'levisine', 'Quiz'];
-const _getBundleId = () => _b.join('.');
+// ----- Bundle identifier (single source of truth: app.json) -----
 
-// Security state - tracked across multiple checks
-let _securityState = {
+function getExpectedBundleId(): string {
+  const cfg =
+    Constants.expoConfig ?? (Constants.manifest2 as unknown as typeof Constants.expoConfig);
+  if (Platform.OS === 'ios') {
+    return cfg?.ios?.bundleIdentifier ?? '';
+  }
+  if (Platform.OS === 'android') {
+    return cfg?.android?.package ?? '';
+  }
+  return '';
+}
+
+// ----- Security state -----
+
+const _securityState = {
   bundleValid: false,
   environmentValid: false,
   integrityValid: false,
   lastCheck: 0,
 };
 
-// Generate device fingerprint for integrity verification
+// ----- Device fingerprint -----
+
 async function generateDeviceFingerprint(): Promise<string> {
   const components = [
     Device.brand || '',
@@ -25,34 +41,40 @@ async function generateDeviceFingerprint(): Promise<string> {
     Device.osVersion || '',
     Application.applicationId || '',
   ];
-  const data = components.join('|');
-  return await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, data);
+  return await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, components.join('|'));
 }
 
-// Verify bundle identifier matches expected value
-export function verifyBundleId(): boolean {
-  const expected = _getBundleId();
-  const actual = Application.applicationId;
+// ----- Bundle ID verification -----
 
+export function verifyBundleId(): boolean {
   if (Platform.OS === 'web') {
     _securityState.bundleValid = true;
     return true;
   }
 
-  if (!actual) {
+  const expected = getExpectedBundleId();
+  const actual = Application.applicationId;
+
+  if (!expected || !actual) {
     _securityState.bundleValid = false;
     return false;
   }
 
-  // Use timing-safe comparison
-  const isValid = actual.length === expected.length &&
-    actual.split('').every((char, i) => char === expected[i]);
+  if (actual.length !== expected.length) {
+    _securityState.bundleValid = false;
+    return false;
+  }
 
-  _securityState.bundleValid = isValid;
-  return isValid;
+  let diff = 0;
+  for (let i = 0; i < actual.length; i++) {
+    diff |= actual.charCodeAt(i) ^ expected.charCodeAt(i);
+  }
+  _securityState.bundleValid = diff === 0;
+  return diff === 0;
 }
 
-// Detect if running in debug/development mode
+// ----- Build / environment checks -----
+
 export function isDebugBuild(): boolean {
   if (__DEV__) {
     _securityState.environmentValid = false;
@@ -62,56 +84,23 @@ export function isDebugBuild(): boolean {
   return false;
 }
 
-// Check for jailbreak/root indicators (iOS)
 function checkJailbreakIndicators(): boolean {
   if (Platform.OS !== 'ios') return false;
-
-  // Check for common jailbreak paths/indicators
-  // These checks work at the JS level - native checks would be more thorough
-  const suspiciousIndicators = [
-    // Check if certain modules exist that shouldn't in production
-    typeof (global as any).nativeCallSyncHook !== 'undefined',
-  ];
-
-  return suspiciousIndicators.some(indicator => indicator);
+  return typeof (global as { nativeCallSyncHook?: unknown }).nativeCallSyncHook !== 'undefined';
 }
 
-// Check for root indicators (Android)
 function checkRootIndicators(): boolean {
   if (Platform.OS !== 'android') return false;
-
-  // Basic Android checks - more thorough checks require native modules
-  const suspiciousIndicators = [
-    // Check if debug mode is enabled
-    typeof (global as any).nativeCallSyncHook !== 'undefined',
-  ];
-
-  return suspiciousIndicators.some(indicator => indicator);
+  return typeof (global as { nativeCallSyncHook?: unknown }).nativeCallSyncHook !== 'undefined';
 }
 
-// Check for emulator/simulator
 export function isEmulator(): boolean {
   if (Platform.OS === 'web') return false;
-
-  // expo-device provides isDevice which is false on simulators/emulators
   return !Device.isDevice;
 }
 
-// Check for debugger attachment
-function isDebuggerAttached(): boolean {
-  // Timing-based detection - debuggers slow down execution
-  const start = Date.now();
-  for (let i = 0; i < 1000; i++) {
-    Math.random();
-  }
-  const elapsed = Date.now() - start;
+// ----- Integrity validation -----
 
-  // If simple operations take too long, debugger might be attached
-  // Threshold is generous to avoid false positives
-  return elapsed > 100;
-}
-
-// Validate app integrity using multiple signals
 export async function validateIntegrity(): Promise<boolean> {
   const checks = [
     verifyBundleId(),
@@ -119,60 +108,72 @@ export async function validateIntegrity(): Promise<boolean> {
     !checkJailbreakIndicators(),
     !checkRootIndicators(),
   ];
-
-  // In production, we might want to be stricter
-  // For now, we track the state but don't block
-  _securityState.integrityValid = checks.every(c => c);
+  _securityState.integrityValid = checks.every(Boolean);
   _securityState.lastCheck = Date.now();
-
   return _securityState.integrityValid;
 }
 
-// Get current security state (for conditional logic elsewhere)
-export function getSecurityState() {
+export function getSecurityState(): typeof _securityState {
   return { ..._securityState };
 }
 
-// Secure key derivation for local encryption
+// ----- HMAC signing with per-install secret -----
+
+const HMAC_SECRET_KEY = 'cq_hmac_secret_v1';
+let _hmacSecretCache: Uint8Array | null = null;
+
+async function getOrCreateHmacSecret(): Promise<Uint8Array> {
+  if (_hmacSecretCache) return _hmacSecretCache;
+
+  const stored = await SecureStore.getItemAsync(HMAC_SECRET_KEY);
+  if (stored) {
+    _hmacSecretCache = hexToBytes(stored);
+    return _hmacSecretCache;
+  }
+
+  const bytes = await Crypto.getRandomBytesAsync(32);
+  const fresh = new Uint8Array(bytes);
+  await SecureStore.setItemAsync(HMAC_SECRET_KEY, bytesToHex(fresh));
+  _hmacSecretCache = fresh;
+  return fresh;
+}
+
 export async function deriveSecureKey(purpose: string): Promise<string> {
   const fingerprint = await generateDeviceFingerprint();
-  const combined = `${fingerprint}:${purpose}:${_getBundleId()}`;
-  return await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, combined);
+  const expected = getExpectedBundleId();
+  return await Crypto.digestStringAsync(
+    Crypto.CryptoDigestAlgorithm.SHA256,
+    `${fingerprint}:${purpose}:${expected}`
+  );
 }
 
-// Sign data for integrity verification
 export async function signData(data: string): Promise<string> {
-  const key = await deriveSecureKey('signing');
-  const toSign = `${data}:${key}`;
-  return await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, toSign);
+  const secret = await getOrCreateHmacSecret();
+  const sig = hmac(sha256, secret, utf8ToBytes(data));
+  return bytesToHex(sig);
 }
 
-// Verify signed data
 export async function verifySignedData(data: string, signature: string): Promise<boolean> {
-  const expectedSignature = await signData(data);
-  // Timing-safe comparison
-  if (expectedSignature.length !== signature.length) return false;
-  let result = 0;
-  for (let i = 0; i < expectedSignature.length; i++) {
-    result |= expectedSignature.charCodeAt(i) ^ signature.charCodeAt(i);
+  const expected = await signData(data);
+  if (expected.length !== signature.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) {
+    diff |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
   }
-  return result === 0;
+  return diff === 0;
 }
 
-// Encrypted secure storage wrapper
+// ----- Signed storage wrapper -----
+
 const STORAGE_PREFIX = 'cq_sec_';
 
 export async function secureSet(key: string, value: string): Promise<void> {
   try {
-    const encryptionKey = await deriveSecureKey('storage');
     const signature = await signData(value);
     const payload = JSON.stringify({ v: value, s: signature, t: Date.now() });
-
-    // In a real implementation, we'd encrypt the payload
-    // For now, we store with signature for integrity
     await SecureStore.setItemAsync(`${STORAGE_PREFIX}${key}`, payload);
   } catch (error) {
-    // Silently fail - don't expose storage errors
+    if (__DEV__) console.warn('[security] secureSet failed', error);
   }
 }
 
@@ -181,17 +182,15 @@ export async function secureGet(key: string): Promise<string | null> {
     const stored = await SecureStore.getItemAsync(`${STORAGE_PREFIX}${key}`);
     if (!stored) return null;
 
-    const payload = JSON.parse(stored);
-    const isValid = await verifySignedData(payload.v, payload.s);
-
-    if (!isValid) {
-      // Data was tampered with - delete it
+    const parsed = JSON.parse(stored) as { v: string; s: string; t: number };
+    const ok = await verifySignedData(parsed.v, parsed.s);
+    if (!ok) {
       await SecureStore.deleteItemAsync(`${STORAGE_PREFIX}${key}`);
       return null;
     }
-
-    return payload.v;
+    return parsed.v;
   } catch (error) {
+    if (__DEV__) console.warn('[security] secureGet failed', error);
     return null;
   }
 }
@@ -200,15 +199,14 @@ export async function secureDelete(key: string): Promise<void> {
   try {
     await SecureStore.deleteItemAsync(`${STORAGE_PREFIX}${key}`);
   } catch (error) {
-    // Silently fail
+    if (__DEV__) console.warn('[security] secureDelete failed', error);
   }
 }
 
-// Run all integrity checks - called on app startup
+// ----- Startup integrity log (dev only) -----
+
 export async function runIntegrityChecks(): Promise<boolean> {
   const isValid = await validateIntegrity();
-
-  // Log warnings in development only
   if (__DEV__) {
     const state = getSecurityState();
     if (!state.bundleValid) console.warn('[Security] Bundle ID mismatch');
@@ -216,29 +214,17 @@ export async function runIntegrityChecks(): Promise<boolean> {
     if (!state.integrityValid) console.warn('[Security] Integrity check failed');
     if (isEmulator()) console.warn('[Security] Running on emulator/simulator');
   }
-
   return isValid;
 }
 
-// Obfuscation helpers - make it harder to find sensitive strings
-export function _o(encoded: string): string {
-  // Simple base64-like obfuscation for string constants
-  try {
-    return atob(encoded);
-  } catch {
-    return encoded;
-  }
-}
+// ----- Clock manipulation detection -----
 
-// Time-based check to detect clock manipulation
 let _lastTimeCheck = Date.now();
+
 export function detectClockManipulation(): boolean {
   const now = Date.now();
   const elapsed = now - _lastTimeCheck;
-
-  // If time went backwards or jumped forward significantly
-  const isManipulated = elapsed < -1000 || elapsed > 86400000; // 24 hours
+  const isManipulated = elapsed < -1000 || elapsed > 86400000;
   _lastTimeCheck = now;
-
   return isManipulated;
 }

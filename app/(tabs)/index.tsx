@@ -25,7 +25,7 @@ export default function BrowseScreen() {
           Platforms
         </ThemedText>
 
-        {platforms.map(platform => (
+        {platforms.map((platform) => (
           <PlatformCard
             key={platform.id}
             platform={platform}

@@ -36,7 +36,12 @@ export default function QuizHeader({
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={onClose} hitSlop={8}>
+        <TouchableOpacity
+          onPress={onClose}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Exit quiz"
+        >
           <Ionicons name="close" size={24} color={Colors.textSecondary} />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
@@ -51,12 +56,20 @@ export default function QuizHeader({
               variant="bodyLarge"
               color={timerWarning ? Colors.error : Colors.textSecondary}
               style={styles.timer}
+              accessibilityLabel={`Time remaining ${timer}`}
+              accessibilityLiveRegion={timerWarning ? 'assertive' : 'polite'}
             >
               {timer}
             </ThemedText>
           )}
           {onBookmark && (
-            <TouchableOpacity onPress={onBookmark} hitSlop={8}>
+            <TouchableOpacity
+              onPress={onBookmark}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+              accessibilityState={{ selected: !!isBookmarked }}
+            >
               <Ionicons
                 name={isBookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={22}

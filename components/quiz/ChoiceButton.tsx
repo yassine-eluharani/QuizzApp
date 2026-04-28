@@ -15,27 +15,63 @@ interface ChoiceButtonProps {
   onPress: () => void;
 }
 
-const statusStyles: Record<ChoiceStatus, { border: string; bg: string; icon?: string; iconColor?: string }> = {
+const statusStyles: Record<
+  ChoiceStatus,
+  { border: string; bg: string; icon?: string; iconColor?: string }
+> = {
   default: { border: Colors.border, bg: Colors.surface },
   selected: { border: Colors.primary, bg: Colors.primary + '15' },
-  correct: { border: Colors.success, bg: Colors.success + '15', icon: 'checkmark-circle', iconColor: Colors.success },
-  incorrect: { border: Colors.error, bg: Colors.error + '15', icon: 'close-circle', iconColor: Colors.error },
+  correct: {
+    border: Colors.success,
+    bg: Colors.success + '15',
+    icon: 'checkmark-circle',
+    iconColor: Colors.success,
+  },
+  incorrect: {
+    border: Colors.error,
+    bg: Colors.error + '15',
+    icon: 'close-circle',
+    iconColor: Colors.error,
+  },
 };
 
 const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-export default function ChoiceButton({ text, index, status, disabled, onPress }: ChoiceButtonProps) {
+export default function ChoiceButton({
+  text,
+  index,
+  status,
+  disabled,
+  onPress,
+}: ChoiceButtonProps) {
   const s = statusStyles[status];
+
+  const labelLetter = labels[index] || String(index + 1);
+  const stateHint =
+    status === 'selected'
+      ? 'selected'
+      : status === 'correct'
+        ? 'correct answer'
+        : status === 'incorrect'
+          ? 'incorrect answer'
+          : undefined;
 
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
+      accessibilityRole="button"
+      accessibilityLabel={`Option ${labelLetter}: ${text}`}
+      accessibilityHint={stateHint}
+      accessibilityState={{ disabled, selected: status === 'selected' }}
       style={[styles.container, { borderColor: s.border, backgroundColor: s.bg }]}
     >
       <View style={[styles.label, { borderColor: s.border }]}>
-        <ThemedText variant="caption" color={s.border === Colors.border ? Colors.textMuted : s.border}>
+        <ThemedText
+          variant="caption"
+          color={s.border === Colors.border ? Colors.textMuted : s.border}
+        >
           {labels[index] || String(index + 1)}
         </ThemedText>
       </View>

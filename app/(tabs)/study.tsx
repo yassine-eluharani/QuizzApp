@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { ScrollView, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ThemedText from '@/components/ui/ThemedText';
@@ -15,12 +14,14 @@ export default function StudyScreen() {
   const { bookmarks, bookmarksMeta, toggleBookmark } = useAppContext();
 
   const bookmarkedQuestions = useMemo(() => {
-    return bookmarks.map(id => {
-      const question = loadQuestionById(id);
-      const meta = bookmarksMeta[id];
-      const certResult = meta ? getCertification(meta.certId) : undefined;
-      return { id, question, meta, certResult };
-    }).filter(b => b.question);
+    return bookmarks
+      .map((id) => {
+        const question = loadQuestionById(id);
+        const meta = bookmarksMeta[id];
+        const certResult = meta ? getCertification(meta.certId) : undefined;
+        return { id, question, meta, certResult };
+      })
+      .filter((b) => b.question);
   }, [bookmarks, bookmarksMeta]);
 
   // Group by certification
@@ -61,11 +62,18 @@ export default function StudyScreen() {
                 <ThemedText variant="label" color={platformColor} style={styles.sectionLabel}>
                   {certName}
                 </ThemedText>
-                {items.map(item => {
-                  const cleaned = item.question!.question.trim().replace(/\s+/g, ' ').substring(0, 150);
+                {items.map((item) => {
+                  const cleaned = item
+                    .question!.question.trim()
+                    .replace(/\s+/g, ' ')
+                    .substring(0, 150);
                   return (
                     <Card key={item.id} style={styles.questionCard}>
-                      <ThemedText variant="body" color={Colors.textPrimary} style={styles.questionText}>
+                      <ThemedText
+                        variant="body"
+                        color={Colors.textPrimary}
+                        style={styles.questionText}
+                      >
                         {cleaned}...
                       </ThemedText>
                       <View style={styles.cardFooter}>
@@ -74,7 +82,9 @@ export default function StudyScreen() {
                         </ThemedText>
                         <TouchableOpacity
                           onPress={() => toggleBookmark(item.id)}
-                          hitSlop={8}
+                          hitSlop={12}
+                          accessibilityRole="button"
+                          accessibilityLabel="Remove bookmark"
                         >
                           <Ionicons name="bookmark" size={18} color={Colors.warning} />
                         </TouchableOpacity>

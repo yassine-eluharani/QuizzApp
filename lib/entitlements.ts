@@ -61,7 +61,10 @@ export function getBookmarkLimitForDisplay(isPro: boolean): number | string {
 /**
  * Get access status summary for a quiz.
  */
-export function getQuizAccessStatus(quizId: string, isPro: boolean): {
+export function getQuizAccessStatus(
+  quizId: string,
+  isPro: boolean
+): {
   accessible: boolean;
   reason: 'sample' | 'free' | 'pro' | 'locked';
 } {

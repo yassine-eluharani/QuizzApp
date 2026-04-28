@@ -11,7 +11,8 @@ import {
 interface PurchaseContextType {
   isPro: boolean;
   isLoading: boolean;
-  purchasePro: () => Promise<boolean>;
+  isPurchasesConfigured: boolean;
+  purchasePro: () => Promise<import('@/lib/purchases').PurchaseResult>;
   restorePurchases: () => Promise<boolean>;
   showPaywall: () => void;
   hidePaywall: () => void;
@@ -116,24 +117,14 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   }, [performIntegrityCheck]);
 
   const purchasePro = useCallback(async () => {
-    try {
-      // Validate integrity before purchase
-      const securityState = getSecurityState();
-      if (!securityState.integrityValid && !__DEV__) {
-        // Log but don't block in most cases
-        // The purchase flow has its own integrity check
-      }
-
-      const result = await PurchasesLib.purchasePro();
-      if (result) {
-        setIsPro(true);
-        setPaywallVisible(false);
-      }
-      return result;
-    } catch (error) {
-      // Re-throw to let UI handle the error
-      throw error;
+    // The lower-level purchasePro handles its own integrity check and never throws.
+    void getSecurityState; // (kept import for future telemetry hooks)
+    const result = await PurchasesLib.purchasePro();
+    if (result.ok) {
+      setIsPro(true);
+      setPaywallVisible(false);
     }
+    return result;
   }, []);
 
   const restorePurchases = useCallback(async () => {
@@ -148,25 +139,33 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   const showPaywall = useCallback(() => setPaywallVisible(true), []);
   const hidePaywall = useCallback(() => setPaywallVisible(false), []);
 
+  const isPurchasesConfigured = PurchasesLib.isPurchasesConfigured();
+
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = React.useMemo(
     () => ({
       isPro,
       isLoading,
+      isPurchasesConfigured,
       purchasePro,
       restorePurchases,
       showPaywall,
       hidePaywall,
       paywallVisible,
     }),
-    [isPro, isLoading, purchasePro, restorePurchases, showPaywall, hidePaywall, paywallVisible]
+    [
+      isPro,
+      isLoading,
+      isPurchasesConfigured,
+      purchasePro,
+      restorePurchases,
+      showPaywall,
+      hidePaywall,
+      paywallVisible,
+    ]
   );
 
-  return (
-    <PurchaseContext.Provider value={contextValue}>
-      {children}
-    </PurchaseContext.Provider>
-  );
+  return <PurchaseContext.Provider value={contextValue}>{children}</PurchaseContext.Provider>;
 }
 
 export function usePurchase() {

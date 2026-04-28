@@ -43,9 +43,12 @@ export default function PlatformScreen() {
           Certifications
         </ThemedText>
 
-        {platform.certifications.map(cert => {
-          const certBestScores = cert.quizzes.map(q => getBestScore(q.id)).filter(s => s !== null);
-          const overallBest = certBestScores.length > 0 ? Math.max(...certBestScores as number[]) : null;
+        {platform.certifications.map((cert) => {
+          const certBestScores = cert.quizzes
+            .map((q) => getBestScore(q.id))
+            .filter((s) => s !== null);
+          const overallBest =
+            certBestScores.length > 0 ? Math.max(...(certBestScores as number[])) : null;
 
           return (
             <CertificationCard

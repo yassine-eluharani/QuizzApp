@@ -1,7 +1,6 @@
 import { Question } from '@/types/quiz';
 import { isQuizAccessible } from '@/lib/entitlements';
 import { canAccessContent, isValidQuizId } from '@/lib/accessControl';
-import { getSecurityState } from '@/lib/security';
 
 const questionFiles: Record<string, Question[]> = {
   // AWS Solutions Architect
@@ -103,7 +102,7 @@ export function loadQuestionById(questionId: string): Question | undefined {
   for (const questions of Object.values(questionFiles)) {
     if (!Array.isArray(questions)) continue;
 
-    const found = questions.find(q => q.id === questionId);
+    const found = questions.find((q) => q.id === questionId);
     if (found) {
       // Return a copy
       return { ...found };
@@ -118,7 +117,7 @@ export function loadQuestionsByIds(questionIds: string[]): Question[] {
     return [];
   }
 
-  const idSet = new Set(questionIds.filter(id => typeof id === 'string'));
+  const idSet = new Set(questionIds.filter((id) => typeof id === 'string'));
   const results: Question[] = [];
 
   for (const questions of Object.values(questionFiles)) {

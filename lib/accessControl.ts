@@ -1,118 +1,60 @@
 /**
  * Access Control Module
- * Handles content access validation with multiple verification layers
+ *
+ * Client-side access gating for quizzes, exams and bookmark limits.
+ *
+ * SECURITY NOTE: client-side gating is convenience only. The authoritative
+ * access decision lives on the backend (see `backend/src/middleware/requirePro.ts`)
+ * which validates the user's RevenueCat entitlement before serving paid content.
+ * Anything checked here is bypassable on a modified client; never rely on it
+ * for protecting revenue.
  */
 
-import { getSecurityState, detectClockManipulation } from './security';
+import { detectClockManipulation } from './security';
 
-// Obfuscated suffix bytes for '-sample'
-const _sfx = [0x2d, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65]; // '-sample'
-// Obfuscated suffix bytes for '-quiz-1'
-const _sfx2 = [0x2d, 0x71, 0x75, 0x69, 0x7a, 0x2d, 0x31]; // '-quiz-1'
+const FREE_SUFFIXES = ['-sample', '-quiz-1'] as const;
 
-function _d(arr: number[]): string {
-  return String.fromCharCode(...arr);
+// Quiz IDs are kebab-cased: `{platform-segments}-(quiz-N|sample)`. The
+// platform/cert prefix may itself contain hyphens (e.g. `azure-az900-quiz-1`
+// today, `gcp-professional-data-engineer-quiz-1` if expanded later).
+const QUIZ_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)+-(?:quiz-\d+|sample)$/;
+
+const FREE_BOOKMARK_LIMIT = 25;
+
+function isFreeQuiz(quizId: string): boolean {
+  return FREE_SUFFIXES.some((suffix) => quizId.endsWith(suffix));
 }
 
-function _isFreeQuiz(quizId: string): boolean {
-  return quizId.endsWith(_d(_sfx)) || quizId.endsWith(_d(_sfx2));
-}
-
-// Multiple validation functions - makes single-point patching harder
-type ValidationFn = (quizId: string, isPro: boolean) => boolean;
-
-const _v1: ValidationFn = (quizId, isPro) => {
-  if (isPro) return true;
-  return _isFreeQuiz(quizId);
-};
-
-const _v2: ValidationFn = (quizId, isPro) => {
+export function isValidQuizId(quizId: string): boolean {
   if (!quizId || typeof quizId !== 'string') return false;
-  if (isPro) return true;
-  return _isFreeQuiz(quizId);
-};
-
-const _v3: ValidationFn = (quizId, isPro) => {
-  if (isPro) return true;
-  const sample = _d(_sfx);
-  const first = _d(_sfx2);
-  const sampleHash = hashString(sample);
-  const firstHash = hashString(first);
-  const sampleSuffix = quizId.slice(-sample.length);
-  const firstSuffix = quizId.slice(-first.length);
-  return hashString(sampleSuffix) === sampleHash || hashString(firstSuffix) === firstHash;
-};
-
-// Simple string hash for comparison
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return hash;
+  return QUIZ_ID_PATTERN.test(quizId);
 }
 
-// Multi-layer access validation
 export function validateContentAccess(quizId: string, isPro: boolean): boolean {
-  // Check for clock manipulation (potential tampering)
-  if (detectClockManipulation()) {
-    return false;
-  }
-
-  // Run multiple validation functions
-  const results = [
-    _v1(quizId, isPro),
-    _v2(quizId, isPro),
-    _v3(quizId, isPro),
-  ];
-
-  // All validators must agree
-  const allAgree = results.every(r => r === results[0]);
-  if (!allAgree) {
-    // Validators disagree - potential tampering
-    return false;
-  }
-
-  return results[0];
+  if (!isValidQuizId(quizId)) return false;
+  if (detectClockManipulation()) return false;
+  if (isPro) return true;
+  return isFreeQuiz(quizId);
 }
 
-// Validate exam access with additional checks
 export function validateExamAccess(isPro: boolean): boolean {
-  if (detectClockManipulation()) {
-    return false;
-  }
-
-  // Exams require pro - no exceptions
+  if (detectClockManipulation()) return false;
   return isPro === true;
 }
 
-// Bookmark limit validation
-const _bl = 0x19; // 25 in hex
-
 export function validateBookmarkLimit(currentCount: number, isPro: boolean): boolean {
-  if (typeof currentCount !== 'number' || currentCount < 0) {
-    return false;
-  }
-
+  // Clamp instead of denying: a bad count from corrupted state shouldn't
+  // permanently lock a free user out of bookmarks.
+  const safeCount =
+    typeof currentCount === 'number' && currentCount >= 0 ? Math.floor(currentCount) : 0;
   if (isPro === true) return true;
-  return currentCount < _bl;
+  return safeCount < FREE_BOOKMARK_LIMIT;
 }
 
-// Get the current bookmark limit (for display purposes)
 export function getBookmarkLimit(isPro: boolean): number {
-  return isPro ? Infinity : _bl;
+  return isPro ? Infinity : FREE_BOOKMARK_LIMIT;
 }
 
-// Validate that a quiz ID is properly formatted
-export function isValidQuizId(quizId: string): boolean {
-  if (!quizId || typeof quizId !== 'string') return false;
-  // Matches: platform-cert-quiz-N  OR  platform-cert-sample
-  return /^[a-z0-9]+-[a-z0-9]+-(?:quiz-\d+|sample)$/.test(quizId);
-}
-
-// Check if content should be accessible (combines all checks)
 export function canAccessContent(
   contentType: 'quiz' | 'exam' | 'bookmark',
   options: { quizId?: string; isPro: boolean; bookmarkCount?: number }

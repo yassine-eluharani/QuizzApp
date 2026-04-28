@@ -3,6 +3,15 @@
 # AI agent files (local only, not for version control)
 .ai/
 
+# Claude Code per-project state — symlinks (project/.claude/skills/) point to
+# absolute paths on this machine, and settings.local.json is per-developer.
+# Shared project conventions live in CLAUDE.md at the repo root instead.
+.claude/
+
+# Backend env (real secrets — only .env.example is committed)
+backend/.env
+.env
+
 # dependencies
 node_modules/
 

@@ -20,9 +20,10 @@ export default function StatsScreen() {
   const router = useRouter();
 
   const totalAttempts = history.length;
-  const avgScore = totalAttempts > 0
-    ? Math.round(history.reduce((s, a) => s + a.percentage, 0) / totalAttempts)
-    : 0;
+  const avgScore =
+    totalAttempts > 0
+      ? Math.round(history.reduce((s, a) => s + a.percentage, 0) / totalAttempts)
+      : 0;
   const totalTime = history.reduce((s, a) => s + a.timeTaken, 0);
 
   // Recent scores for chart
@@ -31,7 +32,7 @@ export default function StatsScreen() {
     if (recent.length < 2) return null;
     return {
       labels: recent.map((_, i) => `${i + 1}`),
-      datasets: [{ data: recent.map(a => Math.round(a.percentage)) }],
+      datasets: [{ data: recent.map((a) => Math.round(a.percentage)) }],
     };
   }, [history]);
 
@@ -87,12 +88,16 @@ export default function StatsScreen() {
         <View style={styles.overviewRow}>
           <Card style={styles.overviewCard}>
             <Ionicons name="document-text" size={22} color={Colors.primary} />
-            <ThemedText variant="title" style={styles.overviewValue}>{totalAttempts}</ThemedText>
+            <ThemedText variant="title" style={styles.overviewValue}>
+              {totalAttempts}
+            </ThemedText>
             <ThemedText variant="caption">Quizzes</ThemedText>
           </Card>
           <Card style={styles.overviewCard}>
             <Ionicons name="trending-up" size={22} color={Colors.success} />
-            <ThemedText variant="title" style={styles.overviewValue}>{avgScore}%</ThemedText>
+            <ThemedText variant="title" style={styles.overviewValue}>
+              {avgScore}%
+            </ThemedText>
             <ThemedText variant="caption">Avg Score</ThemedText>
           </Card>
           <Card style={styles.overviewCard}>
@@ -142,7 +147,7 @@ export default function StatsScreen() {
             <ThemedText variant="label" style={styles.sectionLabel}>
               Accuracy by Certification
             </ThemedText>
-            {certStats.map(stat => (
+            {certStats.map((stat) => (
               <Card key={stat.id} style={styles.certStatCard}>
                 <View style={styles.certStatRow}>
                   <Badge text={stat.name} color={stat.color} />
@@ -175,7 +180,7 @@ export default function StatsScreen() {
             <ThemedText variant="label" style={styles.sectionLabel}>
               Recent Activity
             </ThemedText>
-            {history.slice(0, 10).map(attempt => {
+            {history.slice(0, 10).map((attempt) => {
               const result = getCertification(attempt.certificationId);
               return (
                 <Card
@@ -189,7 +194,8 @@ export default function StatsScreen() {
                         {result?.certification.code || attempt.certificationId}
                       </ThemedText>
                       <ThemedText variant="caption">
-                        {attempt.mode === 'exam' ? 'Practice Exam' : 'Quiz'} - {new Date(attempt.date).toLocaleDateString()}
+                        {attempt.mode === 'exam' ? 'Practice Exam' : 'Quiz'} -{' '}
+                        {new Date(attempt.date).toLocaleDateString()}
                       </ThemedText>
                     </View>
                     <ThemedText

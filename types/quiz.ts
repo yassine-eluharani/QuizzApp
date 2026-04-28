@@ -14,16 +14,16 @@ export interface ExamDomain {
 
 export interface ExamInfo {
   questionCount: number;
-  duration: number;           // minutes
-  passingScore: number;       // percentage, e.g. 72
-  questionTypes: string[];    // e.g. ["Multiple Choice", "Multiple Select"]
-  delivery: string[];         // e.g. ["Testing Center", "Online Proctored"]
+  duration: number; // minutes
+  passingScore: number; // percentage, e.g. 72
+  questionTypes: string[]; // e.g. ["Multiple Choice", "Multiple Select"]
+  delivery: string[]; // e.g. ["Testing Center", "Online Proctored"]
   domains: ExamDomain[];
-  note?: string;              // optional caveat (e.g. performance-based, range percentages)
+  note?: string; // optional caveat (e.g. performance-based, range percentages)
 }
 
 export interface FreeSample {
-  quizId: string;             // e.g. "aws-saa-sample"
+  quizId: string; // e.g. "aws-saa-sample"
   questionCount: number;
 }
 
@@ -34,7 +34,7 @@ export interface Certification {
   platformId: string;
   examInfo: ExamInfo;
   freeSample: FreeSample;
-  quizzes: QuizMeta[];        // pro quizzes only
+  quizzes: QuizMeta[]; // pro quizzes only
 }
 
 export interface QuizMeta {

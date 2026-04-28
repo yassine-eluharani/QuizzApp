@@ -11,6 +11,8 @@ import Paywall from '@/components/paywall/Paywall';
 import { Colors } from '@/constants/Colors';
 import { SplashScreen } from '@/components/ui/SplashScreen';
 import { OnboardingScreen } from '@/components/ui/OnboardingScreen';
+import AppErrorBoundary from '@/components/ui/ErrorBoundary';
+import OfflineBanner from '@/components/ui/OfflineBanner';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -41,13 +43,16 @@ export default function RootLayout() {
   }
 
   return (
-    <AppProvider>
-      <PurchaseProvider>
-        <StatusBar style="light" />
-        <RootNavigator />
-        <Paywall />
-      </PurchaseProvider>
-    </AppProvider>
+    <AppErrorBoundary>
+      <AppProvider>
+        <PurchaseProvider>
+          <StatusBar style="light" />
+          <OfflineBanner />
+          <RootNavigator />
+          <Paywall />
+        </PurchaseProvider>
+      </AppProvider>
+    </AppErrorBoundary>
   );
 }
 

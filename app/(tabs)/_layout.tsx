@@ -29,18 +29,14 @@ export default function TabLayout() {
           name="index"
           options={{
             tabBarLabel: 'Browse',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="grid" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size }) => <Ionicons name="grid" size={size} color={color} />,
           }}
         />
         <Tabs.Screen
           name="study"
           options={{
             tabBarLabel: 'Study',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="bookmark" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size }) => <Ionicons name="bookmark" size={size} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -56,9 +52,7 @@ export default function TabLayout() {
           name="profile"
           options={{
             tabBarLabel: 'Profile',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="person" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
           }}
         />
       </Tabs>

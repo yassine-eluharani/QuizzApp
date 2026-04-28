@@ -15,7 +15,8 @@ export default function ReviewScreen() {
   const { attemptId } = useLocalSearchParams<{ attemptId: string }>();
   const { history } = useAppContext();
 
-  const attempt = history.find(a => a.id === attemptId);
+  const safeAttemptId = typeof attemptId === 'string' ? attemptId : '';
+  const attempt = safeAttemptId ? history.find((a) => a.id === safeAttemptId) : undefined;
 
   if (!attempt) {
     return (
@@ -43,7 +44,9 @@ export default function ReviewScreen() {
             </View>
             <View>
               <ThemedText variant="caption">Correct</ThemedText>
-              <ThemedText variant="title">{attempt.score}/{attempt.totalQuestions}</ThemedText>
+              <ThemedText variant="title">
+                {attempt.score}/{attempt.totalQuestions}
+              </ThemedText>
             </View>
             <View>
               <ThemedText variant="caption">Time</ThemedText>
@@ -55,7 +58,9 @@ export default function ReviewScreen() {
         {/* Questions */}
         {attempt.answers.map((answer, index) => {
           const question = loadQuestionById(answer.questionId);
-          const cleaned = question?.question.trim().replace(/\s+/g, ' ').replace(/\n+/g, ' ') || 'Question not found';
+          const cleaned =
+            question?.question.trim().replace(/\s+/g, ' ').replace(/\n+/g, ' ') ||
+            'Question not found';
 
           return (
             <Card key={index} style={styles.questionCard}>
@@ -76,11 +81,17 @@ export default function ReviewScreen() {
               {question && (
                 <View style={styles.answerInfo}>
                   <ThemedText variant="caption">
-                    Your answer: {answer.selectedIndices.map(i => question.choices[i]?.substring(0, 50) || '?').join(', ')}
+                    Your answer:{' '}
+                    {answer.selectedIndices
+                      .map((i) => question.choices[i]?.substring(0, 50) || '?')
+                      .join(', ')}
                   </ThemedText>
                   {!answer.correct && (
                     <ThemedText variant="caption" color={Colors.success}>
-                      Correct: {question.correct_answer_indices.map(i => question.choices[i]?.substring(0, 50) || '?').join(', ')}
+                      Correct:{' '}
+                      {question.correct_answer_indices
+                        .map((i) => question.choices[i]?.substring(0, 50) || '?')
+                        .join(', ')}
                     </ThemedText>
                   )}
                 </View>

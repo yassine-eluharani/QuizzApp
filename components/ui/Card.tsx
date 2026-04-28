@@ -9,7 +9,14 @@ interface CardProps extends ViewProps {
   variant?: 'default' | 'outlined';
 }
 
-export default function Card({ onPress, accentColor, variant = 'default', style, children, ...props }: CardProps) {
+export default function Card({
+  onPress,
+  accentColor,
+  variant = 'default',
+  style,
+  children,
+  ...props
+}: CardProps) {
   const cardStyle: any[] = [
     styles.card,
     variant === 'outlined' ? styles.outlined : null,
@@ -19,7 +26,13 @@ export default function Card({ onPress, accentColor, variant = 'default', style,
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={cardStyle} {...props}>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.7}
+        style={cardStyle}
+        accessibilityRole="button"
+        {...(props as object)}
+      >
         {children}
       </TouchableOpacity>
     );

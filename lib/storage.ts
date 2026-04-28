@@ -8,7 +8,10 @@ const KEYS = {
   BOOKMARKS_META: '@bookmarks_meta',
   STREAKS: '@streaks',
   ONBOARDING_COMPLETE: '@onboarding_complete',
+  SCHEMA_VERSION: '@schema_version',
 } as const;
+
+const CURRENT_SCHEMA_VERSION = 1;
 
 const DEFAULT_STREAKS: StreakData = {
   currentStreak: 0,
@@ -17,8 +20,39 @@ const DEFAULT_STREAKS: StreakData = {
   studyDates: [],
 };
 
-// History
+// ---- Schema versioning -----------------------------------------------------
+//
+// Bump CURRENT_SCHEMA_VERSION whenever the on-disk shape of any stored value
+// changes. Add a migration branch in `ensureSchema()` for the previous version.
+// All read paths should be able to assume ensureSchema() has run first.
+
+let _schemaReady: Promise<void> | null = null;
+
+export function ensureSchema(): Promise<void> {
+  if (_schemaReady) return _schemaReady;
+  _schemaReady = (async () => {
+    const stored = await AsyncStorage.getItem(KEYS.SCHEMA_VERSION);
+    const version = stored ? parseInt(stored, 10) : 0;
+    if (Number.isNaN(version) || version > CURRENT_SCHEMA_VERSION) {
+      // Future-version data from a downgraded build. Leave it alone, just
+      // record the current version so future reads don't keep re-checking.
+      await AsyncStorage.setItem(KEYS.SCHEMA_VERSION, String(CURRENT_SCHEMA_VERSION));
+      return;
+    }
+    if (version === CURRENT_SCHEMA_VERSION) return;
+
+    // Future migrations: branch on `version` and rewrite keys as needed.
+    // e.g. if (version < 2) { await migrateBookmarksTo2(); }
+
+    await AsyncStorage.setItem(KEYS.SCHEMA_VERSION, String(CURRENT_SCHEMA_VERSION));
+  })();
+  return _schemaReady;
+}
+
+// ---- History ---------------------------------------------------------------
+
 export async function getHistory(): Promise<QuizAttempt[]> {
+  await ensureSchema();
   const data = await AsyncStorage.getItem(KEYS.HISTORY);
   return data ? JSON.parse(data) : [];
 }
@@ -30,13 +64,16 @@ export async function addAttempt(attempt: QuizAttempt): Promise<QuizAttempt[]> {
   return history;
 }
 
-// Bookmarks
+// ---- Bookmarks -------------------------------------------------------------
+
 export async function getBookmarks(): Promise<string[]> {
+  await ensureSchema();
   const data = await AsyncStorage.getItem(KEYS.BOOKMARKS);
   return data ? JSON.parse(data) : [];
 }
 
 export async function getBookmarksMeta(): Promise<Record<string, BookmarkMeta>> {
+  await ensureSchema();
   const data = await AsyncStorage.getItem(KEYS.BOOKMARKS_META);
   return data ? JSON.parse(data) : {};
 }
@@ -65,8 +102,10 @@ export async function toggleBookmark(
   return { bookmarks, bookmarksMeta };
 }
 
-// Streaks
+// ---- Streaks ---------------------------------------------------------------
+
 export async function getStreakData(): Promise<StreakData> {
+  await ensureSchema();
   const data = await AsyncStorage.getItem(KEYS.STREAKS);
   return data ? JSON.parse(data) : DEFAULT_STREAKS;
 }
@@ -83,11 +122,10 @@ export async function recordStudySession(): Promise<StreakData> {
     streaks.studyDates.push(today);
   }
 
-  // Keep only last 365 days
   const cutoff = new Date();
   cutoff.setFullYear(cutoff.getFullYear() - 1);
   const cutoffStr = cutoff.toISOString().split('T')[0];
-  streaks.studyDates = streaks.studyDates.filter(d => d >= cutoffStr);
+  streaks.studyDates = streaks.studyDates.filter((d) => d >= cutoffStr);
 
   if (streaks.lastStudyDate && getDaysBetween(streaks.lastStudyDate, today) === 1) {
     streaks.currentStreak += 1;
@@ -105,8 +143,10 @@ export async function recordStudySession(): Promise<StreakData> {
   return streaks;
 }
 
-// Onboarding
+// ---- Onboarding ------------------------------------------------------------
+
 export async function getOnboardingComplete(): Promise<boolean> {
+  await ensureSchema();
   const data = await AsyncStorage.getItem(KEYS.ONBOARDING_COMPLETE);
   return data === 'true';
 }

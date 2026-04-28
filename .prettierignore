@@ -1,0 +1,10 @@
+node_modules
+backend/node_modules
+dist
+.expo
+ios
+android
+assets/data/questions
+assets/quizzes
+yarn.lock
+*.lock

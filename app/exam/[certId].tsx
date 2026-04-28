@@ -22,16 +22,23 @@ export default function ExamScreen() {
   const router = useRouter();
   const { isBookmarked, toggleBookmark } = useAppContext();
   const { isPro, showPaywall } = usePurchase();
-  const certResult = getCertification(certId);
+
+  const safeCertId = typeof certId === 'string' && certId.length > 0 ? certId : '';
+  const certResult = safeCertId ? getCertification(safeCertId) : undefined;
+  const isReady = Boolean(safeCertId && certResult);
 
   useEffect(() => {
+    if (!isReady) {
+      router.back();
+      return;
+    }
     if (!isExamAccessible(isPro)) {
       showPaywall();
       router.back();
     }
-  }, [isPro]);
+  }, [isReady, isPro, router, showPaywall]);
 
-  const session = useExamSession(certId, isPro);
+  const session = useExamSession(safeCertId, isPro);
   const [showExplanation, setShowExplanation] = useState(false);
   const [completedAttempt, setCompletedAttempt] = useState<QuizAttempt | null>(null);
 
@@ -44,6 +51,10 @@ export default function ExamScreen() {
       })();
     }
   }, [session.timer.isExpired]);
+
+  if (!isReady) {
+    return null;
+  }
 
   if (completedAttempt) {
     return (
@@ -65,7 +76,11 @@ export default function ExamScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
-          <Button title="No questions available" onPress={() => router.back()} variant="secondary" />
+          <Button
+            title="No questions available"
+            onPress={() => router.back()}
+            variant="secondary"
+          />
         </View>
       </SafeAreaView>
     );
@@ -92,23 +107,24 @@ export default function ExamScreen() {
         totalQuestions={session.totalQuestions}
         accentColor={session.platformColor}
         onClose={() => {
-          Alert.alert(
-            'End Exam?',
-            'Your progress will be lost.',
-            [
-              { text: 'Continue', style: 'cancel' },
-              { text: 'End Exam', style: 'destructive', onPress: () => router.back() },
-            ]
-          );
+          Alert.alert('End Exam?', 'Your progress will be lost.', [
+            { text: 'Continue', style: 'cancel' },
+            { text: 'End Exam', style: 'destructive', onPress: () => router.back() },
+          ]);
         }}
         timer={formatTime(session.timer.timeRemaining)}
         timerWarning={timerWarning}
         onBookmark={() =>
-          toggleBookmark(questionId, {
-            certId,
-            quizId: `${certId}-exam`,
-            dateAdded: new Date().toISOString(),
-          }, isPro, showPaywall)
+          toggleBookmark(
+            questionId,
+            {
+              certId,
+              quizId: `${certId}-exam`,
+              dateAdded: new Date().toISOString(),
+            },
+            isPro,
+            showPaywall
+          )
         }
         isBookmarked={isBookmarked(questionId)}
       />

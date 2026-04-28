@@ -17,20 +17,19 @@ import path from 'path';
 // Add new certs here as you create them
 const CERT_MAP: Record<string, { certId: string; platformId: string }> = {
   'solutions-architect': { certId: 'aws-saa', platformId: 'aws' },
-  'developer-associate':  { certId: 'aws-dva', platformId: 'aws' },
-  'sysops-admin':         { certId: 'aws-soa', platformId: 'aws' },
-  'devops-professional':  { certId: 'aws-dop', platformId: 'aws' },
-  'az-900':               { certId: 'azure-az900', platformId: 'azure' },
-  'az-104':               { certId: 'azure-az104', platformId: 'azure' },
-  'az-305':               { certId: 'azure-az305', platformId: 'azure' },
-  'associate-cloud-engineer':     { certId: 'gcp-ace', platformId: 'gcp' },
+  'developer-associate': { certId: 'aws-dva', platformId: 'aws' },
+  'sysops-admin': { certId: 'aws-soa', platformId: 'aws' },
+  'devops-professional': { certId: 'aws-dop', platformId: 'aws' },
+  'az-900': { certId: 'azure-az900', platformId: 'azure' },
+  'az-104': { certId: 'azure-az104', platformId: 'azure' },
+  'az-305': { certId: 'azure-az305', platformId: 'azure' },
+  'associate-cloud-engineer': { certId: 'gcp-ace', platformId: 'gcp' },
   'professional-cloud-architect': { certId: 'gcp-pca', platformId: 'gcp' },
-  'professional-data-engineer':   { certId: 'gcp-pde', platformId: 'gcp' },
-  'terraform-associate':          { certId: 'devops-terraform', platformId: 'devops' },
-  'cka-ckad':                     { certId: 'devops-cka', platformId: 'devops' },
-  'docker-dca':                   { certId: 'devops-docker', platformId: 'devops' },
+  'professional-data-engineer': { certId: 'gcp-pde', platformId: 'gcp' },
+  'terraform-associate': { certId: 'devops-terraform', platformId: 'devops' },
+  'cka-ckad': { certId: 'devops-cka', platformId: 'devops' },
+  'docker-dca': { certId: 'devops-docker', platformId: 'devops' },
 };
-
 
 interface Question {
   id: string;
@@ -107,7 +106,9 @@ async function seed() {
           total++;
         }
 
-        console.log(`  ✓ ${quizId}: ${questions.length} questions${isFree ? ' (free sample)' : ''}`);
+        console.log(
+          `  ✓ ${quizId}: ${questions.length} questions${isFree ? ' (free sample)' : ''}`
+        );
       }
     }
   }

@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import { usePurchase } from '@/context/PurchaseContext';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
+import type { PurchaseResult } from '@/lib/purchases';
 
 const FEATURES = [
   { icon: 'book' as const, text: 'All 19 quizzes across 4 platforms' },
@@ -15,20 +16,56 @@ const FEATURES = [
   { icon: 'infinite' as const, text: 'Lifetime access — one-time purchase' },
 ];
 
+const FAILURE_COPY: Record<
+  Exclude<Extract<PurchaseResult, { ok: false }>['reason'], 'cancelled'>,
+  { title: string; body: string }
+> = {
+  pending: {
+    title: 'Payment Pending',
+    body: "Your payment is being processed. We'll unlock Pro automatically once it completes.",
+  },
+  network: {
+    title: 'Network Problem',
+    body: "Couldn't reach the store. Check your connection and try again.",
+  },
+  not_allowed: {
+    title: 'Purchase Not Allowed',
+    body: 'In-app purchases may be restricted on this device. Check your device settings or try a different account.',
+  },
+  product_unavailable: {
+    title: 'Product Unavailable',
+    body: "CloudPrep Pro isn't available right now. Please try again later.",
+  },
+  integrity: {
+    title: 'Device Check Failed',
+    body: "We couldn't verify the app's integrity. Please reinstall from the App Store / Play Store and try again.",
+  },
+  unknown: {
+    title: 'Purchase Failed',
+    body: 'Something went wrong. Please try again.',
+  },
+};
+
 export default function Paywall() {
-  const { paywallVisible, hidePaywall, purchasePro, restorePurchases } = usePurchase();
+  const { paywallVisible, hidePaywall, purchasePro, restorePurchases, isPurchasesConfigured } =
+    usePurchase();
   const [loading, setLoading] = useState(false);
   const [restoring, setRestoring] = useState(false);
 
   const handlePurchase = async () => {
+    if (!isPurchasesConfigured) {
+      Alert.alert(
+        'Purchases Unavailable',
+        "In-app purchases aren't configured in this build. Please update the app."
+      );
+      return;
+    }
     setLoading(true);
     try {
-      const success = await purchasePro();
-      if (!success) {
-        // User cancelled — do nothing
-      }
-    } catch {
-      Alert.alert('Purchase Failed', 'Something went wrong. Please try again.');
+      const result = await purchasePro();
+      if (result.ok || result.reason === 'cancelled') return;
+      const copy = FAILURE_COPY[result.reason];
+      Alert.alert(copy.title, copy.body);
     } finally {
       setLoading(false);
     }
@@ -41,7 +78,10 @@ export default function Paywall() {
       if (success) {
         Alert.alert('Restored', 'Your Pro access has been restored.');
       } else {
-        Alert.alert('No Purchases Found', 'We couldn\'t find any previous purchases for this account.');
+        Alert.alert(
+          'No Purchases Found',
+          "We couldn't find any previous purchases for this account."
+        );
       }
     } catch {
       Alert.alert('Restore Failed', 'Something went wrong. Please try again.');
@@ -54,7 +94,13 @@ export default function Paywall() {
     <Modal visible={paywallVisible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.safe}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={hidePaywall} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={hidePaywall}
+            style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel="Close paywall"
+            hitSlop={12}
+          >
             <Ionicons name="close" size={24} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
@@ -84,19 +130,40 @@ export default function Paywall() {
             ))}
           </View>
 
+          {!isPurchasesConfigured && (
+            <View style={styles.banner} accessibilityRole="alert">
+              <Ionicons name="warning" size={16} color={Colors.warning ?? '#F59E0B'} />
+              <ThemedText variant="caption" style={styles.bannerText}>
+                Purchases are temporarily unavailable in this build.
+              </ThemedText>
+            </View>
+          )}
+
           <View style={styles.actions}>
             <Button
               title="Unlock CloudPrep Pro"
               onPress={handlePurchase}
               loading={loading}
               size="lg"
+              disabled={!isPurchasesConfigured}
             />
-            <TouchableOpacity onPress={handleRestore} disabled={restoring} style={styles.restoreButton}>
+            <TouchableOpacity
+              onPress={handleRestore}
+              disabled={restoring}
+              style={styles.restoreButton}
+              accessibilityRole="button"
+              accessibilityLabel="Restore previous purchases"
+            >
               <ThemedText variant="body" color={Colors.textSecondary}>
                 {restoring ? 'Restoring...' : 'Restore Purchases'}
               </ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity onPress={hidePaywall} style={styles.dismissButton}>
+            <TouchableOpacity
+              onPress={hidePaywall}
+              style={styles.dismissButton}
+              accessibilityRole="button"
+              accessibilityLabel="Dismiss paywall"
+            >
               <ThemedText variant="caption" color={Colors.textMuted}>
                 Not now
               </ThemedText>
@@ -169,6 +236,20 @@ const styles = StyleSheet.create({
   },
   featureText: {
     flex: 1,
+  },
+  banner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Theme.spacing.sm,
+    backgroundColor: Colors.surfaceLight,
+    paddingHorizontal: Theme.spacing.md,
+    paddingVertical: Theme.spacing.sm,
+    borderRadius: Theme.radius.md,
+    marginBottom: Theme.spacing.md,
+  },
+  bannerText: {
+    flex: 1,
+    color: Colors.textSecondary,
   },
   actions: {
     gap: Theme.spacing.md,

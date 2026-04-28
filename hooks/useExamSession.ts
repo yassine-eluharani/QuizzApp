@@ -53,13 +53,13 @@ export function useExamSession(certId: string, isPro: boolean = false) {
   const currentQuestion = state.questions[state.currentIndex];
 
   const selectAnswer = useCallback((index: number) => {
-    setState(prev => {
+    setState((prev) => {
       if (prev.isRevealed) return prev;
       const q = prev.questions[prev.currentIndex];
       const maxSelections = q.correct_answer_indices.length;
       let newSelected: number[];
       if (prev.selectedAnswers.includes(index)) {
-        newSelected = prev.selectedAnswers.filter(a => a !== index);
+        newSelected = prev.selectedAnswers.filter((a) => a !== index);
       } else if (prev.selectedAnswers.length < maxSelections) {
         newSelected = [...prev.selectedAnswers, index];
       } else {
@@ -70,11 +70,12 @@ export function useExamSession(certId: string, isPro: boolean = false) {
   }, []);
 
   const confirm = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       if (prev.isRevealed) return prev;
       const q = prev.questions[prev.currentIndex];
-      const correct = q.correct_answer_indices.length === prev.selectedAnswers.length &&
-        q.correct_answer_indices.every(i => prev.selectedAnswers.includes(i));
+      const correct =
+        q.correct_answer_indices.length === prev.selectedAnswers.length &&
+        q.correct_answer_indices.every((i) => prev.selectedAnswers.includes(i));
 
       const record: AnswerRecord = {
         questionId: q.id || `q-${prev.currentIndex}`,
@@ -93,7 +94,7 @@ export function useExamSession(certId: string, isPro: boolean = false) {
   }, []);
 
   const next = useCallback(() => {
-    setState(prev => {
+    setState((prev) => {
       if (prev.currentIndex >= prev.questions.length - 1) {
         return { ...prev, isComplete: true };
       }
@@ -127,7 +128,16 @@ export function useExamSession(certId: string, isPro: boolean = false) {
     await addAttempt(attempt);
     await recordStudySession();
     return attempt;
-  }, [state.score, state.questions.length, state.answers, certId, platform, timer, addAttempt, recordStudySession]);
+  }, [
+    state.score,
+    state.questions.length,
+    state.answers,
+    certId,
+    platform,
+    timer,
+    addAttempt,
+    recordStudySession,
+  ]);
 
   return {
     ...state,

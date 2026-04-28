@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TextProps, StyleSheet } from 'react-native';
+import { Text, TextProps } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
 
@@ -46,10 +46,5 @@ const variantStyles: Record<TextVariant, any> = {
 };
 
 export default function ThemedText({ variant = 'body', color, style, ...props }: ThemedTextProps) {
-  return (
-    <Text
-      style={[variantStyles[variant], color ? { color } : undefined, style]}
-      {...props}
-    />
-  );
+  return <Text style={[variantStyles[variant], color ? { color } : undefined, style]} {...props} />;
 }

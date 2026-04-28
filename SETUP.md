@@ -385,42 +385,36 @@ Create a Supabase Edge Function to validate RevenueCat purchases:
 
 ```typescript
 // supabase/functions/validate-purchase/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const REVENUECAT_API_KEY = Deno.env.get('REVENUECAT_API_KEY')
+const REVENUECAT_API_KEY = Deno.env.get('REVENUECAT_API_KEY');
 
 serve(async (req) => {
-  const { user_id, app_user_id } = await req.json()
+  const { user_id, app_user_id } = await req.json();
 
   // Verify with RevenueCat
-  const response = await fetch(
-    `https://api.revenuecat.com/v1/subscribers/${app_user_id}`,
-    {
-      headers: {
-        'Authorization': `Bearer ${REVENUECAT_API_KEY}`,
-      },
-    }
-  )
+  const response = await fetch(`https://api.revenuecat.com/v1/subscribers/${app_user_id}`, {
+    headers: {
+      Authorization: `Bearer ${REVENUECAT_API_KEY}`,
+    },
+  });
 
-  const data = await response.json()
-  const isPro = data.subscriber?.entitlements?.pro?.is_active === true
+  const data = await response.json();
+  const isPro = data.subscriber?.entitlements?.pro?.is_active === true;
 
   // Update database
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+  );
 
-  await supabase
-    .from('profiles')
-    .update({ is_pro: isPro })
-    .eq('id', user_id)
+  await supabase.from('profiles').update({ is_pro: isPro }).eq('id', user_id);
 
   return new Response(JSON.stringify({ isPro }), {
     headers: { 'Content-Type': 'application/json' },
-  })
-})
+  });
+});
 ```
 
 ### 4. RevenueCat Webhook
@@ -532,18 +526,19 @@ For higher security (if needed):
 
 ## Environment Variables Reference
 
-| Variable | Where to Set | Description |
-|----------|--------------|-------------|
-| `REVENUECAT_APPLE_API_KEY` | EAS Secrets / app.json | RevenueCat iOS API key |
+| Variable                    | Where to Set           | Description                |
+| --------------------------- | ---------------------- | -------------------------- |
+| `REVENUECAT_APPLE_API_KEY`  | EAS Secrets / app.json | RevenueCat iOS API key     |
 | `REVENUECAT_GOOGLE_API_KEY` | EAS Secrets / app.json | RevenueCat Android API key |
-| `SUPABASE_URL` | app.json (if using) | Supabase project URL |
-| `SUPABASE_ANON_KEY` | app.json (if using) | Supabase anonymous key |
+| `SUPABASE_URL`              | app.json (if using)    | Supabase project URL       |
+| `SUPABASE_ANON_KEY`         | app.json (if using)    | Supabase anonymous key     |
 
 ---
 
 ## Support
 
 For issues with:
+
 - **EAS Build**: [Expo Forums](https://forums.expo.dev)
 - **RevenueCat**: [RevenueCat Support](https://www.revenuecat.com/support)
 - **App Store**: [Apple Developer Forums](https://developer.apple.com/forums/)

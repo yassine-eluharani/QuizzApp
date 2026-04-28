@@ -26,7 +26,9 @@ export default function ProfileScreen() {
             <Ionicons name="person" size={40} color={Colors.primary} />
           </View>
           <View style={styles.nameRow}>
-            <ThemedText variant="heading" style={styles.title}>CloudPrep</ThemedText>
+            <ThemedText variant="heading" style={styles.title}>
+              CloudPrep
+            </ThemedText>
             {isPro && <ProBadge size="md" />}
           </View>
           <ThemedText variant="body">Your learning journey</ThemedText>
@@ -37,16 +39,14 @@ export default function ProfileScreen() {
           <Card style={styles.card}>
             <View style={styles.cardHeader}>
               <Ionicons name="rocket" size={24} color={Colors.primary} />
-              <ThemedText variant="title" style={styles.cardTitle}>Upgrade to Pro</ThemedText>
+              <ThemedText variant="title" style={styles.cardTitle}>
+                Upgrade to Pro
+              </ThemedText>
             </View>
             <ThemedText variant="body" style={styles.proDesc}>
               Unlock all quizzes, practice exams, and unlimited bookmarks.
             </ThemedText>
-            <Button
-              title="Unlock CloudPrep Pro"
-              onPress={showPaywall}
-              style={styles.proButton}
-            />
+            <Button title="Unlock CloudPrep Pro" onPress={showPaywall} style={styles.proButton} />
           </Card>
         )}
 
@@ -54,7 +54,9 @@ export default function ProfileScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="flame" size={24} color={Colors.warning} />
-            <ThemedText variant="title" style={styles.cardTitle}>Study Streak</ThemedText>
+            <ThemedText variant="title" style={styles.cardTitle}>
+              Study Streak
+            </ThemedText>
           </View>
           <View style={styles.streakGrid}>
             <View style={styles.streakItem}>
@@ -80,7 +82,9 @@ export default function ProfileScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="bar-chart" size={24} color={Colors.primary} />
-            <ThemedText variant="title" style={styles.cardTitle}>Lifetime Stats</ThemedText>
+            <ThemedText variant="title" style={styles.cardTitle}>
+              Lifetime Stats
+            </ThemedText>
           </View>
           <View style={styles.statsList}>
             <View style={styles.statRow}>
@@ -93,13 +97,19 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.statRow}>
               <ThemedText variant="body">Correct Answers</ThemedText>
-              <ThemedText variant="bodyLarge" color={Colors.success}>{totalCorrect}</ThemedText>
+              <ThemedText variant="bodyLarge" color={Colors.success}>
+                {totalCorrect}
+              </ThemedText>
             </View>
             <View style={styles.statRow}>
               <ThemedText variant="body">Accuracy</ThemedText>
               <ThemedText
                 variant="bodyLarge"
-                color={totalQuestions > 0 && (totalCorrect / totalQuestions) >= 0.7 ? Colors.success : Colors.warning}
+                color={
+                  totalQuestions > 0 && totalCorrect / totalQuestions >= 0.7
+                    ? Colors.success
+                    : Colors.warning
+                }
               >
                 {totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0}%
               </ThemedText>
@@ -114,7 +124,9 @@ export default function ProfileScreen() {
         {/* Restore Purchases */}
         <Button
           title="Restore Purchases"
-          onPress={() => { restorePurchases(); }}
+          onPress={() => {
+            restorePurchases();
+          }}
           variant="secondary"
           style={styles.restoreButton}
         />

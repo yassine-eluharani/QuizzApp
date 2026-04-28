@@ -11,6 +11,7 @@ import { useQuizSession } from '@/hooks/useQuizSession';
 import { useAppContext } from '@/context/AppContext';
 import { usePurchase } from '@/context/PurchaseContext';
 import { isQuizAccessible } from '@/lib/entitlements';
+import { isValidQuizId } from '@/lib/accessControl';
 import { getQuizMeta } from '@/assets/data/catalog';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
@@ -21,18 +22,29 @@ export default function QuizScreen() {
   const router = useRouter();
   const { isBookmarked, toggleBookmark } = useAppContext();
   const { isPro, showPaywall } = usePurchase();
-  const meta = getQuizMeta(quizId);
+
+  const validQuizId = typeof quizId === 'string' && isValidQuizId(quizId) ? quizId : '';
+  const meta = validQuizId ? getQuizMeta(validQuizId) : undefined;
+  const isReady = Boolean(validQuizId && meta);
 
   useEffect(() => {
-    if (!isQuizAccessible(quizId, isPro)) {
+    if (!isReady) {
+      router.back();
+      return;
+    }
+    if (!isQuizAccessible(validQuizId, isPro)) {
       showPaywall();
       router.back();
     }
-  }, [quizId, isPro]);
+  }, [isReady, validQuizId, isPro, router, showPaywall]);
 
-  const session = useQuizSession(quizId, isPro);
+  const session = useQuizSession(validQuizId, isPro);
   const [showExplanation, setShowExplanation] = useState(false);
   const [completedAttempt, setCompletedAttempt] = useState<QuizAttempt | null>(null);
+
+  if (!isReady) {
+    return null;
+  }
 
   if (completedAttempt) {
     return (
@@ -54,7 +66,11 @@ export default function QuizScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.center}>
-          <Button title="No questions available" onPress={() => router.back()} variant="secondary" />
+          <Button
+            title="No questions available"
+            onPress={() => router.back()}
+            variant="secondary"
+          />
         </View>
       </SafeAreaView>
     );
@@ -81,11 +97,16 @@ export default function QuizScreen() {
         accentColor={session.platformColor}
         onClose={() => router.back()}
         onBookmark={() =>
-          toggleBookmark(questionId, {
-            certId: meta?.certification.id || '',
-            quizId,
-            dateAdded: new Date().toISOString(),
-          }, isPro, showPaywall)
+          toggleBookmark(
+            questionId,
+            {
+              certId: meta?.certification.id || '',
+              quizId,
+              dateAdded: new Date().toISOString(),
+            },
+            isPro,
+            showPaywall
+          )
         }
         isBookmarked={isBookmarked(questionId)}
       />

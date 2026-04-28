@@ -47,7 +47,6 @@ export default function CertificationScreen() {
     <>
       <Stack.Screen options={{ title: cert.code }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-
         {/* Header */}
         <View style={styles.header}>
           <Badge text={cert.code} color={platform.color} />
@@ -74,10 +73,12 @@ export default function CertificationScreen() {
         <Card style={styles.infoCard}>
           <TouchableOpacity
             style={styles.infoToggle}
-            onPress={() => setAboutExpanded(v => !v)}
+            onPress={() => setAboutExpanded((v) => !v)}
             activeOpacity={0.7}
           >
-            <ThemedText variant="caption" style={styles.aboutLabel}>About the Exam</ThemedText>
+            <ThemedText variant="caption" style={styles.aboutLabel}>
+              About the Exam
+            </ThemedText>
             <Ionicons
               name={aboutExpanded ? 'chevron-up' : 'chevron-down'}
               size={18}
@@ -102,16 +103,23 @@ export default function CertificationScreen() {
               {examInfo.note && (
                 <View style={styles.noteRow}>
                   <Ionicons name="information-circle-outline" size={15} color={Colors.warning} />
-                  <ThemedText variant="caption" style={[styles.infoText, { color: Colors.warning }]}>
+                  <ThemedText
+                    variant="caption"
+                    style={[styles.infoText, { color: Colors.warning }]}
+                  >
                     {examInfo.note}
                   </ThemedText>
                 </View>
               )}
-              <ThemedText variant="label" style={styles.domainsLabel}>Exam Domains</ThemedText>
+              <ThemedText variant="label" style={styles.domainsLabel}>
+                Exam Domains
+              </ThemedText>
               {examInfo.domains.map((domain: ExamDomain) => (
                 <View key={domain.name} style={styles.domainRow}>
                   <View style={styles.domainLabelRow}>
-                    <ThemedText variant="caption" style={styles.domainName}>{domain.name}</ThemedText>
+                    <ThemedText variant="caption" style={styles.domainName}>
+                      {domain.name}
+                    </ThemedText>
                     <ThemedText variant="caption" style={{ color: platform.color }}>
                       {domain.percentage}%
                     </ThemedText>
@@ -120,7 +128,7 @@ export default function CertificationScreen() {
                     <View
                       style={[
                         styles.barFill,
-                        { width: `${domain.percentage}%` as any, backgroundColor: platform.color },
+                        { width: `${domain.percentage}%`, backgroundColor: platform.color },
                       ]}
                     />
                   </View>
@@ -133,25 +141,44 @@ export default function CertificationScreen() {
         {/* Tabs */}
         <View style={styles.tabBar}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'quizzes' && { borderBottomColor: platform.color, borderBottomWidth: 2 }]}
+            style={[
+              styles.tab,
+              activeTab === 'quizzes' && {
+                borderBottomColor: platform.color,
+                borderBottomWidth: 2,
+              },
+            ]}
             onPress={() => setActiveTab('quizzes')}
             activeOpacity={0.7}
           >
             <ThemedText
-              style={[styles.tabLabel, activeTab === 'quizzes' ? { color: Colors.textPrimary } : { color: Colors.textMuted }]}
+              style={[
+                styles.tabLabel,
+                activeTab === 'quizzes'
+                  ? { color: Colors.textPrimary }
+                  : { color: Colors.textMuted },
+              ]}
             >
               Quizzes
             </ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'exam' && { borderBottomColor: platform.color, borderBottomWidth: 2 }]}
+            style={[
+              styles.tab,
+              activeTab === 'exam' && { borderBottomColor: platform.color, borderBottomWidth: 2 },
+            ]}
             onPress={() => setActiveTab('exam')}
             activeOpacity={0.7}
           >
             <View style={styles.tabLabelRow}>
               <ThemedText
-                style={[styles.tabLabel, activeTab === 'exam' ? { color: Colors.textPrimary } : { color: Colors.textMuted }]}
+                style={[
+                  styles.tabLabel,
+                  activeTab === 'exam'
+                    ? { color: Colors.textPrimary }
+                    : { color: Colors.textMuted },
+                ]}
               >
                 Exam Mode
               </ThemedText>
@@ -163,7 +190,6 @@ export default function CertificationScreen() {
         {/* Tab: Quizzes */}
         {activeTab === 'quizzes' && (
           <View style={styles.tabContent}>
-
             {/* Free quiz — prominent */}
             {freeQuiz && (
               <TouchableOpacity
@@ -186,7 +212,9 @@ export default function CertificationScreen() {
                   {freeQuizBestScore !== null && freeQuizBestScore !== undefined ? (
                     <Badge
                       text={`${Math.round(freeQuizBestScore)}%`}
-                      color={freeQuizBestScore >= examInfo.passingScore ? Colors.success : Colors.warning}
+                      color={
+                        freeQuizBestScore >= examInfo.passingScore ? Colors.success : Colors.warning
+                      }
                     />
                   ) : (
                     <Ionicons name="arrow-forward-circle" size={28} color={platform.color} />
@@ -200,14 +228,17 @@ export default function CertificationScreen() {
               <TouchableOpacity style={styles.proUpsell} onPress={showPaywall} activeOpacity={0.8}>
                 <Ionicons name="lock-closed" size={14} color={Colors.primary} />
                 <ThemedText variant="caption" style={styles.proUpsellText}>
-                  {cert.quizzes.length - 1} more {cert.quizzes.length - 1 === 1 ? 'quiz' : 'quizzes'} + practice exam with Pro
+                  {cert.quizzes.length - 1} more{' '}
+                  {cert.quizzes.length - 1 === 1 ? 'quiz' : 'quizzes'} + practice exam with Pro
                 </ThemedText>
-                <ThemedText variant="caption" style={{ color: Colors.primary }}>Unlock →</ThemedText>
+                <ThemedText variant="caption" style={{ color: Colors.primary }}>
+                  Unlock →
+                </ThemedText>
               </TouchableOpacity>
             )}
 
             {/* Rest of quizzes */}
-            {cert.quizzes.slice(1).map(quiz => {
+            {cert.quizzes.slice(1).map((quiz) => {
               const locked = !isQuizAccessible(quiz.id, isPro);
               return (
                 <QuizListItem
@@ -230,7 +261,7 @@ export default function CertificationScreen() {
                 <ThemedText variant="label" style={styles.sectionLabel}>
                   Recent Attempts
                 </ThemedText>
-                {attempts.slice(0, 5).map(attempt => (
+                {attempts.slice(0, 5).map((attempt) => (
                   <Card
                     key={attempt.id}
                     onPress={() => router.push(`/review/${attempt.id}` as Href)}
@@ -251,7 +282,11 @@ export default function CertificationScreen() {
                       </View>
                       <ThemedText
                         variant="title"
-                        color={attempt.percentage >= examInfo.passingScore ? Colors.success : Colors.error}
+                        color={
+                          attempt.percentage >= examInfo.passingScore
+                            ? Colors.success
+                            : Colors.error
+                        }
                       >
                         {Math.round(attempt.percentage)}%
                       </ThemedText>
@@ -278,9 +313,9 @@ export default function CertificationScreen() {
               Practice Exam
             </ThemedText>
             <ThemedText variant="body" style={styles.examModeDesc}>
-              Simulates the real certification exam: {examInfo.questionCount} questions drawn at random,
-              a {examInfo.duration}-minute countdown, and no feedback until you submit — just like the
-              actual test.
+              Simulates the real certification exam: {examInfo.questionCount} questions drawn at
+              random, a {examInfo.duration}-minute countdown, and no feedback until you submit —
+              just like the actual test.
             </ThemedText>
 
             <View style={styles.examStatRow}>
@@ -289,7 +324,9 @@ export default function CertificationScreen() {
                 <ThemedText variant="bodyLarge" style={styles.examStatValue}>
                   {examInfo.questionCount}
                 </ThemedText>
-                <ThemedText variant="caption" style={styles.examStatLabel}>Questions</ThemedText>
+                <ThemedText variant="caption" style={styles.examStatLabel}>
+                  Questions
+                </ThemedText>
               </View>
               <View style={styles.examStatDivider} />
               <View style={styles.examStat}>
@@ -297,7 +334,9 @@ export default function CertificationScreen() {
                 <ThemedText variant="bodyLarge" style={styles.examStatValue}>
                   {examInfo.duration}
                 </ThemedText>
-                <ThemedText variant="caption" style={styles.examStatLabel}>Minutes</ThemedText>
+                <ThemedText variant="caption" style={styles.examStatLabel}>
+                  Minutes
+                </ThemedText>
               </View>
               <View style={styles.examStatDivider} />
               <View style={styles.examStat}>
@@ -305,7 +344,9 @@ export default function CertificationScreen() {
                 <ThemedText variant="bodyLarge" style={styles.examStatValue}>
                   {examInfo.passingScore}%
                 </ThemedText>
-                <ThemedText variant="caption" style={styles.examStatLabel}>To Pass</ThemedText>
+                <ThemedText variant="caption" style={styles.examStatLabel}>
+                  To Pass
+                </ThemedText>
               </View>
             </View>
 
@@ -326,7 +367,6 @@ export default function CertificationScreen() {
             )}
           </View>
         )}
-
       </ScrollView>
     </>
   );

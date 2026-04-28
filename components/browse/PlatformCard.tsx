@@ -8,6 +8,8 @@ import { Platform } from '@/types/quiz';
 import { Theme } from '@/constants/Theme';
 import { Colors } from '@/constants/Colors';
 
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
 interface PlatformCardProps {
   platform: Platform;
   onPress: () => void;
@@ -20,14 +22,20 @@ export default function PlatformCard({ platform, onPress }: PlatformCardProps) {
   );
 
   return (
-    <Card onPress={onPress} style={styles.card}>
+    <Card
+      onPress={onPress}
+      style={styles.card}
+      accessibilityLabel={`${platform.name}, ${platform.certifications.length} certifications`}
+    >
       <View style={styles.row}>
         <View style={[styles.iconContainer, { backgroundColor: platform.color + '20' }]}>
-          <Ionicons name={platform.icon as any} size={28} color={platform.color} />
+          <Ionicons name={platform.icon as IoniconName} size={28} color={platform.color} />
         </View>
         <View style={styles.content}>
           <ThemedText variant="title">{platform.shortName}</ThemedText>
-          <ThemedText variant="body" style={styles.name}>{platform.name}</ThemedText>
+          <ThemedText variant="body" style={styles.name}>
+            {platform.name}
+          </ThemedText>
         </View>
         <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
       </View>

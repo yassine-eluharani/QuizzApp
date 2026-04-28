@@ -1,0 +1,18 @@
+# GitHub Pages config for CloudPrep Quiz docs site.
+# After enabling Pages (Settings → Pages → Source: Deploy from branch
+# → Branch: master, /docs folder), the site is served at
+# https://<github-username>.github.io/<repo-name>/
+
+title: CloudPrep Quiz
+description: Privacy policy and other public docs for the CloudPrep Quiz mobile app.
+theme: jekyll-theme-minimal
+
+# Pretty URLs without .html extensions
+permalink: pretty
+
+# Don't try to render the README of the parent repo
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor

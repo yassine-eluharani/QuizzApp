@@ -1,12 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ViewToken,
-} from 'react-native';
+import { View, FlatList, StyleSheet, Dimensions, TouchableOpacity, ViewToken } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
@@ -97,17 +90,12 @@ export function OnboardingScreen({ onComplete }: Props) {
       <View style={styles.footer}>
         <View style={styles.dots}>
           {steps.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.dot, i === currentIndex && styles.dotActive]}
-            />
+            <View key={i} style={[styles.dot, i === currentIndex && styles.dotActive]} />
           ))}
         </View>
 
         <TouchableOpacity style={styles.button} onPress={goToNext} activeOpacity={0.8}>
-          <ThemedText style={styles.buttonText}>
-            {isLast ? 'Get Started' : 'Next'}
-          </ThemedText>
+          <ThemedText style={styles.buttonText}>{isLast ? 'Get Started' : 'Next'}</ThemedText>
         </TouchableOpacity>
 
         {!isLast && (

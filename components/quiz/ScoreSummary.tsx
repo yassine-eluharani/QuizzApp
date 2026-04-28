@@ -25,8 +25,8 @@ export default function ScoreSummary({
   onExit,
 }: ScoreSummaryProps) {
   const passed = attempt.percentage >= passingScore;
-  const correctCount = attempt.answers.filter(a => a.correct).length;
-  const incorrectCount = attempt.answers.filter(a => !a.correct).length;
+  const correctCount = attempt.answers.filter((a) => a.correct).length;
+  const incorrectCount = attempt.answers.filter((a) => !a.correct).length;
 
   return (
     <View style={styles.container}>
@@ -43,9 +43,7 @@ export default function ScoreSummary({
       </ThemedText>
 
       <ThemedText variant="body" style={styles.subtitle}>
-        {passed
-          ? 'You passed the quiz!'
-          : `You need ${passingScore}% to pass. Try again!`}
+        {passed ? 'You passed the quiz!' : `You need ${passingScore}% to pass. Try again!`}
       </ThemedText>
 
       {/* Score Circle */}
@@ -66,12 +64,16 @@ export default function ScoreSummary({
       <View style={styles.statsRow}>
         <Card style={styles.statCard}>
           <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-          <ThemedText variant="title" style={styles.statValue}>{correctCount}</ThemedText>
+          <ThemedText variant="title" style={styles.statValue}>
+            {correctCount}
+          </ThemedText>
           <ThemedText variant="caption">Correct</ThemedText>
         </Card>
         <Card style={styles.statCard}>
           <Ionicons name="close-circle" size={24} color={Colors.error} />
-          <ThemedText variant="title" style={styles.statValue}>{incorrectCount}</ThemedText>
+          <ThemedText variant="title" style={styles.statValue}>
+            {incorrectCount}
+          </ThemedText>
           <ThemedText variant="caption">Incorrect</ThemedText>
         </Card>
         <Card style={styles.statCard}>
@@ -91,12 +93,7 @@ export default function ScoreSummary({
           variant="secondary"
           style={styles.actionButton}
         />
-        <Button
-          title="Done"
-          onPress={onExit}
-          color={accentColor}
-          style={styles.actionButton}
-        />
+        <Button title="Done" onPress={onExit} color={accentColor} style={styles.actionButton} />
       </View>
     </View>
   );

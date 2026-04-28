@@ -9,7 +9,11 @@ interface ProgressBarProps {
   height?: number;
 }
 
-export default function ProgressBar({ progress, color = Colors.primary, height = 6 }: ProgressBarProps) {
+export default function ProgressBar({
+  progress,
+  color = Colors.primary,
+  height = 6,
+}: ProgressBarProps) {
   return (
     <View style={[styles.track, { height }]}>
       <View

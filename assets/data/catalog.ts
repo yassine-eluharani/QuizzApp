@@ -142,7 +142,12 @@ export const platforms: Platform[] = [
         },
         freeSample: { quizId: 'azure-az900-sample', questionCount: 5 },
         quizzes: [
-          { id: 'azure-az900-quiz-1', name: 'Quiz 1', certificationId: 'azure-az900', questionCount: 50 },
+          {
+            id: 'azure-az900-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'azure-az900',
+            questionCount: 50,
+          },
         ],
       },
       {
@@ -167,7 +172,12 @@ export const platforms: Platform[] = [
         },
         freeSample: { quizId: 'azure-az104-sample', questionCount: 5 },
         quizzes: [
-          { id: 'azure-az104-quiz-1', name: 'Quiz 1', certificationId: 'azure-az104', questionCount: 50 },
+          {
+            id: 'azure-az104-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'azure-az104',
+            questionCount: 50,
+          },
         ],
       },
       {
@@ -191,7 +201,12 @@ export const platforms: Platform[] = [
         },
         freeSample: { quizId: 'azure-az305-sample', questionCount: 5 },
         quizzes: [
-          { id: 'azure-az305-quiz-1', name: 'Quiz 1', certificationId: 'azure-az305', questionCount: 50 },
+          {
+            id: 'azure-az305-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'azure-az305',
+            questionCount: 50,
+          },
         ],
       },
     ],
@@ -309,7 +324,12 @@ export const platforms: Platform[] = [
         },
         freeSample: { quizId: 'devops-terraform-sample', questionCount: 5 },
         quizzes: [
-          { id: 'devops-terraform-quiz-1', name: 'Quiz 1', certificationId: 'devops-terraform', questionCount: 57 },
+          {
+            id: 'devops-terraform-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'devops-terraform',
+            questionCount: 57,
+          },
         ],
       },
       {
@@ -334,7 +354,12 @@ export const platforms: Platform[] = [
         },
         freeSample: { quizId: 'devops-cka-sample', questionCount: 5 },
         quizzes: [
-          { id: 'devops-cka-quiz-1', name: 'Quiz 1', certificationId: 'devops-cka', questionCount: 17 },
+          {
+            id: 'devops-cka-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'devops-cka',
+            questionCount: 17,
+          },
         ],
       },
       {
@@ -360,7 +385,12 @@ export const platforms: Platform[] = [
         },
         freeSample: { quizId: 'devops-docker-sample', questionCount: 5 },
         quizzes: [
-          { id: 'devops-docker-quiz-1', name: 'Quiz 1', certificationId: 'devops-docker', questionCount: 55 },
+          {
+            id: 'devops-docker-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'devops-docker',
+            questionCount: 55,
+          },
         ],
       },
     ],
@@ -368,12 +398,12 @@ export const platforms: Platform[] = [
 ];
 
 export function getPlatform(platformId: string): Platform | undefined {
-  return platforms.find(p => p.id === platformId);
+  return platforms.find((p) => p.id === platformId);
 }
 
 export function getCertification(certId: string) {
   for (const platform of platforms) {
-    const cert = platform.certifications.find(c => c.id === certId);
+    const cert = platform.certifications.find((c) => c.id === certId);
     if (cert) return { certification: cert, platform };
   }
   return undefined;
@@ -383,9 +413,19 @@ export function getQuizMeta(quizId: string) {
   for (const platform of platforms) {
     for (const cert of platform.certifications) {
       if (cert.freeSample.quizId === quizId) {
-        return { quiz: { id: quizId, name: 'Free Sample', certificationId: cert.id, questionCount: cert.freeSample.questionCount }, certification: cert, platform, isSample: true };
+        return {
+          quiz: {
+            id: quizId,
+            name: 'Free Sample',
+            certificationId: cert.id,
+            questionCount: cert.freeSample.questionCount,
+          },
+          certification: cert,
+          platform,
+          isSample: true,
+        };
       }
-      const quiz = cert.quizzes.find(q => q.id === quizId);
+      const quiz = cert.quizzes.find((q) => q.id === quizId);
       if (quiz) return { quiz, certification: cert, platform, isSample: false };
     }
   }

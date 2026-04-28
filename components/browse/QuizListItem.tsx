@@ -17,10 +17,18 @@ interface QuizListItemProps {
   isLocked?: boolean;
 }
 
-export default function QuizListItem({ quiz, platformColor, bestScore, onPress, isLocked }: QuizListItemProps) {
+export default function QuizListItem({
+  quiz,
+  platformColor,
+  bestScore,
+  onPress,
+  isLocked,
+}: QuizListItemProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
-      <View style={[styles.dot, { backgroundColor: isLocked ? Colors.textMuted : platformColor }]} />
+      <View
+        style={[styles.dot, { backgroundColor: isLocked ? Colors.textMuted : platformColor }]}
+      />
       <View style={styles.content}>
         <View style={styles.nameRow}>
           <ThemedText variant="bodyLarge">{quiz.name}</ThemedText>

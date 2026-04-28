@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Alert } from 'react-native';
 import { QuizAttempt, BookmarkMeta, StreakData } from '@/types/quiz';
 import * as Storage from '@/lib/storage';
@@ -15,7 +15,12 @@ interface AppState {
 
 interface AppContextType extends AppState {
   addAttempt: (attempt: QuizAttempt) => Promise<void>;
-  toggleBookmark: (questionId: string, meta?: BookmarkMeta, isPro?: boolean, onLimitReached?: () => void) => Promise<void>;
+  toggleBookmark: (
+    questionId: string,
+    meta?: BookmarkMeta,
+    isPro?: boolean,
+    onLimitReached?: () => void
+  ) => Promise<void>;
   isBookmarked: (questionId: string) => boolean;
   recordStudySession: () => Promise<void>;
   getBestScore: (quizId: string) => number | null;
@@ -25,74 +30,114 @@ interface AppContextType extends AppState {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const INITIAL_STATE: AppState = {
+  history: [],
+  bookmarks: [],
+  bookmarksMeta: {},
+  streaks: { currentStreak: 0, longestStreak: 0, lastStudyDate: '', studyDates: [] },
+  isLoaded: false,
+  hasCompletedOnboarding: false,
+};
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AppState>({
-    history: [],
-    bookmarks: [],
-    bookmarksMeta: {},
-    streaks: { currentStreak: 0, longestStreak: 0, lastStudyDate: '', studyDates: [] },
-    isLoaded: false,
-    hasCompletedOnboarding: false,
-  });
+  const [state, setState] = useState<AppState>(INITIAL_STATE);
+
+  // Keep a ref to the latest state so memoized callbacks below can read it
+  // without taking a dependency on changing arrays. This avoids re-creating
+  // every callback whenever bookmarks/history change.
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      const [history, bookmarks, bookmarksMeta, streaks, hasCompletedOnboarding] = await Promise.all([
-        Storage.getHistory(),
-        Storage.getBookmarks(),
-        Storage.getBookmarksMeta(),
-        Storage.getStreakData(),
-        Storage.getOnboardingComplete(),
-      ]);
-      setState({ history, bookmarks, bookmarksMeta, streaks, isLoaded: true, hasCompletedOnboarding });
+      try {
+        const [history, bookmarks, bookmarksMeta, streaks, hasCompletedOnboarding] =
+          await Promise.all([
+            Storage.getHistory(),
+            Storage.getBookmarks(),
+            Storage.getBookmarksMeta(),
+            Storage.getStreakData(),
+            Storage.getOnboardingComplete(),
+          ]);
+        if (cancelled) return;
+        setState({
+          history,
+          bookmarks,
+          bookmarksMeta,
+          streaks,
+          isLoaded: true,
+          hasCompletedOnboarding,
+        });
+      } catch (err) {
+        if (__DEV__) console.warn('[AppContext] hydrate failed', err);
+        if (cancelled) return;
+        // Fall back to empty state but mark loaded so the UI can render.
+        setState((prev) => ({ ...prev, isLoaded: true }));
+      }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const addAttempt = useCallback(async (attempt: QuizAttempt) => {
     const history = await Storage.addAttempt(attempt);
-    setState(prev => ({ ...prev, history }));
+    setState((prev) => ({ ...prev, history }));
   }, []);
 
-  const toggleBookmark = useCallback(async (questionId: string, meta?: BookmarkMeta, isPro: boolean = true, onLimitReached?: () => void) => {
-    const isCurrentlyBookmarked = state.bookmarks.includes(questionId);
-    if (!isCurrentlyBookmarked && !canAddBookmark(state.bookmarks.length, isPro)) {
-      if (onLimitReached) {
-        onLimitReached();
-      } else {
-        Alert.alert('Bookmark Limit', `Free users can save up to ${FREE_BOOKMARK_LIMIT} bookmarks. Upgrade to Pro for unlimited bookmarks.`);
+  const toggleBookmark = useCallback(
+    async (
+      questionId: string,
+      meta?: BookmarkMeta,
+      isPro: boolean = true,
+      onLimitReached?: () => void
+    ) => {
+      const current = stateRef.current.bookmarks;
+      const isCurrentlyBookmarked = current.includes(questionId);
+      if (!isCurrentlyBookmarked && !canAddBookmark(current.length, isPro)) {
+        if (onLimitReached) {
+          onLimitReached();
+        } else {
+          Alert.alert(
+            'Bookmark Limit',
+            `Free users can save up to ${FREE_BOOKMARK_LIMIT} bookmarks. Upgrade to Pro for unlimited bookmarks.`
+          );
+        }
+        return;
       }
-      return;
-    }
-    const result = await Storage.toggleBookmark(questionId, meta);
-    setState(prev => ({
-      ...prev,
-      bookmarks: result.bookmarks,
-      bookmarksMeta: result.bookmarksMeta,
-    }));
-  }, [state.bookmarks]);
+      const result = await Storage.toggleBookmark(questionId, meta);
+      setState((prev) => ({
+        ...prev,
+        bookmarks: result.bookmarks,
+        bookmarksMeta: result.bookmarksMeta,
+      }));
+    },
+    []
+  );
 
   const isBookmarked = useCallback((questionId: string) => {
-    return state.bookmarks.includes(questionId);
-  }, [state.bookmarks]);
+    return stateRef.current.bookmarks.includes(questionId);
+  }, []);
 
   const recordStudySession = useCallback(async () => {
     const streaks = await Storage.recordStudySession();
-    setState(prev => ({ ...prev, streaks }));
+    setState((prev) => ({ ...prev, streaks }));
   }, []);
 
   const getBestScore = useCallback((quizId: string) => {
-    const attempts = state.history.filter(a => a.quizId === quizId);
+    const attempts = stateRef.current.history.filter((a) => a.quizId === quizId);
     if (attempts.length === 0) return null;
-    return Math.max(...attempts.map(a => a.percentage));
-  }, [state.history]);
+    return Math.max(...attempts.map((a) => a.percentage));
+  }, []);
 
   const getAttemptsForCert = useCallback((certId: string) => {
-    return state.history.filter(a => a.certificationId === certId);
-  }, [state.history]);
+    return stateRef.current.history.filter((a) => a.certificationId === certId);
+  }, []);
 
   const completeOnboarding = useCallback(async () => {
     await Storage.setOnboardingComplete();
-    setState(prev => ({ ...prev, hasCompletedOnboarding: true }));
+    setState((prev) => ({ ...prev, hasCompletedOnboarding: true }));
   }, []);
 
   return (

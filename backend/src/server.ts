@@ -1,24 +1,32 @@
-import './config'; // validates env vars on startup
+import './config';
+import path from 'path';
+import { runner } from 'node-pg-migrate';
 import app from './app';
 import { db } from './db/client';
 import { config } from './config';
-import fs from 'fs';
-import path from 'path';
+import { logger } from './logger';
 
 async function start() {
-  // Run DB migration
-  const sql = fs.readFileSync(
-    path.join(__dirname, '../src/db/migrations/001_init.sql'),
-    'utf-8'
-  );
-  await db.query(sql);
+  await runner({
+    databaseUrl: config.databaseUrl,
+    dir: path.join(__dirname, '../migrations'),
+    direction: 'up',
+    migrationsTable: 'pgmigrations',
+    log: (msg: string) => logger.info({ migration: true }, msg),
+  });
 
   app.listen(config.port, () => {
-    console.log(`CloudPrep API running on port ${config.port}`);
+    logger.info({ port: config.port }, 'cloudprep_api_started');
   });
 }
 
 start().catch((err) => {
-  console.error('Failed to start server:', err);
+  logger.error({ err }, 'cloudprep_api_failed_to_start');
   process.exit(1);
+});
+
+process.on('SIGTERM', async () => {
+  logger.info('sigterm_received');
+  await db.end();
+  process.exit(0);
 });

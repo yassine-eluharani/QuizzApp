@@ -1,43 +1,37 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { db } from '../db/client';
 import { requirePro } from '../middleware/requirePro';
+import { validateParams } from '../middleware/validate';
 
 const router = Router();
 
-// Sample quizzes follow the pattern: {cert-id}-sample
-// They are free for all users — no auth required.
+const SAMPLE_SUFFIX = '-sample';
+
 function isSampleQuiz(quizId: string): boolean {
-  return quizId.endsWith('-sample');
+  return quizId.endsWith(SAMPLE_SUFFIX);
 }
 
-/**
- * GET /questions/:quizId
- *
- * Sample quizzes (ending in -sample): open to all, no auth.
- * Pro quizzes: requirePro middleware validates RevenueCat entitlement first.
- */
+const paramsSchema = z.object({
+  quizId: z.string().regex(/^[a-z0-9-]+-(?:quiz-\d+|sample)$/, 'Invalid quiz ID format'),
+});
+
 router.get(
   '/:quizId',
+  validateParams(paramsSchema),
   (req: Request, res: Response, next: NextFunction) => {
     if (isSampleQuiz(req.params.quizId)) {
-      return next('route'); // skip auth
+      return next('route');
     }
     return requirePro(req, res, next);
   },
   serveQuestions
 );
 
-// Open handler for sample quizzes
-router.get('/:quizId', serveQuestions);
+router.get('/:quizId', validateParams(paramsSchema), serveQuestions);
 
 async function serveQuestions(req: Request, res: Response): Promise<void> {
   const { quizId } = req.params;
-
-  // Valid patterns: {platform}-{cert}-quiz-{N} or {platform}-{cert}-sample
-  if (!/^[a-z0-9]+-[a-z0-9]+-(?:quiz-\d+|sample)$/.test(quizId)) {
-    res.status(400).json({ error: 'Invalid quiz ID format' });
-    return;
-  }
 
   const result = await db.query(
     `SELECT id, question_number, question, choices, correct_answer_indices, explanation_html
