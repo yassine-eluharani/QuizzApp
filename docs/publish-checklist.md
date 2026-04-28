@@ -2,6 +2,24 @@
 
 > Working file. Tick items as they're done. Anything left at "todo" blocks shipping.
 
+## Status snapshot (2026-04-28)
+
+**Done** (sections 1, 2, 3 + partial 7):
+
+- Privacy policy hosted on GitHub Pages
+- App icon generated, wired into iOS `.icon` folder + Android adaptive (foreground/background/monochrome) + 512×512 listing icon
+- 5 phone screenshots + 1 Feature Graphic generated and saved to `marketing/output/`
+- Repo on `main` as default branch, `EXPO_TOKEN` GitHub secret added
+
+**Blocking the first AAB submission** (sections 4–8):
+
+1. Google Cloud + Play service account (section 5) — needed for `eas submit`
+2. First local `eas build` (section 6) — generates the Android keystore EAS reuses forever
+3. Manual AAB upload to Play Console internal testing (section 6) — kicks off Google's first-time review
+4. Play Console form-filling (section 8) — store listing, content rating, data safety
+5. RevenueCat (section 4) — only needed when you want the Pro paywall to be functional in TestFlight; the app ships fine without it (free tier works, paywall shows a banner)
+6. Remaining GitHub secrets (section 7) — only needed once you want pushes to `main` to auto-build + auto-submit
+
 ## 1. Privacy policy hosting
 
 - [x] Push `docs/` to `main` on GitHub
@@ -79,10 +97,10 @@ After that one-time setup, every push to `main` will auto-build + auto-submit vi
 
 ## 7. GitHub repo configuration
 
-- [ ] Set default branch to `main` (Settings → Branches)
-- [ ] Branch protection on `main` and `dev` (see `CONTRIBUTING.md`)
+- [x] Set default branch to `main` (Pages serves from `main` → must be default)
+- [ ] ~~Branch protection on `main` and `dev`~~ — skipped for now (solo dev). Revisit if collaborators join.
 - [ ] Add secrets:
-  - [ ] `EXPO_TOKEN` (from https://expo.dev/settings/access-tokens)
+  - [x] `EXPO_TOKEN`
   - [ ] `GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64` (`base64 -i path/to/sa.json | pbcopy`)
   - [ ] `REVENUECAT_GOOGLE_API_KEY` (`goog_…` from RC)
 
