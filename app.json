@@ -15,7 +15,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.levisine.Quiz",
+      "bundleIdentifier": "com.levisine.CloudPrep",
       "buildNumber": "1",
       "icon": "./assets/app-icon.icon",
       "infoPlist": {
@@ -61,7 +61,7 @@
         "monochromeImage": "./assets/android-icon.png",
         "backgroundColor": "#0F0F14"
       },
-      "package": "com.levisine.Quiz",
+      "package": "com.levisine.CloudPrep",
       "versionCode": 1,
       "permissions": ["android.permission.INTERNET"]
     },
