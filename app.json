@@ -17,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.levisine.Quiz",
       "buildNumber": "1",
+      "icon": "./assets/app-icon.icon",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -55,7 +56,9 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/android-icon.png",
+        "backgroundImage": "./assets/android-icon.png",
+        "monochromeImage": "./assets/android-icon.png",
         "backgroundColor": "#0F0F14"
       },
       "package": "com.levisine.Quiz",

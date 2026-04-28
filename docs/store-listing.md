@@ -84,7 +84,7 @@ Good luck on your exam.
 
 (2,820 chars including spaces — well under the 4000 limit.)
 
-⚠️ **Replace** the `https://<your-github-username>.github.io/<your-repo-name>/privacy/` URL with your actual GitHub Pages URL once you've enabled Pages.
+⚠️ **Replace** the `https://yassine-eluharani.github.io/QuizzApp/privacy/` URL with your actual GitHub Pages URL once you've enabled Pages.
 
 ## Category
 

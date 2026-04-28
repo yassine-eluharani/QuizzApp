@@ -4,56 +4,38 @@
 
 ## 1. Privacy policy hosting
 
-- [ ] Push `docs/` to `main` on GitHub
-- [ ] GitHub → Settings → Pages → Source: Deploy from branch → Branch `main` / folder `/docs`
-- [ ] Verify the URL resolves: `https://yassine-eluharani.github.io/QuizzApp/privacy/`
-- [ ] Replace the `<your-github-username>/<your-repo-name>` placeholder in `docs/store-listing.md` with the real URL
+- [x] Push `docs/` to `main` on GitHub
+- [x] GitHub → Settings → Pages → Source: Deploy from branch → Branch `main` / folder `/docs`
+- [x] Verify the URL resolves: `https://yassine-eluharani.github.io/QuizzApp/privacy/`
+- [x] Replace the `<your-github-username>/<your-repo-name>` placeholder in `docs/store-listing.md` with the real URL
 
 ## 2. App icon (1024×1024 transparent PNG)
 
-Prereqs:
-
-- [ ] `brew install imagemagick` (for the Android-safe-area scaler)
-- [ ] OpenAI API key for SnapAI: https://platform.openai.com/api-keys (~$0.04 per icon)
-- [ ] `npx snapai config --api-key sk-…`
-
-Generate (pick one of the prompts in `docs/store-listing.md` notes, or iterate with a custom one):
-
-```bash
-npx snapai icon \
-  --prompt "<see options A/B/C>" \
-  --background transparent --output-format png --quality high --style minimalism
-```
-
-Output goes to `assets/icon-<timestamp>.png`. Then I'll wire:
-
-- [ ] `assets/app-icon.icon/Assets/icon.png` + `assets/app-icon.icon/icon.json` (iOS 26 Liquid Glass folder)
-- [ ] `assets/android-icon.png` (66 % scaled, ImageMagick)
-- [ ] `app.json:ios.icon` → `./assets/app-icon.icon`
-- [ ] `app.json:android.adaptiveIcon.foregroundImage / backgroundImage / monochromeImage` → `./assets/android-icon.png`
-- [ ] Visual sanity check on iOS and Android simulators (no text legibility issues at the 48 dp launcher size)
-
-The Play Console listing icon (the 512×512) is exported from the same source — I'll handle that step.
+- [x] `brew install imagemagick`
+- [x] OpenAI API key configured (`npx snapai config -k …`)
+- [x] Generated `assets/icon-1777406673249.png` (glassy violet cloud + check)
+- [x] `assets/app-icon.icon/Assets/icon.png` + `icon.json` (iOS 26 Liquid Glass folder)
+- [x] `assets/android-icon.png` (66 % scaled, ImageMagick)
+- [x] `assets/icon-512.png` (Play Console listing icon, no alpha, dark bg)
+- [x] `app.json:ios.icon` → `./assets/app-icon.icon`
+- [x] `app.json:android.adaptiveIcon.{foregroundImage,backgroundImage,monochromeImage}` → `./assets/android-icon.png`
+- [ ] Visual sanity check on Android emulator (after first `eas build`)
 
 ## 3. Phone screenshots (Play Console requires ≥ 2)
 
-Capture in this order from a clean Android emulator at 1080×1920 (or higher):
+Auto-generated via `marketing/generator/render.cjs`. See `marketing/generator/README.md`.
 
-- [ ] Browse tab (home)
-- [ ] A quiz mid-question with one answer selected
-- [ ] The explanation sheet open
-- [ ] Stats tab with at least 3 completed attempts
-- [ ] Paywall
-
-Save the PNGs into `marketing/screenshots-source/` (gitignored). Then run the `app-store-screenshots` skill to overlay them on phone mockups, add headlines, and export at all required Play sizes:
-
-```bash
-# I'll scaffold the Next.js generator project at:
-mkdir -p marketing/screenshot-generator
-# (then walk through the skill workflow)
-```
-
-Output: 5 finished phone screenshots + 1 Feature Graphic (1024×500) ready to upload.
+- [x] Captured 5 raw app screens via web build + Playwright (`marketing/screenshots-source/`)
+- [x] Marketing layout applied — labels, headlines, accent gradients, drop shadows
+- [x] 5 final phone screenshots in `marketing/output/`:
+  - `01-hero-1080x1920.png` — "Pass your cloud cert."
+  - `02-free-1080x1920.png` — "First quiz free. Every cert."
+  - `03-real-questions-1080x1920.png` — "Real questions, real explanations."
+  - `04-progress-1080x1920.png` — "Score trends. Daily streaks."
+  - `05-pro-1080x1920.png` — "Unlock everything. One-time purchase."
+- [x] 1 Feature Graphic in `marketing/output/feature-graphic-1024x500.png`
+- [ ] Optional v2: re-capture quiz screen at native resolution (current web capture has small text)
+- [ ] Upload all 6 PNGs to Play Console → Main store listing → Graphics
 
 ## 4. RevenueCat (Android only for now)
 
