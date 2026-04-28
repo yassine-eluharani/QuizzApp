@@ -55,27 +55,35 @@ Auto-generated via `marketing/generator/render.cjs`. See `marketing/generator/RE
 - [ ] Optional v2: re-capture quiz screen at native resolution (current web capture has small text)
 - [ ] Upload all 6 PNGs to Play Console → Main store listing → Graphics
 
-## 4. RevenueCat (Android only for now)
+## 4 + 5. Google Play Console + RevenueCat
 
-- [ ] Create RevenueCat account, project, Android app (`com.levisine.Quiz`)
-- [ ] Upload Play service-account JSON in RC
-- [ ] Create entitlement `pro`, product `pro_lifetime` (non-consumable) in RC
-- [ ] Mirror the product in Play Console → Monetize → In-app products with the **same product ID**
-- [ ] Create RC offering `default` containing the `pro_lifetime` package, mark as Current
-- [ ] Copy the Google SDK API key (`goog_…`) and the webhook authorization header value
-- [ ] Update locally:
-  - `app.json:extra.revenueCatGoogleApiKey` = `goog_…`
-  - `eas.json:build.production.env.REVENUECAT_GOOGLE_API_KEY` = `goog_…`
-  - `backend/.env:REVENUECAT_SECRET_KEY` = `sk_…` (server-side secret from RC)
-  - `backend/.env:REVENUECAT_WEBHOOK_AUTH` = the value you set in RC dashboard webhook config
+**Order matters here** — RC depends on Play Console, Play Console depends on
+your first AAB build, and EAS Submit depends on the same Cloud service account
+RC also uses. Step-by-step walkthrough in dependency order:
 
-## 5. Google Cloud / Play service account (for EAS Submit)
+➡️ **[`docs/setup-stores.md`](./setup-stores.md)**
 
-- [ ] Google Cloud Console → new project (or reuse) → enable "Google Play Android Developer API"
-- [ ] Create service account `eas-play-submit`, no roles needed
-- [ ] Service account → Keys → Add Key → JSON → download
-- [ ] Play Console → Setup → API access → link Cloud project → grant the service account **Releases (Admin)** + **Store presence (View)**
-- [ ] Save the JSON outside the repo; record the absolute path here: `__________________________`
+Quick TL;DR:
+
+1. Play Console — create the app shell (Phase A)
+2. Google Cloud — service account JSON (Phase B)
+3. First local `eas build` (Phase C)
+4. Manual AAB upload to Play Console internal testing (Phase D) — kicks off Google review
+5. Play Console — create `pro_lifetime` in-app product (Phase E)
+6. RevenueCat — project, entitlement, offering, three keys (Phase F)
+7. Wire keys into `app.json` / `eas.json` / `backend/.env` (Phase G)
+8. Re-build + re-submit with RC enabled (Phase H)
+
+Section 4 / 5 checkboxes:
+
+- [ ] Phase A — Play Console app shell created
+- [ ] Phase B — Service account JSON downloaded; granted Releases (Admin) + Store presence (View) access in Play Console
+- [ ] Phase C — First local `eas build --platform android --profile production` succeeded; keystore generated
+- [ ] Phase D — First AAB uploaded to Internal testing; Google review in progress / approved
+- [ ] Phase E — `pro_lifetime` in-app product created and Active in Play Console
+- [ ] Phase F — RC project + Android app + entitlement `pro` + product `pro_lifetime` + offering `default` (Current)
+- [ ] Phase G — Three keys pasted into `app.json`, `eas.json`, `backend/.env`; backend restarted
+- [ ] Phase H — Second AAB built with RC keys; test purchase succeeds end-to-end on a tester device
 
 ## 6. Local first-time build (mandatory before CI can release)
 
