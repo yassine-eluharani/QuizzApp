@@ -2,7 +2,7 @@
 
 > Working file. Tick items as they're done. Anything left at "todo" blocks shipping.
 
-## Status snapshot (2026-04-28)
+## Status snapshot (2026-05-09)
 
 **Done** (sections 1, 2, 3 + partial 7):
 
@@ -10,6 +10,8 @@
 - App icon generated, wired into iOS `.icon` folder + Android adaptive (foreground/background/monochrome) + 512×512 listing icon
 - 5 phone screenshots + 1 Feature Graphic generated and saved to `marketing/output/`
 - Repo on `main` as default branch, `EXPO_TOKEN` GitHub secret added
+- Bundle/package identifier renamed to `com.levisine.CloudPrep` and synced across `app.json`, `lib/security.ts` (now reads dynamically), and all docs
+- Content scope locked: only `aws-saa` (7 quizzes × 65 q) and `aws-dva` (3 quizzes × 65 q) ship with content. The other 11 certs are flagged `comingSoon: true` in `assets/data/catalog.ts` and rendered with a "Coming Soon" panel — their stub JSON files were deleted from `assets/data/questions/`
 
 **Blocking the first AAB submission** (sections 4–8):
 

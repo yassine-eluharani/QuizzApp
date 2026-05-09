@@ -16,10 +16,17 @@ interface PlatformCardProps {
 }
 
 export default function PlatformCard({ platform, onPress }: PlatformCardProps) {
-  const totalQuestions = platform.certifications.reduce(
+  const availableCerts = platform.certifications.filter((c) => !c.comingSoon);
+  const comingSoonCount = platform.certifications.length - availableCerts.length;
+  const totalQuestions = availableCerts.reduce(
     (sum, cert) => sum + cert.quizzes.reduce((s, q) => s + q.questionCount, 0),
     0
   );
+  const certBadgeText =
+    availableCerts.length > 0
+      ? `${availableCerts.length} Cert${availableCerts.length === 1 ? '' : 's'}`
+      : 'Coming Soon';
+  const certBadgeColor = availableCerts.length > 0 ? platform.color : Colors.textMuted;
 
   return (
     <Card
@@ -40,8 +47,15 @@ export default function PlatformCard({ platform, onPress }: PlatformCardProps) {
         <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
       </View>
       <View style={styles.footer}>
-        <Badge text={`${platform.certifications.length} Certs`} color={platform.color} />
-        <ThemedText variant="caption">{totalQuestions} questions</ThemedText>
+        <Badge text={certBadgeText} color={certBadgeColor} />
+        {totalQuestions > 0 ? (
+          <ThemedText variant="caption">{totalQuestions} questions</ThemedText>
+        ) : null}
+        {comingSoonCount > 0 && availableCerts.length > 0 ? (
+          <ThemedText variant="caption" color={Colors.textMuted}>
+            +{comingSoonCount} coming soon
+          </ThemedText>
+        ) : null}
       </View>
     </Card>
   );

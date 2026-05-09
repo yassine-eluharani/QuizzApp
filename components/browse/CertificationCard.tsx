@@ -22,32 +22,54 @@ export default function CertificationCard({
   onPress,
 }: CertificationCardProps) {
   const totalQuestions = certification.quizzes.reduce((s, q) => s + q.questionCount, 0);
+  const isComingSoon = certification.comingSoon === true;
+  const accent = isComingSoon ? Colors.textMuted : platformColor;
 
   return (
-    <Card onPress={onPress} accentColor={platformColor} style={styles.card}>
+    <Card
+      onPress={onPress}
+      accentColor={accent}
+      style={[styles.card, isComingSoon && styles.cardComingSoon]}
+    >
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <ThemedText variant="bodyLarge" style={styles.name}>
+          <ThemedText variant="bodyLarge" style={[styles.name, isComingSoon && styles.nameMuted]}>
             {certification.name}
           </ThemedText>
-          <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+          {isComingSoon ? (
+            <Ionicons name="time-outline" size={18} color={Colors.textMuted} />
+          ) : (
+            <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+          )}
         </View>
-        <Badge text={certification.code} color={platformColor} />
+        <View style={styles.badgeRow}>
+          <Badge text={certification.code} color={accent} />
+          {isComingSoon && <Badge text="Coming Soon" color={Colors.textMuted} />}
+        </View>
       </View>
       <View style={styles.footer}>
-        <ThemedText variant="caption">
-          {certification.quizzes.length} {certification.quizzes.length === 1 ? 'quiz' : 'quizzes'}
-        </ThemedText>
-        <ThemedText variant="caption">{totalQuestions} questions</ThemedText>
-        {bestScore !== null && bestScore !== undefined && (
-          <ThemedText
-            variant="caption"
-            color={
-              bestScore >= certification.examInfo.passingScore ? Colors.success : Colors.warning
-            }
-          >
-            Best: {Math.round(bestScore)}%
+        {isComingSoon ? (
+          <ThemedText variant="caption" color={Colors.textMuted}>
+            Question bank in production — notify on launch
           </ThemedText>
+        ) : (
+          <>
+            <ThemedText variant="caption">
+              {certification.quizzes.length}{' '}
+              {certification.quizzes.length === 1 ? 'quiz' : 'quizzes'}
+            </ThemedText>
+            <ThemedText variant="caption">{totalQuestions} questions</ThemedText>
+            {bestScore !== null && bestScore !== undefined && (
+              <ThemedText
+                variant="caption"
+                color={
+                  bestScore >= certification.examInfo.passingScore ? Colors.success : Colors.warning
+                }
+              >
+                Best: {Math.round(bestScore)}%
+              </ThemedText>
+            )}
+          </>
         )}
       </View>
     </Card>
@@ -57,6 +79,9 @@ export default function CertificationCard({
 const styles = StyleSheet.create({
   card: {
     marginBottom: Theme.spacing.sm + 4,
+  },
+  cardComingSoon: {
+    opacity: 0.7,
   },
   header: {
     marginBottom: Theme.spacing.sm,
@@ -70,6 +95,15 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     marginRight: Theme.spacing.sm,
+  },
+  nameMuted: {
+    color: Colors.textSecondary,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Theme.spacing.sm,
+    flexWrap: 'wrap',
   },
   footer: {
     flexDirection: 'row',

@@ -36,7 +36,7 @@ You need this to exist before anything else can reference your package name.
    - **Free or paid:** Free
    - **Declarations:** tick both ("I have read and agree…", "I confirm the app meets developer policies")
 4. **Create app**. You land on the app dashboard.
-5. Note the **package name** Play Console will associate with this app — by default it's pulled from your first AAB upload. Make sure it matches `com.levisine.Quiz` (the one in `app.json`). If Play Console asks now, type that exactly.
+5. Note the **package name** Play Console will associate with this app — by default it's pulled from your first AAB upload. Make sure it matches `com.levisine.CloudPrep` (the one in `app.json`). If Play Console asks now, type that exactly.
 
 You now have an empty app entry. Don't fill out the store listing yet — come back to it after Phase D when you also have screenshots/icon to upload.
 
@@ -72,7 +72,7 @@ This single JSON file is used by both **EAS Submit** (to push AABs) and **Revenu
 3. The browser downloads a file like `cloudprep-quiz-play-XXXXXX.json`.
 4. **Move it somewhere safe and OUTSIDE the repo.** Recommended: `~/cloudprep-play-service-account.json`. Treat it like a password — anyone with this file can publish AABs as you.
 
-Record the absolute path here for later reference: ************\_\_\_************
+Record the absolute path here for later reference: ****\*\*\*\*****\_\_\_****\*\*\*\*****
 
 ### B.5 Grant the service account access in Play Console
 
@@ -166,7 +166,7 @@ You need this product to exist in Play before RevenueCat can attach it to an ent
 2. Choose **Google Play Store**.
 3. Fill in:
    - **App name:** `CloudPrep Quiz Android`
-   - **Package name:** `com.levisine.Quiz` (must match `app.json` exactly)
+   - **Package name:** `com.levisine.CloudPrep` (must match `app.json` exactly)
 4. **Service Account Credentials** — upload the JSON from Phase B.4 (`cloudprep-play-service-account.json`).
 5. **Save**. RC takes a minute or so to verify the credentials. Wait for the green checkmark before continuing.
 
@@ -284,7 +284,7 @@ The new release goes onto the same Internal testing track. Once it's live (a min
 
 ## Sanity checks at each phase
 
-- **After Phase A:** Play Console dashboard shows the app with "Set up your app" tasklist; package name is `com.levisine.Quiz`.
+- **After Phase A:** Play Console dashboard shows the app with "Set up your app" tasklist; package name is `com.levisine.CloudPrep`.
 - **After Phase B:** running `cat ~/cloudprep-play-service-account.json | jq .client_email` shows `eas-play-submit@cloudprep-quiz-play.iam.gserviceaccount.com` (or similar). Play Console → Setup → API access shows the service account row with green "Granted" status against your app.
 - **After Phase C:** EAS dashboard shows a green build artifact; downloading the AAB gives you a ~30–80 MB file.
 - **After Phase D:** Play Console → Internal testing → Releases shows the build under review or live; opt-in link installs the app on your device.

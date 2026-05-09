@@ -35,7 +35,14 @@ export default function PlatformScreen() {
             {platform.name}
           </ThemedText>
           <ThemedText variant="body">
-            {platform.certifications.length} certifications available
+            {(() => {
+              const available = platform.certifications.filter((c) => !c.comingSoon).length;
+              const total = platform.certifications.length;
+              if (available === 0) return `${total} certifications coming soon`;
+              if (available === total)
+                return `${total} ${total === 1 ? 'certification' : 'certifications'} available`;
+              return `${available} of ${total} available · ${total - available} coming soon`;
+            })()}
           </ThemedText>
         </View>
 

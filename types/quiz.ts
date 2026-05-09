@@ -33,8 +33,9 @@ export interface Certification {
   code: string;
   platformId: string;
   examInfo: ExamInfo;
-  freeSample: FreeSample;
+  freeSample?: FreeSample;
   quizzes: QuizMeta[]; // pro quizzes only
+  comingSoon?: boolean;
 }
 
 export interface QuizMeta {

@@ -46,7 +46,7 @@ This document outlines all the steps needed to deploy CloudPrep Quiz to producti
 4. Select "App" and click Continue
 5. Fill in:
    - **Description**: CloudPrep Quiz
-   - **Bundle ID**: `com.levisine.Quiz` (Explicit)
+   - **Bundle ID**: `com.levisine.CloudPrep` (Explicit)
 6. Enable capabilities:
    - **In-App Purchase** (required for RevenueCat)
 7. Click Continue and Register
@@ -59,7 +59,7 @@ This document outlines all the steps needed to deploy CloudPrep Quiz to producti
    - **Platforms**: iOS
    - **Name**: CloudPrep Quiz
    - **Primary Language**: English (U.S.)
-   - **Bundle ID**: Select `com.levisine.Quiz`
+   - **Bundle ID**: Select `com.levisine.CloudPrep`
    - **SKU**: `cloudprep-quiz-001`
    - **User Access**: Full Access
 4. Click Create
@@ -161,7 +161,7 @@ This document outlines all the steps needed to deploy CloudPrep Quiz to producti
 2. Click "New" → Select "App Store"
 3. Fill in:
    - **App name**: CloudPrep Quiz iOS
-   - **Bundle ID**: `com.levisine.Quiz`
+   - **Bundle ID**: `com.levisine.CloudPrep`
 4. Get your **Apple App-Specific Shared Secret**:
    - In App Store Connect → Your App → "General" → "App Information"
    - Scroll to "App-Specific Shared Secret"
@@ -175,7 +175,7 @@ This document outlines all the steps needed to deploy CloudPrep Quiz to producti
 2. Click "New" → Select "Play Store"
 3. Fill in:
    - **App name**: CloudPrep Quiz Android
-   - **Package Name**: `com.levisine.Quiz`
+   - **Package Name**: `com.levisine.CloudPrep`
 4. Upload your Google Play service account JSON credentials
 5. Note your **RevenueCat Google API Key** (starts with `goog_`)
 

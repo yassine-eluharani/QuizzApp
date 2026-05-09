@@ -40,6 +40,7 @@ export default function CertificationScreen() {
   const { examInfo } = cert;
   const attempts = getAttemptsForCert(cert.id);
   const examLocked = !isExamAccessible(isPro);
+  const isComingSoon = cert.comingSoon === true;
   const freeQuiz = cert.quizzes[0];
   const freeQuizBestScore = freeQuiz ? getBestScore(freeQuiz.id) : null;
 
@@ -138,57 +139,83 @@ export default function CertificationScreen() {
           )}
         </Card>
 
-        {/* Tabs */}
-        <View style={styles.tabBar}>
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'quizzes' && {
-                borderBottomColor: platform.color,
-                borderBottomWidth: 2,
-              },
-            ]}
-            onPress={() => setActiveTab('quizzes')}
-            activeOpacity={0.7}
-          >
-            <ThemedText
-              style={[
-                styles.tabLabel,
-                activeTab === 'quizzes'
-                  ? { color: Colors.textPrimary }
-                  : { color: Colors.textMuted },
-              ]}
-            >
-              Quizzes
+        {/* Coming soon — replaces tabs/quizzes/exam UI for unfinished certs */}
+        {isComingSoon && (
+          <View style={styles.comingSoonContainer}>
+            <View style={[styles.comingSoonIcon, { backgroundColor: platform.color + '14' }]}>
+              <Ionicons name="construct-outline" size={36} color={platform.color} />
+            </View>
+            <ThemedText variant="title" style={styles.comingSoonTitle}>
+              Coming Soon
             </ThemedText>
-          </TouchableOpacity>
+            <ThemedText variant="body" style={styles.comingSoonDesc}>
+              We're still curating the question bank for {cert.code}. The exam blueprint above shows
+              what to expect — quizzes and practice exam mode for this certification will ship in a
+              future update.
+            </ThemedText>
+            <View style={styles.comingSoonHint}>
+              <Ionicons name="sparkles-outline" size={14} color={Colors.primary} />
+              <ThemedText variant="caption" style={styles.comingSoonHintText}>
+                In the meantime, AWS Solutions Architect Associate and Developer Associate are fully
+                available.
+              </ThemedText>
+            </View>
+          </View>
+        )}
 
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'exam' && { borderBottomColor: platform.color, borderBottomWidth: 2 },
-            ]}
-            onPress={() => setActiveTab('exam')}
-            activeOpacity={0.7}
-          >
-            <View style={styles.tabLabelRow}>
+        {/* Tabs */}
+        {!isComingSoon && (
+          <View style={styles.tabBar}>
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === 'quizzes' && {
+                  borderBottomColor: platform.color,
+                  borderBottomWidth: 2,
+                },
+              ]}
+              onPress={() => setActiveTab('quizzes')}
+              activeOpacity={0.7}
+            >
               <ThemedText
                 style={[
                   styles.tabLabel,
-                  activeTab === 'exam'
+                  activeTab === 'quizzes'
                     ? { color: Colors.textPrimary }
                     : { color: Colors.textMuted },
                 ]}
               >
-                Exam Mode
+                Quizzes
               </ThemedText>
-              {examLocked && <ProBadge />}
-            </View>
-          </TouchableOpacity>
-        </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                activeTab === 'exam' && { borderBottomColor: platform.color, borderBottomWidth: 2 },
+              ]}
+              onPress={() => setActiveTab('exam')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.tabLabelRow}>
+                <ThemedText
+                  style={[
+                    styles.tabLabel,
+                    activeTab === 'exam'
+                      ? { color: Colors.textPrimary }
+                      : { color: Colors.textMuted },
+                  ]}
+                >
+                  Exam Mode
+                </ThemedText>
+                {examLocked && <ProBadge />}
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Tab: Quizzes */}
-        {activeTab === 'quizzes' && (
+        {!isComingSoon && activeTab === 'quizzes' && (
           <View style={styles.tabContent}>
             {/* Free quiz — prominent */}
             {freeQuiz && (
@@ -299,7 +326,7 @@ export default function CertificationScreen() {
         )}
 
         {/* Tab: Exam Mode */}
-        {activeTab === 'exam' && (
+        {!isComingSoon && activeTab === 'exam' && (
           <View style={styles.tabContent}>
             <View style={styles.examIllustration}>
               <Ionicons
@@ -596,6 +623,46 @@ const styles = StyleSheet.create({
   examLockNote: {
     textAlign: 'center',
     color: Colors.textMuted,
+  },
+
+  // Coming soon
+  comingSoonContainer: {
+    alignItems: 'center',
+    paddingVertical: Theme.spacing.xl,
+    paddingHorizontal: Theme.spacing.md,
+  },
+  comingSoonIcon: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Theme.spacing.lg,
+  },
+  comingSoonTitle: {
+    textAlign: 'center',
+    marginBottom: Theme.spacing.sm,
+  },
+  comingSoonDesc: {
+    textAlign: 'center',
+    color: Colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: Theme.spacing.lg,
+  },
+  comingSoonHint: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Theme.spacing.sm,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.primary + '55',
+    borderRadius: 10,
+    paddingVertical: Theme.spacing.sm,
+    paddingHorizontal: Theme.spacing.md,
+  },
+  comingSoonHintText: {
+    flex: 1,
+    color: Colors.textSecondary,
   },
 
   // Attempts
