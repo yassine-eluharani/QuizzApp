@@ -16,10 +16,6 @@
       "channel": "preview",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "REVENUECAT_APPLE_API_KEY": "",
-        "REVENUECAT_GOOGLE_API_KEY": ""
       }
     },
     "production": {
@@ -27,28 +23,16 @@
       "channel": "production",
       "autoIncrement": true,
       "android": {
-        "buildType": "app-bundle",
-        "enableProguardInReleaseBuilds": true,
-        "enableShrinkResourcesInReleaseBuilds": true
+        "buildType": "app-bundle"
       },
       "ios": {
         "resourceClass": "m-medium"
-      },
-      "env": {
-        "REVENUECAT_APPLE_API_KEY": "",
-        "REVENUECAT_GOOGLE_API_KEY": ""
       }
     }
   },
   "submit": {
     "production": {
-      "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
-      },
       "android": {
-        "serviceAccountKeyPath": "",
         "track": "internal"
       }
     }

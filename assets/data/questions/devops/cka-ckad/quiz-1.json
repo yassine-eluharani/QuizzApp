@@ -1,0 +1,396 @@
+[
+  {
+    "id": "devops-cka-q1",
+    "question_number": "1",
+    "question": "Note: The real CKA exam is hands-on. This quiz tests conceptual understanding. [SCENARIO] A new kubeadm-installed cluster shows the kube-apiserver pod in CrashLoopBackOff. The kubelet log on the control plane node shows repeated 'connection refused' messages trying to reach the etcd endpoint on 127.0.0.1:2379. Which file should you inspect first to diagnose the issue?",
+    "choices": [
+      "/var/lib/kubelet/config.yaml",
+      "/etc/kubernetes/manifests/etcd.yaml",
+      "/etc/kubernetes/admin.conf",
+      "/etc/cni/net.d/10-flannel.conflist"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: /etc/kubernetes/manifests/etcd.yaml</strong></p><p>kubeadm runs etcd as a static pod managed by the kubelet from the manifests directory. If the API server cannot reach etcd, the etcd static pod manifest is the first place to check for issues like wrong listen addresses, cert paths, or image pull problems.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> kubelet config governs kubelet behavior, not etcd startup.</p><p><strong>Option C:</strong> admin.conf is a kubeconfig for cluster admins, unrelated to etcd startup.</p><p><strong>Option D:</strong> CNI config affects pod networking, not the API server -> etcd path.</p><p>Reference: <a href=\"https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/\">kubeadm install</a></p>"
+  },
+  {
+    "id": "devops-cka-q2",
+    "question_number": "2",
+    "question": "Which two components run on every worker node in a standard Kubernetes cluster? (Select TWO)",
+    "choices": [
+      "kube-controller-manager",
+      "kubelet",
+      "kube-proxy",
+      "etcd",
+      "kube-scheduler"
+    ],
+    "correct_answer_indices": [1, 2],
+    "explanation_html": "<p><strong>Correct: kubelet and kube-proxy</strong></p><p>The kubelet is the node agent that runs pods and reports node status; kube-proxy maintains node-level networking rules (iptables/IPVS) for Service traffic. Both run on every worker.</p><p><strong>Incorrect options:</strong></p><p><strong>kube-controller-manager, kube-scheduler, etcd:</strong> all part of the control plane, not worker nodes.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/overview/components/\">Components</a></p>"
+  },
+  {
+    "id": "devops-cka-q3",
+    "question_number": "3",
+    "question": "Examine this RBAC manifest:\n\napiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: read-pods\n  namespace: dev\nsubjects:\n- kind: User\n  name: alice\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: ClusterRole\n  name: view\n  apiGroup: rbac.authorization.k8s.io\n\nWhat permissions does this grant Alice?",
+    "choices": [
+      "View permissions on all resources in every namespace",
+      "View permissions only on resources in the dev namespace",
+      "The binding is invalid because RoleBinding cannot reference a ClusterRole",
+      "Full edit permissions on all resources in the dev namespace"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: View permissions only on resources in the dev namespace</strong></p><p>A RoleBinding can reference a ClusterRole; this is a common pattern that reuses a ClusterRole's rules but scopes the grant to a single namespace. Alice gets 'view' rights only inside dev.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That would require a ClusterRoleBinding.</p><p><strong>Option C:</strong> RoleBinding referencing a ClusterRole is fully valid.</p><p><strong>Option D:</strong> 'view' is read-only, not edit.</p><p>Reference: <a href=\"https://kubernetes.io/docs/reference/access-authn-authz/rbac/\">RBAC</a></p>"
+  },
+  {
+    "id": "devops-cka-q4",
+    "question_number": "4",
+    "question": "Which etcdctl command snapshots a running etcd cluster's data to a local file, assuming TLS is configured at the standard kubeadm paths?",
+    "choices": [
+      "etcdctl get / --prefix --keys-only > snapshot.db",
+      "etcdctl snapshot save /var/backups/etcd-snap.db --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key",
+      "etcdctl backup --data-dir=/var/lib/etcd --backup-dir=/var/backups/etcd",
+      "kubectl etcd snapshot --output=/var/backups/etcd-snap.db"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: etcdctl snapshot save ...</strong></p><p>The v3 API requires ETCDCTL_API=3 and uses the 'snapshot save' subcommand, providing the endpoints and TLS materials kubeadm places under /etc/kubernetes/pki/etcd/.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Dumps keys to stdout but is not a consistent point-in-time snapshot.</p><p><strong>Option C:</strong> 'etcdctl backup' was a v2 command, removed/changed in v3.</p><p><strong>Option D:</strong> kubectl has no native etcd snapshot subcommand.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster\">etcd backup</a></p>"
+  },
+  {
+    "id": "devops-cka-q5",
+    "question_number": "5",
+    "question": "During a kubeadm upgrade, which command is run first on the control plane node after upgrading the kubeadm binary itself?",
+    "choices": [
+      "kubeadm upgrade apply <version>",
+      "kubeadm upgrade plan",
+      "kubectl drain <node> --ignore-daemonsets",
+      "systemctl restart kubelet"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: kubeadm upgrade plan</strong></p><p>'upgrade plan' inspects the current cluster and shows the available upgrade paths and component versions; it is the documented first step before 'upgrade apply'.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> 'apply' comes after 'plan' has been reviewed.</p><p><strong>Option C:</strong> Draining happens later, when upgrading individual nodes.</p><p><strong>Option D:</strong> Restarting kubelet happens after the binary is upgraded on that node.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/\">kubeadm upgrade</a></p>"
+  },
+  {
+    "id": "devops-cka-q6",
+    "question_number": "6",
+    "question": "Which control plane component is responsible for deciding which node a newly created pod runs on?",
+    "choices": [
+      "kube-controller-manager",
+      "kubelet",
+      "kube-scheduler",
+      "kube-apiserver"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: kube-scheduler</strong></p><p>The scheduler watches for pods with no nodeName set, evaluates filters (predicates) and scores (priorities), then writes the chosen node back via the API server.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The controller manager runs control loops (replicasets, endpoints, etc.) but does not place pods.</p><p><strong>Option B:</strong> kubelet runs pods after they're scheduled to its node.</p><p><strong>Option D:</strong> The API server is the data plane front door; it does not make placement decisions.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/\">Scheduler</a></p>"
+  },
+  {
+    "id": "devops-cka-q7",
+    "question_number": "7",
+    "question": "kubeadm marks the control plane node with which taint by default, preventing regular workloads from being scheduled there?",
+    "choices": [
+      "node-role.kubernetes.io/master:NoSchedule",
+      "node-role.kubernetes.io/control-plane:NoSchedule",
+      "kubernetes.io/control-plane:PreferNoSchedule",
+      "node.kubernetes.io/unschedulable:NoExecute"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: node-role.kubernetes.io/control-plane:NoSchedule</strong></p><p>Since v1.24 the legacy 'master' taint was removed in favor of 'control-plane'. kubeadm applies this taint so user workloads stay off the control plane unless they tolerate it.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The 'master' taint was deprecated and removed.</p><p><strong>Option C:</strong> PreferNoSchedule is a soft taint and not what kubeadm uses.</p><p><strong>Option D:</strong> That taint is added by the node controller when a node becomes unreachable.</p><p>Reference: <a href=\"https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/\">kubeadm create cluster</a></p>"
+  },
+  {
+    "id": "devops-cka-q8",
+    "question_number": "8",
+    "question": "Which file on a kubeadm node defines the static pods (etcd, kube-apiserver, kube-controller-manager, kube-scheduler) that the kubelet runs without going through the API server?",
+    "choices": [
+      "Manifests under /etc/kubernetes/manifests/",
+      "/var/lib/kubelet/pods.json",
+      "The 'system:nodes' ClusterRole",
+      "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Manifests under /etc/kubernetes/manifests/</strong></p><p>kubelet's --pod-manifest-path (set by kubeadm to /etc/kubernetes/manifests) makes it pick up YAML files directly from disk and run them as static pods; this bootstraps the control plane.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> No such file is used for static pod definition.</p><p><strong>Option C:</strong> A ClusterRole, not a manifest source.</p><p><strong>Option D:</strong> That file configures the kubelet service; it does not contain the static pod definitions themselves.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/configure-pod-container/static-pod/\">Static pods</a></p>"
+  },
+  {
+    "id": "devops-cka-q9",
+    "question_number": "9",
+    "question": "A Deployment with 3 replicas needs the rolling update to never run with fewer than 3 pods Ready, and to allow at most 1 extra pod during rollout. Which strategy block achieves this?",
+    "choices": [
+      "type: Recreate",
+      "type: RollingUpdate\n  rollingUpdate:\n    maxUnavailable: 0\n    maxSurge: 1",
+      "type: RollingUpdate\n  rollingUpdate:\n    maxUnavailable: 1\n    maxSurge: 0",
+      "type: RollingUpdate\n  rollingUpdate:\n    maxUnavailable: 25%\n    maxSurge: 25%"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: maxUnavailable: 0, maxSurge: 1</strong></p><p>maxUnavailable=0 keeps all 3 pods Ready during rollout; maxSurge=1 lets one extra pod be created above the desired replica count.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Recreate terminates all old pods before creating new ones, causing downtime.</p><p><strong>Option C:</strong> Allows one pod to be unavailable, violating the requirement.</p><p><strong>Option D:</strong> Default percentages could allow unavailability.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment\">Deployment strategies</a></p>"
+  },
+  {
+    "id": "devops-cka-q10",
+    "question_number": "10",
+    "question": "You must run a log collector pod on every node, including future nodes added to the cluster. Which workload object is the correct fit?",
+    "choices": [
+      "Deployment with replicas equal to the current node count",
+      "StatefulSet with replicas equal to the current node count",
+      "DaemonSet",
+      "Job with parallelism set to the node count"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: DaemonSet</strong></p><p>DaemonSets are designed for per-node agents: the controller ensures one pod per matching node and automatically creates a pod when new nodes join.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Deployments do not guarantee one-pod-per-node, and the count would drift as nodes are added.</p><p><strong>Option B:</strong> StatefulSets give stable identity and ordered rollout, unrelated to per-node placement.</p><p><strong>Option D:</strong> Jobs run to completion; not appropriate for a long-running agent.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/\">DaemonSet</a></p>"
+  },
+  {
+    "id": "devops-cka-q11",
+    "question_number": "11",
+    "question": "Which two statements correctly describe the difference between a ConfigMap and a Secret? (Select TWO)",
+    "choices": [
+      "Secrets are stored base64-encoded in etcd by default, ConfigMaps are stored as plaintext",
+      "Secrets are encrypted at rest by default in all kubeadm clusters",
+      "Both can be mounted as files or exposed as environment variables in pods",
+      "ConfigMaps support a 'stringData' field, Secrets do not",
+      "Secrets can be marked immutable, ConfigMaps cannot"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: A and C</strong></p><p>By default Secret values are base64-encoded but not encrypted at rest unless EncryptionConfiguration is enabled. Both ConfigMaps and Secrets can be consumed via volume mounts or environment variables.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Encryption at rest is opt-in via EncryptionConfiguration.</p><p><strong>Option D:</strong> stringData is on Secrets, not ConfigMaps.</p><p><strong>Option E:</strong> Both ConfigMaps and Secrets support immutable: true.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/configuration/secret/\">Secrets</a></p>"
+  },
+  {
+    "id": "devops-cka-q12",
+    "question_number": "12",
+    "question": "Which manifest fragment correctly schedules a pod onto nodes labeled 'disktype=ssd' using required (hard) affinity?",
+    "choices": [
+      "nodeSelector:\n  disktype: ssd",
+      "tolerations:\n- key: disktype\n  operator: Equal\n  value: ssd",
+      "affinity:\n  nodeAffinity:\n    requiredDuringSchedulingIgnoredDuringExecution:\n      nodeSelectorTerms:\n      - matchExpressions:\n        - key: disktype\n          operator: In\n          values: [ssd]",
+      "affinity:\n  podAffinity:\n    requiredDuringSchedulingIgnoredDuringExecution:\n    - labelSelector:\n        matchLabels:\n          disktype: ssd\n      topologyKey: kubernetes.io/hostname"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: nodeAffinity required... with matchExpressions</strong></p><p>This is the explicit nodeAffinity form; required... is a hard constraint scheduled only on matching nodes.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> nodeSelector also works for the simple equality case but the question specifically asks for required nodeAffinity.</p><p><strong>Option B:</strong> Tolerations match taints, not labels.</p><p><strong>Option D:</strong> podAffinity uses pod labels, not node labels.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/\">Affinity</a></p>"
+  },
+  {
+    "id": "devops-cka-q13",
+    "question_number": "13",
+    "question": "A ResourceQuota object 'compute-quota' in the 'team-a' namespace sets requests.cpu: 4, requests.memory: 8Gi. A pod requesting 500m CPU and 1Gi memory fails with 'pods is forbidden: failed quota: compute-quota' on admission. Which condition is the most likely cause?",
+    "choices": [
+      "The pod does not declare both CPU and memory requests, so the quota admission cannot account it",
+      "The pod is in a different namespace",
+      "ResourceQuota only applies to limits, not requests",
+      "A LimitRange object is missing in the cluster"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: The pod does not declare both CPU and memory requests</strong></p><p>When a ResourceQuota constrains a compute resource, every pod in that namespace must explicitly set requests (and/or limits) for that resource, otherwise admission rejects it. A LimitRange with defaults is often paired with ResourceQuotas for this reason.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> If the pod were in another namespace, this specific quota would not apply at all.</p><p><strong>Option C:</strong> ResourceQuota explicitly supports requests.* and limits.*.</p><p><strong>Option D:</strong> A LimitRange would fix it by providing defaults, but its absence is the consequence, not the rule being enforced.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/policy/resource-quotas/\">ResourceQuota</a></p>"
+  },
+  {
+    "id": "devops-cka-q14",
+    "question_number": "14",
+    "question": "A Service of type ClusterIP named 'web' selects pods with label app=web. A client pod runs 'curl http://web.default.svc.cluster.local' and receives 'could not resolve host'. Which component should you investigate first?",
+    "choices": [
+      "kube-proxy on the client node",
+      "CoreDNS pods in the kube-system namespace",
+      "The Ingress controller",
+      "etcd"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: CoreDNS pods in the kube-system namespace</strong></p><p>'could not resolve host' is a DNS failure, not a routing failure. CoreDNS provides in-cluster DNS, so check that its pods are Ready and that the pod's /etc/resolv.conf points to the kube-dns service IP.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> kube-proxy programs Service routing after a name resolves to a ClusterIP.</p><p><strong>Option C:</strong> Ingress handles external HTTP, not internal DNS.</p><p><strong>Option D:</strong> etcd outages would surface as API server errors, not host resolution failures.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/\">DNS for services</a></p>"
+  },
+  {
+    "id": "devops-cka-q15",
+    "question_number": "15",
+    "question": "Which two characteristics describe a Service of type NodePort? (Select TWO)",
+    "choices": [
+      "Allocates a port in the range 30000-32767 by default on every node",
+      "Requires a cloud provider integration to provision an external load balancer",
+      "Implicitly creates a ClusterIP that is reachable inside the cluster",
+      "Routes traffic based on HTTP host and path rules",
+      "Is the only Service type that selects pods by label"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: A and C</strong></p><p>NodePort opens a port (default range 30000-32767) on every node and forwards to a backing ClusterIP that NodePort always creates implicitly.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> That is LoadBalancer behavior.</p><p><strong>Option D:</strong> HTTP host/path routing is Ingress, not Service.</p><p><strong>Option E:</strong> All Service types (except ExternalName) use selectors.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport\">NodePort</a></p>"
+  },
+  {
+    "id": "devops-cka-q16",
+    "question_number": "16",
+    "question": "Examine this NetworkPolicy:\n\napiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: deny-all-egress\n  namespace: prod\nspec:\n  podSelector: {}\n  policyTypes: [Egress]\n  egress: []\n\nWhat is its effect on pods in the prod namespace?",
+    "choices": [
+      "All ingress and egress traffic is denied",
+      "All egress traffic is denied; ingress is unaffected by this policy",
+      "All egress traffic is allowed because the egress list is empty",
+      "Only DNS egress is allowed"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: All egress is denied; ingress unaffected</strong></p><p>An empty podSelector selects every pod in the namespace. policyTypes includes only Egress, and an empty egress rule list means no traffic is allowed out. Ingress is not listed in policyTypes, so it is unaffected by this object.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Ingress is not part of this policy's policyTypes.</p><p><strong>Option C:</strong> Empty rules = deny, not allow.</p><p><strong>Option D:</strong> No explicit DNS allowance is granted.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/services-networking/network-policies/\">NetworkPolicy</a></p>"
+  },
+  {
+    "id": "devops-cka-q17",
+    "question_number": "17",
+    "question": "Which statement about Ingress in Kubernetes is correct?",
+    "choices": [
+      "Creating an Ingress resource automatically exposes services externally without any controller",
+      "An Ingress controller (e.g., ingress-nginx) must be installed and running for Ingress resources to take effect",
+      "Ingress can only route traffic to Services of type LoadBalancer",
+      "Ingress objects replace the need for kube-proxy"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: An Ingress controller must be installed</strong></p><p>Ingress is just an API object; it has no effect on its own. A controller such as ingress-nginx, Traefik, or HAProxy reads Ingress objects and programs the actual L7 proxy.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Without a controller, the Ingress is inert.</p><p><strong>Option C:</strong> Ingress can route to ClusterIP/NodePort Services as well.</p><p><strong>Option D:</strong> kube-proxy handles L4 Service routing; Ingress is L7 and depends on Services.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/\">Ingress controllers</a></p>"
+  },
+  {
+    "id": "devops-cka-q18",
+    "question_number": "18",
+    "question": "When choosing a CNI plugin for a kubeadm-based cluster, which factor is the MOST important to verify?",
+    "choices": [
+      "Whether the plugin supports the --pod-network-cidr you pass to kubeadm init",
+      "Whether the plugin can serve as a Service mesh on its own",
+      "Whether the plugin allocates virtual IPs in the Service CIDR",
+      "Whether the plugin includes a built-in Ingress controller"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Pod CIDR compatibility</strong></p><p>Some CNI plugins expect a specific pod CIDR or have particular defaults (e.g., Calico's default vs. Flannel's 10.244.0.0/16). The CIDR used at kubeadm init must match what the CNI is configured for, otherwise routing breaks.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Service mesh capabilities are a separate concern.</p><p><strong>Option C:</strong> kube-proxy/the API server handle Service CIDR; CNI handles pod CIDR.</p><p><strong>Option D:</strong> Most CNIs do not include an Ingress controller.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/cluster-administration/addons/\">CNI addons</a></p>"
+  },
+  {
+    "id": "devops-cka-q19",
+    "question_number": "19",
+    "question": "Service A routes to pods of Deployment 'api' via selector tier=api. After a rolling update, traffic intermittently lands on pods that are still terminating and returns connection errors. Which probe configuration most directly fixes this?",
+    "choices": [
+      "Increase the Deployment's replica count",
+      "Add a readinessProbe whose failure removes the pod from Service endpoints",
+      "Add a livenessProbe that restarts the pod",
+      "Set imagePullPolicy: Always"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Add a readinessProbe</strong></p><p>Readiness probes gate Service endpoint inclusion: when a probe fails (or the pod is shutting down), endpoints remove the pod so traffic stops being sent to it. Liveness probes only restart containers, they do not affect endpoints.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> More replicas does not fix the routing-to-terminating-pod problem.</p><p><strong>Option C:</strong> Liveness probes cause restarts; they don't deregister endpoints.</p><p><strong>Option D:</strong> Image pull policy is unrelated.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/\">Probes</a></p>"
+  },
+  {
+    "id": "devops-cka-q20",
+    "question_number": "20",
+    "question": "Which statement correctly describes a PersistentVolumeClaim binding when StorageClass dynamic provisioning is enabled?",
+    "choices": [
+      "The PVC must be created with a pre-bound spec.volumeName field",
+      "If a matching PV does not exist, the provisioner creates a new PV on demand based on the StorageClass parameters",
+      "PVCs can only bind to PVs in the same namespace",
+      "Dynamic provisioning requires a manual 'kubectl bind' command"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: provisioner creates a PV on demand</strong></p><p>When a PVC references a StorageClass with a provisioner, the external-provisioner (CSI) creates a backing volume and a matching PV automatically, then binds it to the claim.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> volumeName is for static binding; not required for dynamic.</p><p><strong>Option C:</strong> PVs are cluster-scoped resources.</p><p><strong>Option D:</strong> There is no 'kubectl bind' subcommand.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/\">Dynamic provisioning</a></p>"
+  },
+  {
+    "id": "devops-cka-q21",
+    "question_number": "21",
+    "question": "A PV has persistentVolumeReclaimPolicy: Retain. The PVC bound to it is deleted. What happens to the PV and the underlying storage?",
+    "choices": [
+      "Both the PV and the underlying storage are deleted immediately",
+      "The PV is deleted but the underlying storage is preserved",
+      "The PV transitions to 'Released' phase; the underlying storage is preserved and the PV is not reusable until an admin reclaims it",
+      "The PV is automatically rebound to the next PVC that matches"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: PV moves to Released; storage preserved; admin must reclaim</strong></p><p>With Retain, deleting the PVC does not delete the PV or the backing data; the PV moves to Released. An administrator must manually reclaim/clean and either reuse or delete it.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That is the 'Delete' policy.</p><p><strong>Option B:</strong> Retain keeps the PV object too.</p><p><strong>Option D:</strong> Released PVs are not automatically rebound.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/storage/persistent-volumes/#reclaiming\">Reclaim policy</a></p>"
+  },
+  {
+    "id": "devops-cka-q22",
+    "question_number": "22",
+    "question": "Which volumeMode value in a PVC requests a raw block device instead of a mounted filesystem?",
+    "choices": [
+      "Block",
+      "Raw",
+      "Filesystem",
+      "RWX"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Block</strong></p><p>volumeMode can be 'Filesystem' (default, mounts a filesystem into the container) or 'Block' (exposes a raw block device).</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> 'Raw' is not a valid value.</p><p><strong>Option C:</strong> Filesystem is the default, not a raw device.</p><p><strong>Option D:</strong> RWX is an accessMode, not a volumeMode.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/storage/persistent-volumes/#raw-block-volume-support\">Block volumes</a></p>"
+  },
+  {
+    "id": "devops-cka-q23",
+    "question_number": "23",
+    "question": "A pod is stuck in 'ImagePullBackOff'. 'kubectl describe pod' shows the event 'Failed to pull image: pull access denied, repository may require authentication'. What is the most likely fix?",
+    "choices": [
+      "Restart the kubelet on the node",
+      "Create a docker-registry type Secret and reference it via spec.imagePullSecrets",
+      "Set image: alwaysPull: true in the pod spec",
+      "Increase the pod's CPU request"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Create a docker-registry Secret and reference it via imagePullSecrets</strong></p><p>'pull access denied' indicates a private registry needs credentials. 'kubectl create secret docker-registry' creates the right Secret type; reference it under spec.imagePullSecrets (or attach it to the ServiceAccount).</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> kubelet restart does not provide credentials.</p><p><strong>Option C:</strong> 'alwaysPull' is not a real field; imagePullPolicy controls pull behavior, not auth.</p><p><strong>Option D:</strong> CPU has no relation to image pulls.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/\">Pull from private registry</a></p>"
+  },
+  {
+    "id": "devops-cka-q24",
+    "question_number": "24",
+    "question": "'kubectl get nodes' shows a worker node as 'NotReady'. SSH'ing in, 'systemctl status kubelet' reports the service is active but the journal shows 'Failed to start ContainerManager failed to initialise top level QOS containers: root container [kubepods] does not have all the required cgroup controllers'. Which fix should you investigate first?",
+    "choices": [
+      "Reinstall the CNI plugin",
+      "Verify the container runtime and kubelet use the same cgroup driver (systemd vs cgroupfs)",
+      "Reset etcd on the control plane",
+      "Re-apply RBAC bindings for the node"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: cgroup driver mismatch</strong></p><p>kubelet and the container runtime (containerd/CRI-O) must use the same cgroup driver. A mismatch causes kubelet to fail to initialize the QoS cgroup hierarchy and the node remains NotReady.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> CNI issues typically present as pods stuck in ContainerCreating, not kubelet QoS failures.</p><p><strong>Option C:</strong> etcd is unrelated to a worker's local kubelet startup.</p><p><strong>Option D:</strong> RBAC affects API access, not local cgroup initialization.</p><p>Reference: <a href=\"https://kubernetes.io/docs/setup/production-environment/container-runtimes/#cgroup-drivers\">cgroup drivers</a></p>"
+  },
+  {
+    "id": "devops-cka-q25",
+    "question_number": "25",
+    "question": "Which command shows the last 100 lines of the kubelet log on a systemd-managed node?",
+    "choices": [
+      "kubectl logs kubelet -n kube-system",
+      "journalctl -u kubelet -n 100",
+      "tail -n 100 /var/log/kubelet.log",
+      "kubectl describe node <node> | tail -n 100"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: journalctl -u kubelet -n 100</strong></p><p>kubelet runs as a systemd unit on standard kubeadm installs; journalctl is the canonical way to read its logs.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> kubelet does not run as a pod, so kubectl logs cannot fetch it.</p><p><strong>Option C:</strong> kubelet does not write to that path by default on systemd-based systems.</p><p><strong>Option D:</strong> describe shows events, not kubelet daemon logs.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/debug/debug-cluster/\">Debug cluster</a></p>"
+  },
+  {
+    "id": "devops-cka-q26",
+    "question_number": "26",
+    "question": "A pod 'web-7d5' is in CrashLoopBackOff. 'kubectl logs web-7d5' returns 'Error from server (BadRequest): container \"web\" in pod \"web-7d5\" is waiting to start: ContainerCreating'. Which command will most likely surface the root cause?",
+    "choices": [
+      "kubectl exec web-7d5 -- ls /",
+      "kubectl describe pod web-7d5",
+      "kubectl edit pod web-7d5",
+      "kubectl rollout restart deployment/web"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: kubectl describe pod web-7d5</strong></p><p>'describe' shows the events list (image pull errors, volume mount failures, scheduling issues, FailedCreatePodSandBox) which is the standard way to diagnose pods that never reach Running.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> exec requires the container to be running.</p><p><strong>Option C:</strong> Editing the pod will not surface why it failed to create.</p><p><strong>Option D:</strong> Restarting without a diagnosis just repeats the failure.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/\">Debug pods</a></p>"
+  },
+  {
+    "id": "devops-cka-q27",
+    "question_number": "27",
+    "question": "Which command restores an etcd snapshot to a new data directory, suitable for pointing a recovered etcd static pod at?",
+    "choices": [
+      "etcdctl snapshot restore /var/backups/etcd-snap.db --data-dir=/var/lib/etcd-restore",
+      "etcdctl restore --from=/var/backups/etcd-snap.db --to=/var/lib/etcd",
+      "kubectl etcd restore --file=/var/backups/etcd-snap.db",
+      "tar -xzf /var/backups/etcd-snap.db -C /var/lib/etcd"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: etcdctl snapshot restore ... --data-dir=...</strong></p><p>v3 'snapshot restore' rebuilds an etcd data directory from a snapshot. You then update the etcd static pod manifest's hostPath to point at the new directory.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Wrong subcommand and flags.</p><p><strong>Option C:</strong> kubectl has no etcd restore.</p><p><strong>Option D:</strong> A snapshot is not a tarball; tar will not unpack it.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#restoring-an-etcd-cluster\">etcd restore</a></p>"
+  },
+  {
+    "id": "devops-cka-q28",
+    "question_number": "28",
+    "question": "Which two of the following are valid ways to debug a running pod's container without modifying the original image? (Select TWO)",
+    "choices": [
+      "kubectl exec into the container and run shell commands",
+      "kubectl debug to attach an ephemeral debug container to the pod",
+      "kubectl patch the container image to a debug image in place without restart",
+      "kubectl run a sidecar inside the existing pod retroactively via 'kubectl add container'",
+      "Reboot the node where the pod runs"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: A and B</strong></p><p>kubectl exec runs a command in an existing container. kubectl debug creates an ephemeral debug container in the same pod, useful when the target image lacks a shell.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Patching the image causes a restart.</p><p><strong>Option D:</strong> There is no 'kubectl add container'; a pod's container list is immutable.</p><p><strong>Option E:</strong> Rebooting is destructive and not a debugging step.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/\">Debug running pod</a></p>"
+  },
+  {
+    "id": "devops-cka-q29",
+    "question_number": "29",
+    "question": "After 'kubectl drain node1 --ignore-daemonsets', pods are evicted but a critical Deployment will not reschedule onto remaining nodes. Each remaining node has a taint 'workload=batch:NoSchedule'. What is the cleanest fix?",
+    "choices": [
+      "Remove the taint from one node with 'kubectl taint nodes nodeX workload-'",
+      "Add a toleration for 'workload=batch:NoSchedule' to the Deployment's pod template",
+      "Uncordon node1 and ignore the issue",
+      "Delete the Deployment and recreate it"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Add the matching toleration</strong></p><p>If the operational intent is that other nodes are reserved for tagged workloads, the right fix is to teach this pod to tolerate the taint so it schedules there during the drain.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Removing the taint defeats the workload-isolation policy.</p><p><strong>Option C:</strong> Uncordoning node1 fights the maintenance you started.</p><p><strong>Option D:</strong> Recreating the Deployment without changing tolerations changes nothing.</p><p>Reference: <a href=\"https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/\">Taints and tolerations</a></p>"
+  },
+  {
+    "id": "devops-cka-q30",
+    "question_number": "30",
+    "question": "'kubectl get events --sort-by=.lastTimestamp -n kube-system' is most useful for diagnosing which scenario?",
+    "choices": [
+      "Performance regressions inside a user application",
+      "Recent control-plane component failures, scheduling problems, or addon (CoreDNS, kube-proxy) pod issues",
+      "Long-term cluster capacity planning",
+      "TLS certificate generation for kubelet"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Recent control-plane and addon issues</strong></p><p>kube-system hosts CoreDNS, kube-proxy, the kubeadm-managed control plane static pods, and many addons. Sorting events by lastTimestamp surfaces the most recent failures (image pulls, probe failures, scheduling) for that critical namespace.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> App performance lives in the app's namespace plus metrics, not kube-system events.</p><p><strong>Option C:</strong> Capacity planning needs metrics over time, not transient events.</p><p><strong>Option D:</strong> Cert generation is a kubeadm/kubelet bootstrap concern, not visible primarily through events.</p><p>Reference: <a href=\"https://kubernetes.io/docs/tasks/debug/debug-cluster/\">Debug cluster</a></p>"
+  }
+]

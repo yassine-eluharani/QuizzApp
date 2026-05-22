@@ -1,0 +1,396 @@
+[
+  {
+    "id": "azure-az104-q1",
+    "question_number": "1",
+    "question": "An Azure administrator must grant the corporate security audit team the ability to view all resources in the Production subscription, including configurations and metrics, but they must not be allowed to modify or delete anything. The team should also be unable to read the contents of Key Vault secrets. Which built-in RBAC role should be assigned at the subscription scope?",
+    "choices": [
+      "Contributor",
+      "Reader",
+      "Security Reader",
+      "Owner"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Reader</strong></p><p>The Reader role grants view-only access to all Azure resources within the assigned scope. It does not include permissions to modify resources and does not grant data-plane access to secrets, keys, or certificates stored in Key Vault.</p><p><strong>Incorrect options:</strong></p><p><strong>Contributor:</strong> Grants full management access (create/update/delete) except for assigning roles, which violates the read-only requirement.</p><p><strong>Security Reader:</strong> Provides view access to Microsoft Defender for Cloud security policies and recommendations, but is narrower than what the team needs for general resource visibility.</p><p><strong>Owner:</strong> Has full access including role assignment, far exceeding read-only requirements.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles\">Azure built-in roles</a></p>"
+  },
+  {
+    "id": "azure-az104-q2",
+    "question_number": "2",
+    "question": "Your company is rolling out Microsoft Entra ID Conditional Access. You must require multi-factor authentication for users accessing the Azure portal from outside the corporate network, while still allowing seamless single sign-on for users on the trusted corporate IP range. Which two configuration elements should you include in the Conditional Access policy? (Select TWO)",
+    "choices": [
+      "A Named Location representing the corporate public IP range",
+      "An Exclude condition that excludes the Named Location from the policy",
+      "A device compliance policy issued from Intune as the only grant control",
+      "A user risk policy set to High",
+      "A sign-in frequency session control of 90 days"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Named Location + Exclude condition</strong></p><p>A Named Location defines the trusted corporate IP range. Excluding that location from the Conditional Access policy means MFA is only enforced when users sign in from outside the trusted IPs.</p><p><strong>Incorrect options:</strong></p><p><strong>Device compliance policy:</strong> Targets device state, not network location, and would block all non-Intune devices rather than allow trusted-IP SSO.</p><p><strong>User risk policy High:</strong> Identity Protection risk-based policy, unrelated to the IP-based scenario.</p><p><strong>Sign-in frequency 90 days:</strong> A session control that does not address MFA enforcement based on network location.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-assignment-network\">Conditional Access: Network assignment</a></p>"
+  },
+  {
+    "id": "azure-az104-q3",
+    "question_number": "3",
+    "question": "A finance team needs a custom RBAC role that allows members to start and restart Azure VMs but not stop, deallocate, create, or delete them. Which actions block should you place in the custom role definition's actions array?",
+    "choices": [
+      "Microsoft.Compute/virtualMachines/*",
+      "Microsoft.Compute/virtualMachines/start/action and Microsoft.Compute/virtualMachines/restart/action",
+      "Microsoft.Compute/virtualMachines/read and Microsoft.Compute/virtualMachines/write",
+      "Microsoft.Compute/virtualMachines/powerOff/action and Microsoft.Compute/virtualMachines/start/action"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: start/action and restart/action</strong></p><p>Custom RBAC roles use granular resource provider operations. Start and restart map to the specific dataActions/actions <code>Microsoft.Compute/virtualMachines/start/action</code> and <code>Microsoft.Compute/virtualMachines/restart/action</code>, granting exactly those operations and nothing else.</p><p><strong>Incorrect options:</strong></p><p><strong>virtualMachines/*:</strong> Wildcard grants all VM operations including create, delete, and stop.</p><p><strong>read and write:</strong> Write allows VM creation and modification, exceeding requirements.</p><p><strong>powerOff and start:</strong> Includes powerOff (stop), which is explicitly disallowed.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles\">Azure custom roles</a></p>"
+  },
+  {
+    "id": "azure-az104-q4",
+    "question_number": "4",
+    "question": "Your organization has 50 subscriptions arranged under multiple management groups. Leadership wants to ensure no one in any subscription can deploy resources to the Brazil South region. What is the most efficient implementation?",
+    "choices": [
+      "Assign an Azure Policy with the built-in \"Allowed locations\" definition at the root management group scope, excluding Brazil South",
+      "Place a CanNotDelete resource lock on every resource group in every subscription",
+      "Create a custom RBAC role denying location=brazilsouth and assign it to all users",
+      "Open a support ticket to disable the Brazil South region for the tenant"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Azure Policy at root management group</strong></p><p>The built-in \"Allowed locations\" policy denies deployments to any region not in the allowed list. Assigning it at the root management group propagates to all child management groups and subscriptions, enforcing the restriction tenant-wide.</p><p><strong>Incorrect options:</strong></p><p><strong>CanNotDelete lock:</strong> Locks prevent deletion/modification of existing resources, not new deployments to a region.</p><p><strong>Custom RBAC role:</strong> RBAC cannot express location-based deny rules; it scopes actions, not resource attributes.</p><p><strong>Disable region via support:</strong> Not a supported operation; Microsoft does not disable regions per tenant on request.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/governance/policy/samples/built-in-policies#general\">Built-in policy: Allowed locations</a></p>"
+  },
+  {
+    "id": "azure-az104-q5",
+    "question_number": "5",
+    "question": "You need to create a Microsoft Entra group that automatically includes every user whose Department attribute is \"Engineering\" and removes them when the attribute changes. Which group type and membership type should you choose?",
+    "choices": [
+      "Security group with Assigned membership",
+      "Microsoft 365 group with Assigned membership",
+      "Security group with Dynamic User membership",
+      "Distribution group with Dynamic Device membership"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Security group with Dynamic User membership</strong></p><p>Dynamic User membership uses a rule (for example, <code>user.department -eq \"Engineering\"</code>) that Entra ID evaluates continuously, adding and removing users as their attributes change. Security groups are appropriate for resource access scenarios.</p><p><strong>Incorrect options:</strong></p><p><strong>Assigned membership (either type):</strong> Requires manual add/remove; not automatic.</p><p><strong>Dynamic Device:</strong> Evaluates device attributes, not user attributes.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/entra/identity/users/groups-dynamic-membership\">Dynamic membership rules</a></p>"
+  },
+  {
+    "id": "azure-az104-q6",
+    "question_number": "6",
+    "question": "An administrator wants to ensure that privileged role assignments such as Global Administrator are only granted just-in-time with approval and time bounds. Which Microsoft Entra feature should be configured?",
+    "choices": [
+      "Entra ID Identity Protection",
+      "Privileged Identity Management (PIM)",
+      "Access Reviews",
+      "Conditional Access App Control"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Privileged Identity Management (PIM)</strong></p><p>PIM provides eligible (not active) role assignments, time-bound activation, approval workflows, MFA on activation, and audit logging for Entra ID and Azure RBAC roles.</p><p><strong>Incorrect options:</strong></p><p><strong>Identity Protection:</strong> Detects risky sign-ins/users; does not manage role activation.</p><p><strong>Access Reviews:</strong> Periodically recertifies membership; complements but does not replace JIT activation.</p><p><strong>Conditional Access App Control:</strong> Provides session controls (e.g., proxy via Defender for Cloud Apps); unrelated to role JIT.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure\">Privileged Identity Management overview</a></p>"
+  },
+  {
+    "id": "azure-az104-q7",
+    "question_number": "7",
+    "question": "You need to use Azure CLI to assign the Storage Blob Data Reader role to a user named alex@contoso.com on a storage account named saproddata in resource group rg-data. Which command achieves this?",
+    "choices": [
+      "az role assignment create --assignee alex@contoso.com --role \"Storage Blob Data Reader\" --scope /subscriptions/<sub>/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/saproddata",
+      "az role definition create --role \"Storage Blob Data Reader\" --user alex@contoso.com --resource saproddata",
+      "az ad user assign --upn alex@contoso.com --role \"Storage Blob Data Reader\" --rg rg-data",
+      "az storage account update --name saproddata --add-role \"Storage Blob Data Reader\" --principal alex@contoso.com"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: az role assignment create</strong></p><p><code>az role assignment create</code> assigns an RBAC role to a principal at a specific scope. The scope is the storage account's resource ID, ensuring the assignment is limited to that storage account only.</p><p><strong>Incorrect options:</strong></p><p><strong>az role definition create:</strong> Creates a new custom role definition, not an assignment.</p><p><strong>az ad user assign / az storage account update --add-role:</strong> Not valid Azure CLI commands.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/cli/azure/role/assignment?view=azure-cli-latest#az-role-assignment-create\">az role assignment create</a></p>"
+  },
+  {
+    "id": "azure-az104-q8",
+    "question_number": "8",
+    "question": "Your team needs to give an external partner application read-only access to a single container in a storage account for the next 7 days. The application cannot use Entra ID authentication. Which approach provides time-bound, least-privilege access?",
+    "choices": [
+      "Share the storage account key with the partner",
+      "Generate a Service SAS scoped to the container with Read and List permissions and a 7-day expiry",
+      "Add the partner's IP to the storage account firewall and enable anonymous public read access",
+      "Create a stored access policy granting Write and Delete to the partner"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Service SAS on the container</strong></p><p>A Service SAS targets a single service (Blob) and can be scoped to a specific container with granular permissions (Read, List), a start/expiry time, and an optional IP range, satisfying least privilege and time bounding.</p><p><strong>Incorrect options:</strong></p><p><strong>Storage account key:</strong> Grants full account access with no expiry, violating least privilege.</p><p><strong>Anonymous public read:</strong> Makes data accessible to anyone on the internet, not just the partner.</p><p><strong>Stored access policy with Write/Delete:</strong> Grants modification rights beyond read-only.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview\">SAS overview</a></p>"
+  },
+  {
+    "id": "azure-az104-q9",
+    "question_number": "9",
+    "question": "An administrator must configure a storage account so that blobs are automatically moved to Cool tier after 30 days of no access and deleted after 365 days. Which storage account feature should be configured?",
+    "choices": [
+      "Object replication",
+      "Lifecycle management policy",
+      "Blob versioning",
+      "Soft delete for blobs"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Lifecycle management policy</strong></p><p>Lifecycle management rules can act on lastAccessTime or lastModifiedTime to transition blobs between Hot, Cool, Cold, and Archive tiers, and to delete blobs after a defined age. Last-access tracking must be enabled to use lastAccessTime.</p><p><strong>Incorrect options:</strong></p><p><strong>Object replication:</strong> Replicates blobs across storage accounts; does not tier or delete.</p><p><strong>Blob versioning:</strong> Tracks prior versions; does not delete or tier based on age.</p><p><strong>Soft delete:</strong> Protects deleted blobs for recovery; does not perform deletion.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview\">Manage the lifecycle of blobs</a></p>"
+  },
+  {
+    "id": "azure-az104-q10",
+    "question_number": "10",
+    "question": "You need to copy 12 TB of on-premises NAS data to an Azure Blob container, resuming on failure and maximizing throughput. Which tool is best suited?",
+    "choices": [
+      "Storage Explorer (drag and drop)",
+      "AzCopy with the copy command and recursive flag",
+      "az storage blob upload (single-file)",
+      "Azure File Sync"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: AzCopy</strong></p><p>AzCopy is a high-performance command-line tool optimized for bulk transfers with parallelism, automatic retries, and resumable jobs (<code>azcopy jobs resume</code>).</p><p><strong>Incorrect options:</strong></p><p><strong>Storage Explorer:</strong> GUI; suitable for ad-hoc use, slower at TB scale.</p><p><strong>az storage blob upload:</strong> Optimized for single-file uploads, not bulk recursive transfer.</p><p><strong>Azure File Sync:</strong> Syncs to Azure Files (SMB), not Blob containers.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10\">Get started with AzCopy</a></p>"
+  },
+  {
+    "id": "azure-az104-q11",
+    "question_number": "11",
+    "question": "A storage account is configured with Geo-Zone-Redundant Storage (GZRS). Which statement best describes the data durability and failover behavior? (Select TWO)",
+    "choices": [
+      "Data is synchronously replicated across three Availability Zones in the primary region",
+      "Data is synchronously replicated to the secondary region",
+      "Data is asynchronously replicated to a single physical location in the secondary region using LRS",
+      "Customer-initiated failover promotes the secondary to primary",
+      "Reads from the secondary are enabled by default without RA-GZRS"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Synchronous ZRS in primary + async LRS in secondary</strong></p><p>GZRS uses ZRS (three-AZ synchronous) in the primary region and asynchronously replicates to a single physical location (LRS) in the paired secondary region.</p><p><strong>Incorrect options:</strong></p><p><strong>Synchronous to secondary:</strong> Cross-region replication is asynchronous to avoid latency.</p><p><strong>Customer-initiated failover (as listed):</strong> Account failover is possible, but the statement is incomplete: it does not describe the durability/replication topology asked for. The two correct choices fully describe GZRS.</p><p><strong>Read from secondary by default:</strong> RA-GZRS (not GZRS) enables secondary reads.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy\">Azure Storage redundancy</a></p>"
+  },
+  {
+    "id": "azure-az104-q12",
+    "question_number": "12",
+    "question": "Your team uses Azure Files with Active Directory Domain Services (AD DS) authentication to host SMB shares for Windows clients. After joining the storage account to the domain, users cannot mount the share. Which configuration is most likely missing?",
+    "choices": [
+      "Assigning the Storage File Data SMB Share Reader/Contributor RBAC role at the share scope and configuring NTFS ACLs",
+      "Enabling Large File Shares on the storage account",
+      "Configuring a Private Endpoint",
+      "Setting the storage account access tier to Cool"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Share-level RBAC + NTFS ACLs</strong></p><p>Azure Files SMB authentication uses two layers: Azure RBAC at the share level (e.g., Storage File Data SMB Share Contributor) for connection authorization, plus standard NTFS ACLs for file/folder permissions. Without both, users cannot access the share.</p><p><strong>Incorrect options:</strong></p><p><strong>Large File Shares:</strong> Affects capacity (up to 100 TiB) and IOPS, not authentication.</p><p><strong>Private Endpoint:</strong> Optional networking; not required for AD DS auth.</p><p><strong>Cool access tier:</strong> Affects pricing/performance, not authentication.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/storage/files/storage-files-identity-auth-active-directory-enable\">Enable AD DS authentication for Azure Files</a></p>"
+  },
+  {
+    "id": "azure-az104-q13",
+    "question_number": "13",
+    "question": "You need to deploy a Linux VM and want SSH key authentication only (no password). Which Azure CLI command is correct?",
+    "choices": [
+      "az vm create --resource-group rg-app --name vm1 --image Ubuntu2204 --admin-username azureuser --generate-ssh-keys",
+      "az vm create --resource-group rg-app --name vm1 --image Ubuntu2204 --admin-username azureuser --admin-password P@ssw0rd!",
+      "az vm ssh --create --name vm1 --image Ubuntu2204",
+      "New-AzVM -Name vm1 -Image Ubuntu2204 -SshKey ~/.ssh/id_rsa"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: az vm create --generate-ssh-keys</strong></p><p><code>--generate-ssh-keys</code> creates a new SSH key pair (or reuses an existing one in <code>~/.ssh</code>) and configures the VM for SSH key authentication, disabling password auth by default for Linux images that support it.</p><p><strong>Incorrect options:</strong></p><p><strong>--admin-password:</strong> Uses password authentication, not SSH keys.</p><p><strong>az vm ssh --create:</strong> Not a valid command.</p><p><strong>New-AzVM -SshKey:</strong> Not a valid PowerShell parameter; PowerShell uses <code>-SshKeyName</code> with separate config steps.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-cli\">Create a Linux VM with Azure CLI</a></p>"
+  },
+  {
+    "id": "azure-az104-q14",
+    "question_number": "14",
+    "question": "An application requires 99.99% VM SLA. You will deploy two identical VMs to host the application. Which deployment option meets the SLA at the lowest configuration effort?",
+    "choices": [
+      "Two VMs in a single Availability Set",
+      "Two VMs across two Availability Zones in the same region",
+      "Two VMs in different resource groups",
+      "Two VMs with Premium SSD disks in a single zone"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: VMs across two Availability Zones</strong></p><p>Two or more VMs spread across two or more Availability Zones in the same region carry a 99.99% VM uptime SLA, the highest single-region tier.</p><p><strong>Incorrect options:</strong></p><p><strong>Availability Set:</strong> Two VMs in an AS carry a 99.95% SLA.</p><p><strong>Different resource groups:</strong> Resource group placement has no impact on SLA.</p><p><strong>Premium SSD single zone:</strong> Single instance + Premium SSD yields 99.9%; still does not match zonal deployment.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-machines/availability\">Availability options for VMs</a></p>"
+  },
+  {
+    "id": "azure-az104-q15",
+    "question_number": "15",
+    "question": "You operate a Virtual Machine Scale Set behind a public Standard Load Balancer. CPU on the instances regularly exceeds 80% during business hours and the scale set never grows. Which configuration step is needed to enable automatic scale-out?",
+    "choices": [
+      "Switch the load balancer to Basic SKU",
+      "Configure an autoscale rule on the scale set targeting Percentage CPU > 75 with a Scale Out by 1 action",
+      "Enable Accelerated Networking on each instance",
+      "Increase the OS disk size to Premium SSD P30"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Configure autoscale rule</strong></p><p>VMSS does not autoscale unless an autoscale setting exists. A metric-based rule on Percentage CPU with an Increase action grows the instance count automatically when the threshold is crossed.</p><p><strong>Incorrect options:</strong></p><p><strong>Basic LB SKU:</strong> Basic LB lacks features required for production VMSS and is being retired; unrelated to autoscale.</p><p><strong>Accelerated Networking:</strong> Improves network throughput; does not add capacity.</p><p><strong>Larger OS disk:</strong> Disk size does not influence scale decisions.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-overview\">Autoscale for VMSS</a></p>"
+  },
+  {
+    "id": "azure-az104-q16",
+    "question_number": "16",
+    "question": "Developers need to test a new version of an App Service web app against limited production traffic before fully releasing it. Which App Service feature provides this capability?",
+    "choices": [
+      "Custom domains with SNI binding",
+      "Deployment slots with traffic percentage routing",
+      "Auto-heal rules",
+      "Always On"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Deployment slots with traffic routing</strong></p><p>Deployment slots host alternate versions of the app. You can route a percentage of production traffic to a staging slot for canary testing, then swap when validated.</p><p><strong>Incorrect options:</strong></p><p><strong>Custom domains/SNI:</strong> Adds hostnames; not a traffic-split mechanism.</p><p><strong>Auto-heal:</strong> Triggers actions like recycle based on health metrics.</p><p><strong>Always On:</strong> Prevents the worker from going idle; unrelated to canary releases.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots\">Set up staging environments in App Service</a></p>"
+  },
+  {
+    "id": "azure-az104-q17",
+    "question_number": "17",
+    "question": "An administrator needs to enforce that a Windows VM is patched only during a defined maintenance window each Saturday and that the patching is tracked centrally across many subscriptions. Which Azure service should be used?",
+    "choices": [
+      "Azure Automation State Configuration",
+      "Azure Update Manager (Update Management) with maintenance configurations",
+      "Microsoft Defender for Cloud regulatory compliance",
+      "Azure Site Recovery"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Update Manager</strong></p><p>Azure Update Manager assesses and installs OS updates across Azure and Arc-enabled machines. Maintenance configurations define recurring schedules (e.g., every Saturday) and report compliance centrally.</p><p><strong>Incorrect options:</strong></p><p><strong>State Configuration (DSC):</strong> Manages desired configuration state, not OS patches.</p><p><strong>Defender regulatory compliance:</strong> Reports on policy compliance, not patch scheduling.</p><p><strong>Site Recovery:</strong> Disaster recovery replication and failover.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/update-manager/overview\">Azure Update Manager overview</a></p>"
+  },
+  {
+    "id": "azure-az104-q18",
+    "question_number": "18",
+    "question": "You need to provide developers with the ability to RDP into VMs only when needed, with time-bound, audited access, and without leaving RDP ports open to the internet. Which feature should you enable?",
+    "choices": [
+      "Azure Bastion only",
+      "Microsoft Defender for Cloud Just-In-Time (JIT) VM access",
+      "Network Security Group with source set to AzureCloud",
+      "Azure Firewall DNAT rule"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Just-In-Time VM access</strong></p><p>JIT (in Defender for Cloud) keeps management ports closed by default and opens them via NSG rules for an approved user, source IP, and time window. Activity is audited.</p><p><strong>Incorrect options:</strong></p><p><strong>Bastion only:</strong> Eliminates public exposure but does not provide approval-based, time-bound access controls or audit per request like JIT.</p><p><strong>NSG source AzureCloud:</strong> Allows traffic from a large Azure IP set; not time-bound or user-scoped.</p><p><strong>Firewall DNAT:</strong> Translates and exposes ports; opposite of the goal.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/defender-for-cloud/just-in-time-access-overview\">Just-in-time VM access</a></p>"
+  },
+  {
+    "id": "azure-az104-q19",
+    "question_number": "19",
+    "question": "Your AKS cluster runs both stateless web pods and a SQL Server pod that requires SSD storage and specific hardware. You want to keep workloads on appropriate nodes. Which AKS feature lets you add a separate group of VM SKUs to the cluster?",
+    "choices": [
+      "Virtual nodes (ACI)",
+      "Additional node pools (system + user node pools)",
+      "Pod Identity",
+      "Cluster autoscaler only"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Additional node pools</strong></p><p>Multiple node pools allow different VM SKUs, disk types, taints, and labels within one cluster. You can target workloads with nodeSelector/taints to keep SQL pods on SSD nodes and web pods on smaller nodes.</p><p><strong>Incorrect options:</strong></p><p><strong>Virtual nodes:</strong> Schedule pods to ACI without a node; not for hardware-bound workloads.</p><p><strong>Pod Identity:</strong> Provides Entra identity to pods; unrelated to node placement.</p><p><strong>Cluster autoscaler:</strong> Scales node counts; does not introduce different SKUs.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/aks/create-node-pools\">Multiple node pools in AKS</a></p>"
+  },
+  {
+    "id": "azure-az104-q20",
+    "question_number": "20",
+    "question": "An administrator must deploy a single container that runs a short-lived batch job nightly, billed per second, without managing any VMs or clusters. Which service is the best fit?",
+    "choices": [
+      "Azure Kubernetes Service",
+      "Azure Container Instances",
+      "Azure App Service Web App for Containers",
+      "Azure Virtual Machine Scale Set with Docker"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Container Instances (ACI)</strong></p><p>ACI runs a single container or container group on demand with per-second billing and no infrastructure to manage, ideal for short-lived batch workloads.</p><p><strong>Incorrect options:</strong></p><p><strong>AKS:</strong> Orchestrator with cluster overhead; overkill for a single nightly job.</p><p><strong>App Service for Containers:</strong> Long-running web apps; not optimized for short batch jobs.</p><p><strong>VMSS with Docker:</strong> Requires VM management; not serverless.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview\">Azure Container Instances overview</a></p>"
+  },
+  {
+    "id": "azure-az104-q21",
+    "question_number": "21",
+    "question": "Two VNets named vnet-hub (10.0.0.0/16) and vnet-spoke (10.1.0.0/16) are peered. A VM in vnet-spoke cannot reach a NVA in vnet-hub that already routes traffic to on-premises. What must be configured on the peering between spoke and hub?",
+    "choices": [
+      "Enable \"Allow forwarded traffic\" and use the hub VNet gateway from the spoke",
+      "Disable all NSGs on the spoke subnet",
+      "Set the spoke VNet's DNS to the hub's NVA",
+      "Add a public IP to the NVA"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Allow forwarded traffic + Use remote gateway</strong></p><p>In hub-and-spoke designs, the spoke must allow forwarded traffic on the peering to accept packets not sourced from the peered VNet, and use the hub's gateway (or NVA via UDR) to reach external networks. Without these, return traffic from the NVA is dropped.</p><p><strong>Incorrect options:</strong></p><p><strong>Disable NSGs:</strong> Insecure and unrelated to peering forwarding behavior.</p><p><strong>DNS change:</strong> Does not affect routing.</p><p><strong>Public IP on NVA:</strong> Hub NVAs typically route privately; public IP is not the fix.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview\">VNet peering options</a></p>"
+  },
+  {
+    "id": "azure-az104-q22",
+    "question_number": "22",
+    "question": "You have an NSG with the following inbound rules: (100) Allow TCP 443 from Internet; (200) Deny TCP 443 from 203.0.113.0/24; (300) Allow TCP 443 from 203.0.113.5. A request arrives from 203.0.113.5 on TCP 443. What happens?",
+    "choices": [
+      "Allowed by rule 100",
+      "Denied by rule 200",
+      "Allowed by rule 300",
+      "Denied by the default DenyAllInbound"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Allowed by rule 100</strong></p><p>NSG rules are processed in priority order (lowest number first). Rule 100 matches (Internet covers 203.0.113.5) and allows the traffic; processing stops. The later Deny rule never evaluates.</p><p><strong>Incorrect options:</strong></p><p><strong>Denied by 200:</strong> 200 has higher priority number and is evaluated only if 100 did not match.</p><p><strong>Allowed by 300:</strong> Never reached after rule 100 matches.</p><p><strong>Default DenyAllInbound:</strong> Lowest priority; only applied if no rule matches.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview\">NSG rule processing</a></p>"
+  },
+  {
+    "id": "azure-az104-q23",
+    "question_number": "23",
+    "question": "An administrator needs to publish a public web application across multiple Azure regions with global HTTP/HTTPS load balancing, WAF, and TLS termination at the edge. Which service is the best choice?",
+    "choices": [
+      "Azure Load Balancer (Standard, public)",
+      "Azure Application Gateway (regional)",
+      "Azure Front Door with WAF",
+      "Azure Traffic Manager"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Azure Front Door with WAF</strong></p><p>Front Door is a global, anycast-based Layer 7 load balancer that terminates TLS at the edge, supports path/host-based routing, and integrates a Web Application Firewall.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Load Balancer:</strong> Layer 4 only and regional.</p><p><strong>Application Gateway:</strong> Layer 7 with WAF but regional only.</p><p><strong>Traffic Manager:</strong> DNS-based global, no TLS termination or WAF at the edge.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/frontdoor/front-door-overview\">Azure Front Door</a></p>"
+  },
+  {
+    "id": "azure-az104-q24",
+    "question_number": "24",
+    "question": "Your company is establishing a private, predictable-bandwidth, low-latency connection between on-premises datacenters and Azure that does not traverse the public internet and supports Microsoft 365 peering. Which connectivity option meets all requirements?",
+    "choices": [
+      "Site-to-Site VPN",
+      "Point-to-Site VPN",
+      "Azure ExpressRoute",
+      "Virtual WAN secure hub"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Azure ExpressRoute</strong></p><p>ExpressRoute provides a private circuit through a connectivity provider with SLA-backed bandwidth and supports private peering (for VNets) and Microsoft peering (for M365/PaaS public endpoints).</p><p><strong>Incorrect options:</strong></p><p><strong>S2S VPN:</strong> Encrypted tunnel over the public internet; variable performance.</p><p><strong>P2S VPN:</strong> For individual clients, not datacenters.</p><p><strong>Virtual WAN secure hub:</strong> A topology that can use VPN or ExpressRoute; alone, does not satisfy the private circuit requirement.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction\">ExpressRoute overview</a></p>"
+  },
+  {
+    "id": "azure-az104-q25",
+    "question_number": "25",
+    "question": "You configured an Azure Private DNS zone named contoso.internal and linked it to a VNet with auto-registration enabled. Which two behaviors are expected? (Select TWO)",
+    "choices": [
+      "Records for VMs in the linked VNet are created automatically when VMs are deployed",
+      "Resolution for contoso.internal works from on-premises without any DNS forwarder",
+      "VMs in the linked VNet can resolve other VMs in that VNet by hostname",
+      "The zone is automatically replicated to every region in your subscription",
+      "The zone is exposed publicly on the internet"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Auto-registration + intra-VNet name resolution</strong></p><p>With auto-registration on a Private DNS zone linked to a VNet, VM A records are created automatically and VMs can resolve each other by hostname using the Azure-provided resolver (168.63.129.16).</p><p><strong>Incorrect options:</strong></p><p><strong>On-prem resolution without a forwarder:</strong> On-prem cannot reach Private DNS directly; requires a DNS forwarder (e.g., an inbound endpoint of Azure DNS Private Resolver or a DNS VM).</p><p><strong>Cross-region auto-replication:</strong> Private DNS zones are global resources but link to VNets explicitly; there is no per-region replication concept.</p><p><strong>Public exposure:</strong> Private zones are not internet-resolvable.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/dns/private-dns-overview\">Azure Private DNS</a></p>"
+  },
+  {
+    "id": "azure-az104-q26",
+    "question_number": "26",
+    "question": "You need the public Standard Load Balancer to distribute incoming TCP 1433 traffic to a pool of SQL VMs based on a 2-tuple distribution (source IP, destination IP) so that all connections from a given client land on the same backend. Which setting do you choose?",
+    "choices": [
+      "Floating IP (Direct Server Return) enabled",
+      "Session persistence: Source IP (2-tuple)",
+      "TCP Reset on idle",
+      "Outbound rules with port masquerading"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Source IP session persistence (2-tuple)</strong></p><p>The Standard Load Balancer supports session affinity using SourceIP (2-tuple: source IP, destination IP), ensuring that the same client IP is consistently routed to the same backend.</p><p><strong>Incorrect options:</strong></p><p><strong>Floating IP:</strong> Used for scenarios like SQL AlwaysOn listeners; does not pin clients.</p><p><strong>TCP Reset on idle:</strong> Sends RST on idle timeout; not affinity.</p><p><strong>Outbound rules:</strong> Govern SNAT for outbound traffic, not inbound stickiness.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts\">Load Balancer distribution modes</a></p>"
+  },
+  {
+    "id": "azure-az104-q27",
+    "question_number": "27",
+    "question": "An administrator wants Azure Monitor to send an email when a specific KQL query against an AKS Log Analytics workspace returns more than 5 results in any 5-minute window. Which alert configuration achieves this?",
+    "choices": [
+      "A metric alert on Container insights",
+      "A log search alert (scheduled query rule) bound to the Log Analytics workspace with a count threshold, plus an action group with an email receiver",
+      "An activity log alert with the AKS resource provider",
+      "A Service Health alert"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Log search alert + action group</strong></p><p>Scheduled query (log search) alerts run a KQL query on a workspace at a defined frequency and fire when the result row count crosses a threshold. Action groups define notifications such as email, SMS, or webhooks.</p><p><strong>Incorrect options:</strong></p><p><strong>Metric alert:</strong> Evaluates platform metrics, not custom KQL row counts.</p><p><strong>Activity log alert:</strong> Targets control-plane events (e.g., resource changes), not workspace logs.</p><p><strong>Service Health alert:</strong> Notifies on Azure service incidents, unrelated.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-types#log-alerts\">Log search alerts</a></p>"
+  },
+  {
+    "id": "azure-az104-q28",
+    "question_number": "28",
+    "question": "Using Log Analytics, which KQL query returns the count of failed sign-ins to Entra ID over the last 24 hours, grouped by user principal name?",
+    "choices": [
+      "SigninLogs | where ResultType != 0 | summarize FailedCount = count() by UserPrincipalName | where TimeGenerated > ago(24h)",
+      "SigninLogs | where TimeGenerated > ago(24h) and ResultType != 0 | summarize FailedCount = count() by UserPrincipalName",
+      "AuditLogs | where Result == \"failure\" | summarize count() by InitiatedBy",
+      "AzureActivity | where ActivityStatus == \"Failed\" | summarize count() by Caller"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: SigninLogs filtered by TimeGenerated and ResultType, summarized by UserPrincipalName</strong></p><p>Filtering on TimeGenerated early uses the index efficiently. <code>ResultType != 0</code> selects failed sign-ins. <code>summarize ... by UserPrincipalName</code> produces the per-user count.</p><p><strong>Incorrect options:</strong></p><p><strong>First option:</strong> Filters TimeGenerated after summarize, which is less efficient and loses the column at that stage; also produces incorrect time scoping.</p><p><strong>AuditLogs:</strong> Records directory changes, not sign-ins.</p><p><strong>AzureActivity:</strong> Subscription control-plane events, not Entra sign-ins.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/entra/identity/monitoring-health/concept-sign-ins\">Entra ID sign-in logs</a></p>"
+  },
+  {
+    "id": "azure-az104-q29",
+    "question_number": "29",
+    "question": "You must implement a backup strategy for an Azure VM that allows restoring individual files quickly without restoring the entire disk. Which Azure Backup feature supports this?",
+    "choices": [
+      "Soft-delete on the Recovery Services vault",
+      "Item-level recovery (file recovery) from a VM recovery point",
+      "Cross-region restore",
+      "Azure Site Recovery test failover"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Item-level / file recovery</strong></p><p>From a VM recovery point, Azure Backup can mount the snapshot as a drive on a chosen machine, allowing you to copy individual files or folders without restoring the entire VM or its disks.</p><p><strong>Incorrect options:</strong></p><p><strong>Soft-delete:</strong> Protects deleted backup data; not a file restore mechanism.</p><p><strong>Cross-region restore:</strong> Restores to the secondary region; still operates on entire VM/disks.</p><p><strong>ASR test failover:</strong> Disaster recovery scenario, not file-level restore.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/backup/backup-azure-restore-files-from-vm\">Recover files from Azure VM backup</a></p>"
+  },
+  {
+    "id": "azure-az104-q30",
+    "question_number": "30",
+    "question": "An administrator is configuring Azure Site Recovery (ASR) to replicate on-premises VMware VMs to Azure. Which two components are required in the source environment? (Select TWO)",
+    "choices": [
+      "ASR configuration server (and process server) deployed on-premises",
+      "Mobility service agent installed on each VM to be replicated",
+      "Azure Backup MARS agent on each VM",
+      "Azure Arc-enabled servers extension on each VM",
+      "Domain Services replica installed in Azure"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Configuration/process server + Mobility service</strong></p><p>For VMware-to-Azure ASR, you deploy a configuration server on-premises (which also acts as the process server in small deployments) and install the Mobility service on each protected VM to capture and forward write operations to Azure.</p><p><strong>Incorrect options:</strong></p><p><strong>MARS agent:</strong> Used for file/folder backup from Windows machines, not ASR replication.</p><p><strong>Azure Arc extension:</strong> Onboards servers for management; not part of the ASR replication path for VMware.</p><p><strong>Domain Services replica in Azure:</strong> Not required for ASR replication.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/site-recovery/vmware-azure-architecture\">VMware to Azure ASR architecture</a></p>"
+  }
+]

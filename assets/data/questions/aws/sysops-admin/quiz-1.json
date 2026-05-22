@@ -1,0 +1,398 @@
+[
+  {
+    "id": "aws-soa-q1",
+    "question_number": "1",
+    "question": "A SysOps administrator needs to collect memory utilization and disk space metrics from a fleet of Amazon EC2 Linux instances running a custom application. The metrics must be visible in Amazon CloudWatch alongside built-in EC2 metrics. What is the MOST operationally efficient solution?",
+    "choices": [
+      "Enable detailed monitoring on each EC2 instance from the EC2 console.",
+      "Install and configure the CloudWatch agent on the instances using AWS Systems Manager Run Command with the AWS-ConfigureAWSPackage document.",
+      "Write a custom cron job on each instance that calls the PutMetricData API every minute using the AWS CLI.",
+      "Enable Enhanced Networking and attach an IAM role with CloudWatchFullAccess to each instance."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Install the CloudWatch agent via AWS Systems Manager Run Command.</strong></p><p>The unified Amazon CloudWatch agent is the AWS-recommended way to publish OS-level metrics such as memory and disk utilization (which are not collected by the built-in hypervisor-level EC2 metrics). Using AWS Systems Manager Run Command with the AWS-ConfigureAWSPackage document installs and configures the agent on the entire fleet without SSH access, making it the most operationally efficient approach.</p><p><strong>Incorrect options:</strong></p><p><strong>Detailed monitoring:</strong> Only increases the publishing frequency of existing EC2 metrics from 5 to 1 minute. It does not add memory or disk metrics, which require an in-OS agent.</strong></p><p><strong>Custom cron job calling PutMetricData:</strong> Technically works but is operationally burdensome, error-prone, and harder to scale than the managed CloudWatch agent.</p><p><strong>Enhanced Networking and CloudWatchFullAccess:</strong> Enhanced Networking is unrelated to metrics collection, and an IAM role alone cannot publish OS metrics.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-EC2-Instance.html\">Installing the CloudWatch agent</a></p>"
+  },
+  {
+    "id": "aws-soa-q2",
+    "question_number": "2",
+    "question": "A company stores application logs in Amazon CloudWatch Logs. The security team requires that any occurrence of the string 'ERROR 5XX' in the logs trigger an alert sent to an Amazon SNS topic within 1 minute. Which combination of actions should the SysOps administrator take? (Select TWO.)",
+    "choices": [
+      "Create a CloudWatch Logs metric filter that matches the pattern 'ERROR 5XX'.",
+      "Create a CloudWatch Logs subscription filter that streams logs to Amazon Kinesis Data Firehose.",
+      "Create a CloudWatch alarm on the metric filter with a threshold of >= 1 datapoint, and add the SNS topic as an alarm action.",
+      "Enable CloudTrail data events for the CloudWatch Logs group.",
+      "Create an EventBridge rule that matches the API call CreateLogStream and routes to SNS."
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Create a metric filter for the pattern and a CloudWatch alarm that notifies SNS.</strong></p><p>CloudWatch Logs metric filters scan incoming log events and increment a custom CloudWatch metric whenever a matching pattern (such as 'ERROR 5XX') appears. A CloudWatch alarm on that metric can then publish to an SNS topic the moment the threshold is breached, satisfying the near-real-time alert requirement.</p><p><strong>Incorrect options:</strong></p><p><strong>Subscription filter to Firehose:</strong> Streams logs to another destination but does not by itself trigger an alert.</p><p><strong>CloudTrail data events:</strong> CloudTrail tracks API activity, not the contents of log events written to CloudWatch Logs.</p><p><strong>EventBridge rule on CreateLogStream:</strong> Reacts to API calls, not to log contents.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/MonitoringLogData.html\">Searching and filtering log data</a></p>"
+  },
+  {
+    "id": "aws-soa-q3",
+    "question_number": "3",
+    "question": "A SysOps engineer is investigating why an Amazon EC2 instance unexpectedly shut down. The instance is part of an Amazon EC2 Auto Scaling group. Which AWS service provides the EASIEST way to determine WHO or WHAT initiated the termination?",
+    "choices": [
+      "Amazon CloudWatch Logs Insights",
+      "AWS CloudTrail Event history",
+      "Amazon Inspector",
+      "AWS Config rules"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: AWS CloudTrail Event history.</strong></p><p>CloudTrail logs all management API calls, including TerminateInstances and Auto Scaling lifecycle actions. Searching CloudTrail Event history for the instance ID reveals which principal (IAM user, role, or AWS service such as autoscaling.amazonaws.com) issued the termination and when.</p><p><strong>Incorrect options:</strong></p><p><strong>CloudWatch Logs Insights:</strong> Useful for querying application log data, not API activity.</p><p><strong>Amazon Inspector:</strong> Performs vulnerability assessments on workloads. It does not track terminations.</p><p><strong>AWS Config rules:</strong> Tracks configuration history and compliance, not the API caller responsible for a termination.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/awscloudtrail/latest/userguide/view-cloudtrail-events.html\">Viewing CloudTrail Event history</a></p>"
+  },
+  {
+    "id": "aws-soa-q4",
+    "question_number": "4",
+    "question": "A SysOps administrator wants to automatically remediate Amazon S3 buckets that are created with public read access. The remediation must run within seconds of bucket creation and require no manual intervention. Which solution meets these requirements?",
+    "choices": [
+      "Enable Amazon GuardDuty and rely on its built-in remediation actions.",
+      "Create an AWS Config managed rule s3-bucket-public-read-prohibited with an AWS Systems Manager Automation document as the remediation action.",
+      "Configure an Amazon S3 lifecycle policy to delete public buckets after 1 day.",
+      "Schedule a daily AWS Lambda function that scans buckets and updates their ACLs."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: AWS Config rule with an SSM Automation remediation action.</strong></p><p>AWS Config can evaluate the s3-bucket-public-read-prohibited managed rule almost immediately after a configuration change. When a noncompliant bucket is detected, AWS Config can invoke an AWS Systems Manager Automation document (for example, AWS-DisableS3BucketPublicReadWrite) to remove the public access, providing near-real-time auto-remediation.</p><p><strong>Incorrect options:</strong></p><p><strong>GuardDuty:</strong> Detects threats but does not natively remediate S3 ACL settings.</p><p><strong>S3 lifecycle policy:</strong> Manages object expiration/transition, not bucket-level public access.</p><p><strong>Daily Lambda scan:</strong> Does not meet the 'within seconds' requirement.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/config/latest/developerguide/remediation.html\">Remediating Noncompliant Resources with AWS Config</a></p>"
+  },
+  {
+    "id": "aws-soa-q5",
+    "question_number": "5",
+    "question": "A SysOps administrator needs centralized visibility into operational issues across hundreds of EC2 instances, including patch compliance, association status, and instance health. Which AWS Systems Manager capability provides a single dashboard for this purpose?",
+    "choices": [
+      "AWS Systems Manager Parameter Store",
+      "AWS Systems Manager Explorer",
+      "AWS Systems Manager Session Manager",
+      "AWS Systems Manager Distributor"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: AWS Systems Manager Explorer.</strong></p><p>Explorer is the unified operations dashboard within AWS Systems Manager. It aggregates OpsItems, patch compliance, association compliance, and EC2 instance health across accounts and Regions, giving the SysOps engineer a single view of operational posture.</p><p><strong>Incorrect options:</strong></p><p><strong>Parameter Store:</strong> Stores configuration data and secrets; not a dashboard.</p><p><strong>Session Manager:</strong> Provides interactive shell access to instances.</p><p><strong>Distributor:</strong> Packages and installs software on managed instances.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/systems-manager/latest/userguide/Explorer.html\">AWS Systems Manager Explorer</a></p>"
+  },
+  {
+    "id": "aws-soa-q6",
+    "question_number": "6",
+    "question": "An organization wants to receive notifications whenever an Amazon EC2 instance enters the 'stopping' or 'stopped' state, regardless of which account or Region it occurs in within the organization. Which solution requires the LEAST custom code?",
+    "choices": [
+      "Enable AWS Config aggregator and write a custom Lambda to evaluate state changes.",
+      "Create an Amazon EventBridge rule on the EC2 Instance State-change Notification event pattern and use cross-account event bus targets to forward to a central SNS topic.",
+      "Use AWS CloudTrail Lake with a saved query that runs every minute.",
+      "Install the CloudWatch agent and parse /var/log/messages for shutdown events."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: EventBridge rule with cross-account event bus targets.</strong></p><p>EC2 emits an 'EC2 Instance State-change Notification' event whenever an instance transitions state. EventBridge rules can match these events and forward them to a central event bus in another account; from there, a single rule can publish to SNS. This approach requires almost no custom code and supports multi-account, multi-Region patterns.</p><p><strong>Incorrect options:</strong></p><p><strong>AWS Config aggregator with custom Lambda:</strong> Possible but requires substantial custom evaluation logic.</p><p><strong>CloudTrail Lake periodic queries:</strong> Adds latency and is not designed as a near-real-time notification channel.</p><p><strong>CloudWatch agent parsing /var/log/messages:</strong> Cannot detect stopped instances (because the OS is no longer running) and requires custom log parsing.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#ec2_event_type\">EC2 events in EventBridge</a></p>"
+  },
+  {
+    "id": "aws-soa-q7",
+    "question_number": "7",
+    "question": "A SysOps administrator needs to design a disaster recovery (DR) solution for an on-premises application that has an RTO of 4 hours and an RPO of 1 hour. Cost minimization is a top priority. Which DR strategy is MOST appropriate?",
+    "choices": [
+      "Multi-site active-active across two AWS Regions",
+      "Warm standby with scaled-down compute always running in AWS",
+      "Pilot light, with AMIs and replicated data ready and minimal compute running",
+      "Backup and restore using AWS Backup with daily snapshots"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Pilot light.</strong></p><p>Pilot light keeps the minimum required resources (databases replicating, AMIs prepared) continuously running in AWS while compute is launched on demand during a disaster. This typically supports an RTO of tens of minutes to a few hours and an RPO measured in minutes, fitting 4-hour RTO / 1-hour RPO at a significantly lower cost than warm standby or active-active.</p><p><strong>Incorrect options:</strong></p><p><strong>Multi-site active-active:</strong> Achieves seconds-level RTO/RPO but is the most expensive option, exceeding the requirement.</p><p><strong>Warm standby:</strong> Faster than pilot light but more costly because it always runs scaled-down compute.</p><p><strong>Backup and restore with daily snapshots:</strong> Daily snapshots yield an RPO of up to 24 hours, which violates the 1-hour RPO.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html\">Disaster Recovery options in the cloud</a></p>"
+  },
+  {
+    "id": "aws-soa-q8",
+    "question_number": "8",
+    "question": "An Amazon EC2 Auto Scaling group is configured with a desired capacity of 4 across two Availability Zones. After an AZ failure, only the instances in the surviving AZ are running. Which features allow the Auto Scaling group to automatically restore balanced capacity? (Select TWO.)",
+    "choices": [
+      "AZRebalance process",
+      "Cooldown periods",
+      "Health checks for the EC2 instances and the attached load balancer",
+      "Termination policy set to OldestInstance",
+      "Spot Instance interruption notices"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: AZRebalance and EC2/ELB health checks.</strong></p><p>The AZRebalance process automatically launches replacement instances in healthy AZs to maintain a balanced distribution once an AZ recovers (or when imbalance is detected). EC2 instance and ELB health checks ensure unhealthy instances are replaced. Together they restore desired capacity after an AZ event.</p><p><strong>Incorrect options:</strong></p><p><strong>Cooldown periods:</strong> Prevent overlapping scaling actions; they do not perform recovery.</p><p><strong>Termination policy OldestInstance:</strong> Controls which instances to terminate during scale-in, not how recovery occurs.</p><p><strong>Spot interruption notices:</strong> Notify of Spot reclaim events, not AZ failures.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html\">Benefits of Amazon EC2 Auto Scaling</a></p>"
+  },
+  {
+    "id": "aws-soa-q9",
+    "question_number": "9",
+    "question": "A SysOps engineer needs to perform automated backups of multiple AWS services (Amazon EBS, Amazon RDS, Amazon EFS, Amazon DynamoDB) with consistent cross-Region copy and centralized reporting. Which solution requires the LEAST operational overhead?",
+    "choices": [
+      "Use the native snapshot/backup features of each individual service and copy manually.",
+      "Use AWS Backup with backup plans, vault policies, and cross-Region copy enabled.",
+      "Build a custom AWS Lambda orchestrator that calls each service's snapshot APIs.",
+      "Use Amazon Data Lifecycle Manager for all four services."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: AWS Backup with backup plans and cross-Region copy.</strong></p><p>AWS Backup centrally orchestrates backups for many AWS services (EBS, RDS, EFS, DynamoDB, FSx, Aurora, EC2, Storage Gateway, etc.). Backup plans define frequency, retention, and cross-Region copy rules, and a single backup vault provides reporting and access control with the least operational overhead.</p><p><strong>Incorrect options:</strong></p><p><strong>Native per-service tooling:</strong> Splits operations across many consoles and produces inconsistent reporting.</p><p><strong>Custom Lambda orchestrator:</strong> Replicates what AWS Backup already provides.</p><p><strong>Amazon Data Lifecycle Manager:</strong> Manages EBS snapshots and AMI lifecycle only; it does not back up RDS, EFS, or DynamoDB.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html\">What is AWS Backup?</a></p>"
+  },
+  {
+    "id": "aws-soa-q10",
+    "question_number": "10",
+    "question": "A production Amazon RDS for MySQL Multi-AZ deployment fails over to the standby. Which statement BEST describes what occurs from a SysOps perspective?",
+    "choices": [
+      "The DNS endpoint changes to a new value that applications must update.",
+      "The DNS endpoint remains the same but resolves to the standby's IP address after failover.",
+      "All in-flight transactions are guaranteed to complete on the new primary.",
+      "Applications must be configured with the read replica endpoint to continue writes."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: DNS endpoint stays the same and resolves to the standby.</strong></p><p>In a Multi-AZ RDS deployment, RDS uses a single DNS endpoint that points to the current primary. During failover, RDS promotes the standby and updates DNS so the same endpoint resolves to the new primary. Applications typically only need to handle a brief reconnection.</p><p><strong>Incorrect options:</strong></p><p><strong>DNS endpoint changes:</strong> The endpoint hostname is stable; only the underlying IP changes.</p><p><strong>In-flight transactions guaranteed to complete:</strong> Open transactions and connections are dropped during failover.</p><p><strong>Read replica endpoint for writes:</strong> Read replicas accept reads only (until promoted).</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html\">High availability (Multi-AZ) for Amazon RDS</a></p>"
+  },
+  {
+    "id": "aws-soa-q11",
+    "question_number": "11",
+    "question": "A web application's Amazon Aurora MySQL cluster is experiencing read-heavy traffic during business hours. The SysOps administrator must scale read capacity automatically without modifying application connection logic. Which approach meets the requirement?",
+    "choices": [
+      "Enable Aurora Auto Scaling for Aurora Replicas and direct read traffic to the cluster reader endpoint.",
+      "Resize the writer instance to a larger DB instance class daily during business hours.",
+      "Enable Multi-AZ deployment on the writer instance.",
+      "Migrate the workload to Amazon DynamoDB on-demand mode."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Aurora Auto Scaling for Aurora Replicas with the reader endpoint.</strong></p><p>Aurora Auto Scaling adds or removes Aurora Replicas based on a target metric (such as average CPU or connections). The reader endpoint load-balances across all available replicas, so applications continue to use the same connection string while capacity scales transparently.</p><p><strong>Incorrect options:</strong></p><p><strong>Daily writer resize:</strong> Causes downtime and is not elastic.</p><p><strong>Multi-AZ on the writer:</strong> Improves availability, not read throughput.</p><p><strong>DynamoDB migration:</strong> A major application change, not a scaling operation.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Integrating.AutoScaling.html\">Using Amazon Aurora Auto Scaling with Aurora Replicas</a></p>"
+  },
+  {
+    "id": "aws-soa-q12",
+    "question_number": "12",
+    "question": "A SysOps administrator is preparing for an annual DR test. The team must verify that an Amazon EBS snapshot taken in us-east-1 can be restored in us-west-2 with encryption preserved using a customer managed AWS KMS key. Which step is REQUIRED before the restore in us-west-2 succeeds?",
+    "choices": [
+      "Disable EBS encryption on the source volume before snapshotting.",
+      "Copy the snapshot to us-west-2 and re-encrypt it with a KMS key that exists in us-west-2.",
+      "Enable cross-Region replication on the source EBS volume.",
+      "Create an AWS Backup vault in us-east-1 and link it to us-west-2."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Copy the snapshot to us-west-2 with a KMS key that exists in us-west-2.</strong></p><p>KMS keys are Regional resources, so a snapshot encrypted with a us-east-1 KMS key cannot be restored in us-west-2 directly. The CopySnapshot operation lets you specify a destination KMS key in the target Region, producing an encrypted snapshot that can be restored locally.</p><p><strong>Incorrect options:</strong></p><p><strong>Disable encryption:</strong> Violates security requirements and is unnecessary.</p><p><strong>Cross-Region replication on the EBS volume:</strong> EBS volumes do not support continuous cross-Region replication; snapshot copy is the mechanism.</p><p><strong>AWS Backup vault link:</strong> Backups must be copied to a vault in the target Region; simply linking does not move data.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-copy-snapshot.html\">Copy an Amazon EBS snapshot</a></p>"
+  },
+  {
+    "id": "aws-soa-q13",
+    "question_number": "13",
+    "question": "A SysOps engineer is launching a stack with AWS CloudFormation. The deployment fails halfway through, and resources are partially created. By default, what does CloudFormation do?",
+    "choices": [
+      "Leaves all created resources in place for inspection.",
+      "Rolls back the stack and deletes resources created during the failed operation.",
+      "Pauses the stack at the failed resource and waits for manual intervention.",
+      "Marks the stack as UPDATE_FAILED and retries after 5 minutes."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: CloudFormation rolls back the stack and deletes the created resources.</strong></p><p>By default, when a CloudFormation stack creation or update fails, the service rolls back to the previous known good state, deleting any resources it created during the failed operation. The OnFailure or DisableRollback options can override this behavior to preserve resources for debugging.</p><p><strong>Incorrect options:</strong></p><p><strong>Leaves resources in place:</strong> Only if OnFailure=DO_NOTHING or rollback is disabled.</p><p><strong>Pauses for manual intervention:</strong> Not the default behavior.</p><p><strong>Retries after 5 minutes:</strong> CloudFormation does not auto-retry failed deployments.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-rollback-triggers.html\">Monitor and roll back stack operations</a></p>"
+  },
+  {
+    "id": "aws-soa-q14",
+    "question_number": "14",
+    "question": "An organization wants to automatically patch hundreds of EC2 instances every Sunday at 02:00 UTC and report compliance. Which AWS Systems Manager components should the SysOps administrator combine? (Select THREE.)",
+    "choices": [
+      "Patch baseline",
+      "Patch group (tag-based)",
+      "Maintenance window with a Run Command task using AWS-RunPatchBaseline",
+      "Amazon Inspector findings as the patch trigger",
+      "AWS CodeDeploy in-place deployment"
+    ],
+    "correct_answer_indices": [0, 1, 2],
+    "explanation_html": "<p><strong>Correct: Patch baseline, patch group, and a maintenance window with AWS-RunPatchBaseline.</strong></p><p>AWS Systems Manager Patch Manager uses a patch baseline to define approved patches, patch groups (set via the Patch Group tag) to associate instances with a baseline, and a maintenance window scheduled with Run Command executing AWS-RunPatchBaseline to apply patches and report compliance.</p><p><strong>Incorrect options:</strong></p><p><strong>Amazon Inspector findings:</strong> Inspector identifies vulnerabilities but is not the patch scheduling mechanism.</p><p><strong>AWS CodeDeploy:</strong> Deploys application code, not OS patches.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html\">AWS Systems Manager Patch Manager</a></p>"
+  },
+  {
+    "id": "aws-soa-q15",
+    "question_number": "15",
+    "question": "A SysOps administrator must create standardized, hardened Amazon Linux 2 AMIs that include security agents and the latest patches, on a recurring monthly schedule. Which AWS service is PURPOSE-BUILT for this?",
+    "choices": [
+      "AWS CodeBuild",
+      "EC2 Image Builder",
+      "AWS Service Catalog",
+      "Amazon AppStream 2.0"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: EC2 Image Builder.</strong></p><p>EC2 Image Builder automates building, testing, and distributing hardened machine images. Pipelines can be scheduled (for example, monthly), use components to install software and run hardening scripts, and distribute AMIs to multiple Regions and accounts.</p><p><strong>Incorrect options:</strong></p><p><strong>AWS CodeBuild:</strong> A general-purpose build service for application code, not images.</p><p><strong>AWS Service Catalog:</strong> Distributes approved IT products to end users; it does not build AMIs.</p><p><strong>Amazon AppStream 2.0:</strong> Streams desktop applications, not an AMI factory.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/imagebuilder/latest/userguide/what-is-image-builder.html\">What is EC2 Image Builder?</a></p>"
+  },
+  {
+    "id": "aws-soa-q16",
+    "question_number": "16",
+    "question": "A CloudFormation stack uses an AWS::EC2::Instance resource. The SysOps administrator needs to ensure that updating the InstanceType property does not replace the instance unexpectedly during a stack update. What should the engineer do?",
+    "choices": [
+      "Use a Stack Policy that denies Update:Replace on the instance resource and update the type only after stopping the instance manually.",
+      "Add the DeletionPolicy attribute set to Retain.",
+      "Enable termination protection on the EC2 instance.",
+      "Replace the AWS::EC2::Instance resource with AWS::EC2::LaunchTemplate."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Use a Stack Policy that denies Update:Replace.</strong></p><p>Changing certain EC2 instance properties (including InstanceType while the instance is running) can cause CloudFormation to replace the resource. A stack policy with an explicit Deny on Update:Replace for the instance resource prevents accidental replacement during stack updates; the engineer can stop the instance first so the type change is an in-place update instead.</p><p><strong>Incorrect options:</strong></p><p><strong>DeletionPolicy Retain:</strong> Only affects stack deletion, not update-driven replacement.</p><p><strong>Termination protection:</strong> Prevents user termination but does not stop CloudFormation replacement.</p><p><strong>Switching to LaunchTemplate:</strong> Changes the architecture significantly and still allows replacement under various property changes.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html\">Prevent updates to stack resources</a></p>"
+  },
+  {
+    "id": "aws-soa-q17",
+    "question_number": "17",
+    "question": "A SysOps engineer must deploy the same VPC, subnets, and security groups to 10 AWS accounts in an AWS Organization. Manual maintenance is unacceptable. Which CloudFormation feature addresses this requirement?",
+    "choices": [
+      "CloudFormation StackSets with service-managed permissions",
+      "CloudFormation change sets",
+      "CloudFormation nested stacks",
+      "CloudFormation drift detection"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: CloudFormation StackSets with service-managed permissions.</strong></p><p>StackSets deploy and manage stacks across multiple AWS accounts and Regions from a single template. With service-managed permissions inside AWS Organizations, the StackSet can automatically deploy to all accounts in specified OUs and to new accounts as they join, with no per-account setup.</p><p><strong>Incorrect options:</strong></p><p><strong>Change sets:</strong> Preview updates to a single stack, not multi-account deployment.</p><p><strong>Nested stacks:</strong> Compose templates within a single deployment target.</p><p><strong>Drift detection:</strong> Reports configuration drift; it does not deploy resources.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html\">Working with AWS CloudFormation StackSets</a></p>"
+  },
+  {
+    "id": "aws-soa-q18",
+    "question_number": "18",
+    "question": "A company wants to enforce a guardrail preventing all member accounts in its AWS Organization from disabling AWS CloudTrail. Which AWS feature accomplishes this?",
+    "choices": [
+      "IAM permission boundaries applied to each user.",
+      "A Service Control Policy (SCP) that denies cloudtrail:StopLogging and cloudtrail:DeleteTrail.",
+      "AWS Config conformance pack with CloudTrail rules.",
+      "AWS WAF rules attached to the management account."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: SCP denying cloudtrail:StopLogging and cloudtrail:DeleteTrail.</strong></p><p>Service Control Policies are organization-level guardrails that cap what IAM principals (including root) can do in member accounts. Denying CloudTrail stop/delete actions ensures no one in a member account can disable trails, regardless of their IAM permissions.</p><p><strong>Incorrect options:</strong></p><p><strong>IAM permission boundaries:</strong> Apply to individual IAM identities; they do not provide org-wide guardrails and are easily bypassed by administrators in member accounts.</p><p><strong>AWS Config conformance pack:</strong> Detects and can remediate noncompliance, but does not block API calls.</p><p><strong>AWS WAF:</strong> Protects web applications, unrelated to API permissions.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html\">Service Control Policies (SCPs)</a></p>"
+  },
+  {
+    "id": "aws-soa-q19",
+    "question_number": "19",
+    "question": "Amazon GuardDuty has alerted the security team to a finding of type 'UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom'. Which actions should the SysOps administrator take to investigate and contain the threat? (Select TWO.)",
+    "choices": [
+      "Review the finding details and the associated CloudTrail event history for the IAM user.",
+      "Rotate the IAM user's access keys and revoke active sessions.",
+      "Disable the AWS Region in IAM until the investigation completes.",
+      "Delete the GuardDuty detector to stop further alerts.",
+      "Edit the finding to mark it as a false positive without further action."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Review finding/CloudTrail details and rotate access keys.</strong></p><p>The finding indicates that a known malicious IP made API calls using the IAM user's credentials. The SysOps engineer should examine the finding and CloudTrail to understand the scope of access and then rotate the user's keys, revoke active sessions (for example, by attaching an AWSRevokeOlderSessions policy), and review any actions taken.</p><p><strong>Incorrect options:</strong></p><p><strong>Disable an AWS Region in IAM:</strong> Region-disable settings are organization-wide and unrelated to a single compromised user.</p><p><strong>Delete the GuardDuty detector:</strong> Hides the problem; it does not contain it.</p><p><strong>Mark as false positive without investigation:</strong> Ignores a credible threat.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_remediate.html\">Remediating GuardDuty findings</a></p>"
+  },
+  {
+    "id": "aws-soa-q20",
+    "question_number": "20",
+    "question": "A SysOps administrator must continuously assess Amazon EC2 instances and container images in Amazon ECR for software vulnerabilities and unintended network exposure. Which service should they enable?",
+    "choices": [
+      "AWS Trusted Advisor",
+      "Amazon Inspector",
+      "AWS Security Hub",
+      "AWS Shield Advanced"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Amazon Inspector.</strong></p><p>Amazon Inspector continuously scans EC2 instances, container images in ECR, and AWS Lambda functions for software vulnerabilities (CVE database) and network exposure issues. Findings are prioritized using a context-aware score and can be aggregated in Security Hub.</p><p><strong>Incorrect options:</strong></p><p><strong>Trusted Advisor:</strong> Provides best-practice checks across cost, performance, security, fault tolerance, and limits, not deep vulnerability scans.</p><p><strong>Security Hub:</strong> Aggregates findings (including from Inspector) but does not itself scan workloads.</p><p><strong>Shield Advanced:</strong> Protects against DDoS attacks.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html\">What is Amazon Inspector?</a></p>"
+  },
+  {
+    "id": "aws-soa-q21",
+    "question_number": "21",
+    "question": "A SysOps engineer must allow developers to assume a role to manage Amazon S3 buckets, but only when they are in the corporate IP range and have a valid MFA session. Which IAM policy condition keys satisfy these requirements? (Select TWO.)",
+    "choices": [
+      "aws:SourceIp",
+      "aws:MultiFactorAuthPresent",
+      "aws:PrincipalOrgID",
+      "aws:userid",
+      "aws:RequestTag"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: aws:SourceIp and aws:MultiFactorAuthPresent.</strong></p><p>aws:SourceIp restricts the policy to requests originating from a CIDR range, and aws:MultiFactorAuthPresent ensures the calling session was authenticated with MFA. Together they enforce both the network and MFA requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>aws:PrincipalOrgID:</strong> Restricts to principals from a specific AWS Organization; not relevant to MFA or IP.</p><p><strong>aws:userid:</strong> Matches a specific principal identifier, not IP or MFA.</p><p><strong>aws:RequestTag:</strong> Validates tag values supplied with the request, unrelated here.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html\">AWS global condition context keys</a></p>"
+  },
+  {
+    "id": "aws-soa-q22",
+    "question_number": "22",
+    "question": "A SysOps engineer notices that an internet-facing Application Load Balancer (ALB) is returning HTTP 502 errors intermittently. The targets are healthy in the target group. What is the MOST likely cause?",
+    "choices": [
+      "The ALB security group blocks inbound traffic on port 80.",
+      "The backend application is closing keep-alive connections before the ALB idle timeout expires.",
+      "The ALB does not have access to internet via an Internet Gateway.",
+      "Cross-zone load balancing is disabled on the ALB."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Backend closes keep-alive connections before the ALB idle timeout.</strong></p><p>HTTP 502 'Bad Gateway' on an ALB commonly occurs when the target closes the connection while the ALB is trying to reuse it. AWS recommends configuring the target's keep-alive timeout to be greater than the ALB's idle timeout (default 60 seconds).</p><p><strong>Incorrect options:</strong></p><p><strong>Security group blocks port 80:</strong> Would cause connection failures, not 502s, and clients would get timeouts.</p><p><strong>No IGW:</strong> The ALB could not receive traffic at all if it lacked internet access.</p><p><strong>Cross-zone load balancing disabled:</strong> May cause uneven load distribution, not 502s.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-troubleshooting.html\">Troubleshoot your Application Load Balancers</a></p>"
+  },
+  {
+    "id": "aws-soa-q23",
+    "question_number": "23",
+    "question": "A SysOps administrator must allow EC2 instances in a private subnet to access Amazon S3 without traversing the public internet, while minimizing data transfer charges. Which solution is BEST?",
+    "choices": [
+      "Provision a NAT Gateway in a public subnet and route private subnet traffic through it.",
+      "Create a Gateway VPC endpoint for Amazon S3 and update the route tables.",
+      "Use AWS Direct Connect with a public virtual interface.",
+      "Create an Interface VPC endpoint (PrivateLink) for Amazon S3."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Gateway VPC endpoint for Amazon S3.</strong></p><p>A Gateway VPC endpoint for S3 provides private connectivity from the VPC to S3 via the AWS network without using a NAT gateway or internet gateway, and there is no data processing charge for Gateway endpoints. The route table is updated with the prefix list for S3.</p><p><strong>Incorrect options:</strong></p><p><strong>NAT Gateway:</strong> Works but adds per-GB processing charges and traverses the internet edge.</p><p><strong>Direct Connect public VIF:</strong> Useful for on-premises connectivity, not VPC-to-S3 isolation.</p><p><strong>Interface endpoint for S3:</strong> Is available but charges per-hour and per-GB; for typical VPC use cases, the Gateway endpoint is cheaper.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html\">Gateway VPC endpoints</a></p>"
+  },
+  {
+    "id": "aws-soa-q24",
+    "question_number": "24",
+    "question": "A SysOps administrator configures an Amazon Route 53 alias record for an Application Load Balancer with health checks enabled. The application has a primary deployment in us-east-1 and a standby in us-west-2. Which Route 53 routing policy provides active-passive failover?",
+    "choices": [
+      "Weighted routing with weights 100 and 0",
+      "Latency-based routing across both Regions",
+      "Failover routing with primary/secondary records",
+      "Geolocation routing keyed by user country"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Failover routing with primary and secondary records.</strong></p><p>Route 53 failover routing is designed specifically for active-passive setups. A primary record points to us-east-1 with an associated health check; if the health check fails, traffic shifts to the secondary record in us-west-2.</p><p><strong>Incorrect options:</strong></p><p><strong>Weighted 100/0:</strong> Can simulate failover but does not automatically react to health checks the same way the dedicated failover policy does.</p><p><strong>Latency-based:</strong> Distributes traffic by latency; both Regions would receive traffic.</p><p><strong>Geolocation:</strong> Routes based on user location, not health.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy-failover.html\">Failover routing</a></p>"
+  },
+  {
+    "id": "aws-soa-q25",
+    "question_number": "25",
+    "question": "A SysOps engineer must allow only specific country IP ranges to access an Amazon CloudFront distribution and block all others, with the LEAST operational overhead. Which option is BEST?",
+    "choices": [
+      "Implement a custom origin shield that filters requests.",
+      "Configure CloudFront geographic restrictions (geo blocking) in the distribution settings.",
+      "Add IPv4 and IPv6 prefix lists to a Network ACL on the origin VPC.",
+      "Use AWS Shield Advanced to block unwanted countries."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: CloudFront geographic restrictions.</strong></p><p>CloudFront natively supports geo restrictions: you specify an allowlist (or blocklist) of countries directly on the distribution. CloudFront blocks requests at the edge before they reach the origin, with no additional configuration overhead.</p><p><strong>Incorrect options:</strong></p><p><strong>Custom origin shield:</strong> Origin Shield is a caching layer, not a geo filter.</p><p><strong>Network ACL prefix lists:</strong> Would not work for edge-terminated CloudFront traffic and is difficult to maintain.</p><p><strong>Shield Advanced:</strong> Provides DDoS protection, not country-based access control.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/georestrictions.html\">Restrict the geographic distribution of your content</a></p>"
+  },
+  {
+    "id": "aws-soa-q26",
+    "question_number": "26",
+    "question": "An Amazon EC2 instance in a private subnet cannot reach the internet through the existing NAT Gateway. The SysOps engineer confirms the NAT Gateway is Available. Which checks should be performed? (Select TWO.)",
+    "choices": [
+      "Verify the private subnet's route table has a route to 0.0.0.0/0 targeting the NAT Gateway.",
+      "Verify the NAT Gateway is in a public subnet with a route to the internet gateway.",
+      "Verify the NAT Gateway has a public IP elastic IP assigned to it that matches the private subnet's CIDR.",
+      "Enable source/destination check on the NAT Gateway ENI.",
+      "Attach an internet gateway directly to the private subnet."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Private subnet route to NAT and NAT in a public subnet with IGW route.</strong></p><p>For NAT traffic to work, the private subnet's route table must send 0.0.0.0/0 to the NAT Gateway, and the NAT Gateway itself must sit in a public subnet whose route table sends 0.0.0.0/0 to an internet gateway. Both routes are required.</p><p><strong>Incorrect options:</strong></p><p><strong>EIP matching the private CIDR:</strong> Elastic IPs are public addresses; they have nothing to do with the private CIDR.</p><p><strong>Source/destination check on NAT Gateway:</strong> NAT Gateway is a managed service; you do not configure source/destination check on it.</p><p><strong>Attach IGW to the private subnet:</strong> Would make the subnet public and defeat the design.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html\">NAT gateways</a></p>"
+  },
+  {
+    "id": "aws-soa-q27",
+    "question_number": "27",
+    "question": "A SysOps administrator must identify underutilized Amazon EC2 instances across the account and receive right-sizing recommendations. Which AWS service should they use?",
+    "choices": [
+      "AWS Trusted Advisor low-utilization EC2 instances check",
+      "AWS Compute Optimizer",
+      "Amazon CloudWatch anomaly detection",
+      "AWS Budgets"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: AWS Compute Optimizer.</strong></p><p>AWS Compute Optimizer uses machine learning on CloudWatch metrics to deliver right-sizing recommendations for EC2 instances, Auto Scaling groups, EBS volumes, and Lambda functions, including projected cost savings and performance risk. It is purpose-built for this scenario.</p><p><strong>Incorrect options:</strong></p><p><strong>Trusted Advisor:</strong> Flags low-utilization EC2 instances with a coarse threshold but does not provide specific instance-type recommendations like Compute Optimizer.</p><p><strong>CloudWatch anomaly detection:</strong> Detects metric anomalies, not right-sizing opportunities.</p><p><strong>AWS Budgets:</strong> Tracks spend against thresholds.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html\">What is AWS Compute Optimizer?</a></p>"
+  },
+  {
+    "id": "aws-soa-q28",
+    "question_number": "28",
+    "question": "A company stores 50 TB of data in Amazon S3 Standard. Access patterns show that 90 percent of objects are rarely accessed after 30 days but must be retrievable in milliseconds when needed. Which storage class change minimizes cost without changing application code?",
+    "choices": [
+      "Lifecycle transition all objects to S3 Glacier Deep Archive after 30 days.",
+      "Lifecycle transition objects older than 30 days to S3 Standard-Infrequent Access.",
+      "Enable S3 Intelligent-Tiering for the entire bucket.",
+      "Move objects to Amazon EFS Infrequent Access."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Enable S3 Intelligent-Tiering for the bucket.</strong></p><p>S3 Intelligent-Tiering automatically moves objects between frequent and infrequent access tiers based on observed access patterns and provides millisecond retrieval. With no application changes and no retrieval fees between the frequent and infrequent tiers, it minimizes cost for unpredictable workloads where 90 percent of data is cold but may be requested at any time.</p><p><strong>Incorrect options:</strong></p><p><strong>Glacier Deep Archive:</strong> Retrieval takes hours, violating the millisecond requirement.</p><p><strong>Lifecycle to Standard-IA:</strong> Works but charges retrieval fees on each access and applies even to objects that turn out to be hot.</p><p><strong>EFS-IA:</strong> EFS is a file system, not an object store; using it would require code changes.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html\">Amazon S3 storage classes</a></p>"
+  },
+  {
+    "id": "aws-soa-q29",
+    "question_number": "29",
+    "question": "A SysOps administrator must analyze AWS spend by service, linked account, and tag for the past 12 months and forecast next month's costs. Which AWS tool is BEST?",
+    "choices": [
+      "AWS Cost Explorer with cost allocation tags enabled",
+      "AWS Cost and Usage Report exported to Amazon Athena only",
+      "AWS Trusted Advisor cost optimization checks",
+      "AWS Pricing Calculator"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: AWS Cost Explorer with cost allocation tags.</strong></p><p>Cost Explorer provides interactive visualizations of costs and usage by service, linked account, and cost allocation tag (once activated) over a 12-month historical window and includes built-in forecasting. It is purpose-built for the described analysis.</p><p><strong>Incorrect options:</strong></p><p><strong>CUR with Athena only:</strong> Powerful but requires building queries and dashboards from scratch.</p><p><strong>Trusted Advisor cost checks:</strong> Surface idle/underutilized resources, not full spend analysis.</p><p><strong>Pricing Calculator:</strong> Estimates costs for new workloads, not historical analysis.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/ce-what-is.html\">Analyzing your costs with AWS Cost Explorer</a></p>"
+  },
+  {
+    "id": "aws-soa-q30",
+    "question_number": "30",
+    "question": "A SysOps engineer wants to reduce the cost of a steady-state workload running on m6i.large EC2 instances 24/7 in production. The workload will run for at least the next 3 years. Which purchase option provides the GREATEST savings while preserving capacity?",
+    "choices": [
+      "3-year All Upfront Standard Reserved Instances",
+      "3-year No Upfront Compute Savings Plan",
+      "On-Demand with Spot fleet fallback",
+      "1-year Partial Upfront Convertible Reserved Instances"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: 3-year All Upfront Standard Reserved Instances.</strong></p><p>For a steady-state workload locked to a specific instance family and Region for 3 years, 3-year All Upfront Standard RIs deliver the highest discount (typically up to ~72 percent off On-Demand) and include capacity reservation when scoped to a specific AZ.</p><p><strong>Incorrect options:</strong></p><p><strong>3-year No Upfront Compute Savings Plan:</strong> Provides flexibility across families/Regions but at a lower discount than All Upfront Standard RIs and without dedicated capacity reservation.</p><p><strong>On-Demand with Spot fallback:</strong> Spot is cheap but can be reclaimed, which conflicts with steady-state predictability.</p><p><strong>1-year Convertible RIs:</strong> Lower discount than 3-year Standard RIs and a shorter commitment than required.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html\">Amazon EC2 Reserved Instances</a></p>"
+  }
+]

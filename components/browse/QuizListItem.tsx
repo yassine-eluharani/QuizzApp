@@ -32,7 +32,7 @@ export default function QuizListItem({
       <View style={styles.content}>
         <View style={styles.nameRow}>
           <ThemedText variant="bodyLarge">{quiz.name}</ThemedText>
-          {isLocked && <ProBadge />}
+          {isLocked && <ProBadge variant="comingSoon" />}
         </View>
         <ThemedText variant="caption">{quiz.questionCount} questions</ThemedText>
       </View>

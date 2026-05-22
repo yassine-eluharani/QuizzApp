@@ -1,0 +1,242 @@
+[
+  {
+    "id": "azure-az900-q1",
+    "question_number": "1",
+    "question": "A startup wants to deploy a web application without managing the underlying operating system, runtime patching, or load balancer configuration. Which cloud service model best fits this requirement?",
+    "choices": ["Infrastructure as a Service (IaaS)", "Platform as a Service (PaaS)", "Software as a Service (SaaS)", "Function as a Service only"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Platform as a Service (PaaS)</strong></p><p>PaaS provides a managed environment for deploying applications. The provider handles the OS, runtime, patching, and scaling infrastructure, while the customer focuses on code and data. Azure App Service is a classic example.</p><p><strong>Incorrect options:</strong></p><p><strong>IaaS:</strong> Gives you virtual machines but you must patch the OS and configure the runtime yourself.</p><p><strong>SaaS:</strong> Delivers a finished application (like Microsoft 365); you don't deploy custom code.</p><p><strong>Function as a Service only:</strong> FaaS (serverless) is a narrower model focused on event-driven code; the broader category that fits hosting a typical web app is PaaS.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/strategy/cloud-fundamentals/cloud-service-models\">Cloud service models</a></p>"
+  },
+  {
+    "id": "azure-az900-q2",
+    "question_number": "2",
+    "question": "An organization pays for cloud resources monthly based on actual consumption rather than purchasing hardware upfront. Which financial model describes this approach?",
+    "choices": ["Capital expenditure (CapEx)", "Operational expenditure (OpEx)", "Total cost of ownership (TCO)", "Reserved capacity"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Operational expenditure (OpEx)</strong></p><p>OpEx refers to ongoing, consumption-based spending. Cloud services like Azure are typically billed monthly based on usage, making them an operating expense rather than a capital purchase.</p><p><strong>Incorrect options:</strong></p><p><strong>CapEx:</strong> Means a large upfront purchase of assets (like buying servers) that depreciate over time.</p><p><strong>TCO:</strong> Is a calculation tool comparing all costs across options, not a billing model.</p><p><strong>Reserved capacity:</strong> Is a discount mechanism within OpEx, not a financial category itself.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/training/modules/describe-cloud-compute/4-capex-vs-opex\">CapEx vs OpEx</a></p>"
+  },
+  {
+    "id": "azure-az900-q3",
+    "question_number": "3",
+    "question": "Under the Azure shared responsibility model, which TWO responsibilities ALWAYS belong to the customer regardless of the service type (IaaS, PaaS, or SaaS)?",
+    "choices": ["Physical datacenter security", "Information and data classification", "Network controls", "Accounts and identities", "Operating system patching"],
+    "correct_answer_indices": [1, 3],
+    "explanation_html": "<p><strong>Correct: Information and data classification; Accounts and identities</strong></p><p>Regardless of which cloud service model you choose, the customer is always responsible for classifying and protecting their data and for managing user accounts, credentials, and identity access. Microsoft can never own these on the customer's behalf.</p><p><strong>Incorrect options:</strong></p><p><strong>Physical datacenter security:</strong> Always Microsoft's responsibility.</p><p><strong>Network controls:</strong> Shared in IaaS/PaaS, fully Microsoft's in SaaS.</p><p><strong>Operating system patching:</strong> Customer's only in IaaS; Microsoft handles it in PaaS/SaaS.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/security/fundamentals/shared-responsibility\">Shared responsibility in the cloud</a></p>"
+  },
+  {
+    "id": "azure-az900-q4",
+    "question_number": "4",
+    "question": "A regulated bank must keep certain workloads on-premises for compliance reasons but wants to run analytics and disaster recovery in Azure. Which cloud deployment model fits?",
+    "choices": ["Public cloud", "Private cloud", "Hybrid cloud", "Community cloud"],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Hybrid cloud</strong></p><p>A hybrid cloud combines on-premises (or private) infrastructure with public cloud services, allowing workloads to run where it makes the most sense. Compliance-sensitive systems stay on-prem while elastic workloads use Azure.</p><p><strong>Incorrect options:</strong></p><p><strong>Public cloud:</strong> All resources live in the provider's cloud, which the bank explicitly cannot do for some workloads.</p><p><strong>Private cloud:</strong> Entirely on-premises or dedicated; no public cloud component.</p><p><strong>Community cloud:</strong> Shared by a group of organizations with a common concern, not the scenario described.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/strategy/cloud-fundamentals/cloud-deployment-models\">Cloud deployment models</a></p>"
+  },
+  {
+    "id": "azure-az900-q5",
+    "question_number": "5",
+    "question": "Which characteristic of cloud computing allows resources to be automatically increased or decreased to match demand?",
+    "choices": ["High availability", "Elasticity", "Geo-replication", "Disaster recovery"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Elasticity</strong></p><p>Elasticity is the ability for a system to automatically grow or shrink its allocated resources in response to demand, ensuring you only pay for what you use.</p><p><strong>Incorrect options:</strong></p><p><strong>High availability:</strong> Means the system stays operational with minimal downtime, but doesn't define automatic scaling.</p><p><strong>Geo-replication:</strong> Copies data across regions for resiliency, unrelated to dynamic scaling.</p><p><strong>Disaster recovery:</strong> Is the practice of restoring service after a failure, not auto-scaling.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/training/modules/describe-cloud-compute/3-benefits-cloud\">Benefits of cloud services</a></p>"
+  },
+  {
+    "id": "azure-az900-q6",
+    "question_number": "6",
+    "question": "A SaaS provider offers email hosting where customers only access the application via a web browser. Which responsibility belongs to the SaaS provider, NOT the customer?",
+    "choices": ["Managing user accounts inside the tenant", "Patching the underlying operating system", "Classifying which messages are sensitive", "Enabling multi-factor authentication for users"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Patching the underlying operating system</strong></p><p>In SaaS, the provider manages everything below the application layer including the OS, runtime, and infrastructure. The customer still configures and uses the app.</p><p><strong>Incorrect options:</strong></p><p><strong>Managing user accounts:</strong> The customer creates and manages their own users.</p><p><strong>Classifying sensitive messages:</strong> Data classification is always the customer's responsibility.</p><p><strong>Enabling MFA:</strong> Configuring identity protections like MFA belongs to the customer.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/security/fundamentals/shared-responsibility\">Shared responsibility model</a></p>"
+  },
+  {
+    "id": "azure-az900-q7",
+    "question_number": "7",
+    "question": "Yes or No: Choosing a consumption-based pricing model in Azure is an example of a capital expenditure (CapEx).",
+    "choices": ["Yes", "No"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: No</strong></p><p>Consumption-based pricing is an operating expense (OpEx). You pay for cloud resources as you use them, like a utility bill, rather than purchasing hardware upfront as a capital asset.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/training/modules/describe-cloud-compute/4-capex-vs-opex\">CapEx vs OpEx</a></p>"
+  },
+  {
+    "id": "azure-az900-q8",
+    "question_number": "8",
+    "question": "Which benefit of cloud computing BEST describes the ability of a service to continue functioning correctly even when individual components fail?",
+    "choices": ["Scalability", "Reliability (fault tolerance)", "Manageability", "Predictability"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Reliability (fault tolerance)</strong></p><p>Reliability is the cloud benefit that ensures workloads continue operating despite failures, typically through redundancy across availability zones or regions.</p><p><strong>Incorrect options:</strong></p><p><strong>Scalability:</strong> Refers to handling increased load, not surviving failures.</p><p><strong>Manageability:</strong> About control via portals, templates, and policies.</p><p><strong>Predictability:</strong> Refers to consistent performance or cost, not failure handling.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/training/modules/describe-cloud-compute/3-benefits-cloud\">Benefits of cloud services</a></p>"
+  },
+  {
+    "id": "azure-az900-q9",
+    "question_number": "9",
+    "question": "Which Azure compute service should a team choose to run small pieces of code that respond to events such as an HTTP request or a message on a queue, paying only for execution time?",
+    "choices": ["Azure Virtual Machines", "Azure App Service", "Azure Functions", "Azure Kubernetes Service"],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Azure Functions</strong></p><p>Azure Functions is a serverless compute service that executes short-lived code in response to triggers (HTTP, queues, timers, blob changes) and bills only for execution time.</p><p><strong>Incorrect options:</strong></p><p><strong>Virtual Machines:</strong> Require provisioning and run continuously; you pay even when idle.</p><p><strong>App Service:</strong> Hosts full web apps and APIs but charges for the plan whether or not requests arrive.</p><p><strong>AKS:</strong> Manages containerized workloads at scale but adds significant operational overhead for small event handlers.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview\">Azure Functions overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q10",
+    "question_number": "10",
+    "question": "Which Azure resource is a logical container used to organize and manage related resources (such as a VM, its disk, and its network interface) as a single unit?",
+    "choices": ["Subscription", "Management group", "Resource group", "Availability zone"],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Resource group</strong></p><p>A resource group is a logical container that holds related Azure resources. Operations like deployment, role assignment, tagging, and deletion can be applied at this level.</p><p><strong>Incorrect options:</strong></p><p><strong>Subscription:</strong> Is a billing and access boundary that contains many resource groups.</p><p><strong>Management group:</strong> Organizes multiple subscriptions for governance.</p><p><strong>Availability zone:</strong> Is a physical datacenter location within a region, not a logical container.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview\">Azure Resource Manager and resource groups</a></p>"
+  },
+  {
+    "id": "azure-az900-q11",
+    "question_number": "11",
+    "question": "Which Azure concept describes physically separate datacenters within a single region, each with independent power, cooling, and networking, used to protect against datacenter-level failures?",
+    "choices": ["Region pairs", "Availability zones", "Edge zones", "Sovereign clouds"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Availability zones</strong></p><p>Availability zones are physically distinct datacenters within an Azure region. Deploying across zones protects workloads from a single datacenter failure.</p><p><strong>Incorrect options:</strong></p><p><strong>Region pairs:</strong> Are two regions paired for cross-region replication, not facilities within one region.</p><p><strong>Edge zones:</strong> Bring Azure services closer to end users for low-latency scenarios.</p><p><strong>Sovereign clouds:</strong> Are isolated Azure instances for specific governments (e.g., Azure Government).</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview\">Azure availability zones</a></p>"
+  },
+  {
+    "id": "azure-az900-q12",
+    "question_number": "12",
+    "question": "A developer needs durable object storage to host static website assets, images, and backups. Which Azure Storage service should be used?",
+    "choices": ["Azure Files", "Azure Blob Storage", "Azure Disk Storage", "Azure Queue Storage"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Blob Storage</strong></p><p>Blob Storage is optimized for storing massive amounts of unstructured object data such as images, video, backups, and static website content.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Files:</strong> Provides SMB/NFS file shares for lift-and-shift scenarios, not optimal for static web assets.</p><p><strong>Disk Storage:</strong> Provides managed disks attached to VMs.</p><p><strong>Queue Storage:</strong> Stores small messages for asynchronous messaging, not files.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction\">Azure Blob Storage introduction</a></p>"
+  },
+  {
+    "id": "azure-az900-q13",
+    "question_number": "13",
+    "question": "Which Azure service provides a globally distributed, multi-model NoSQL database with single-digit millisecond latency and turnkey global distribution?",
+    "choices": ["Azure SQL Database", "Azure Cosmos DB", "Azure Database for PostgreSQL", "Azure Table Storage"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Cosmos DB</strong></p><p>Cosmos DB is Microsoft's globally distributed, multi-model NoSQL database. It supports APIs for SQL, MongoDB, Cassandra, Gremlin, and Table, and offers SLA-backed low latency worldwide.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure SQL Database:</strong> A relational PaaS database, not NoSQL or multi-model.</p><p><strong>Azure Database for PostgreSQL:</strong> A managed relational database engine, not multi-model.</p><p><strong>Azure Table Storage:</strong> A simpler key-value store without global distribution guarantees.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/cosmos-db/introduction\">Azure Cosmos DB overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q14",
+    "question_number": "14",
+    "question": "Which Azure networking service should be used to securely connect two Azure virtual networks so that resources can communicate using private IP addresses?",
+    "choices": ["Azure Bastion", "Virtual network peering", "Azure Application Gateway", "Network Security Group"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Virtual network peering</strong></p><p>VNet peering connects two virtual networks privately through Microsoft's backbone, allowing resources to communicate using private IPs as if they were in the same network.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Bastion:</strong> Provides browser-based RDP/SSH to VMs without exposing public IPs.</p><p><strong>Application Gateway:</strong> Is a layer-7 load balancer for web traffic.</p><p><strong>NSG:</strong> Is a stateful firewall rule set, not a connectivity service.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview\">Virtual network peering</a></p>"
+  },
+  {
+    "id": "azure-az900-q15",
+    "question_number": "15",
+    "question": "Select TWO Azure services that are typically used to host containerized applications.",
+    "choices": ["Azure Kubernetes Service (AKS)", "Azure Container Instances (ACI)", "Azure Logic Apps", "Azure Service Bus", "Azure SQL Managed Instance"],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Azure Kubernetes Service (AKS); Azure Container Instances (ACI)</strong></p><p>AKS provides a managed Kubernetes cluster for orchestrating containers at scale. ACI runs single containers on demand without orchestration overhead. Both host containers natively.</p><p><strong>Incorrect options:</strong></p><p><strong>Logic Apps:</strong> A low-code workflow engine, not a container host.</p><p><strong>Service Bus:</strong> A messaging service.</p><p><strong>SQL Managed Instance:</strong> A managed relational database.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/compute-decision-tree\">Choose an Azure compute service</a></p>"
+  },
+  {
+    "id": "azure-az900-q16",
+    "question_number": "16",
+    "question": "A team wants to deploy a Linux web app written in Node.js without managing the underlying VM, with built-in autoscaling and deployment slots. Which service is most appropriate?",
+    "choices": ["Azure Virtual Machine Scale Sets", "Azure App Service", "Azure Batch", "Azure Virtual Desktop"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure App Service</strong></p><p>App Service is a fully managed PaaS for hosting web apps and APIs. It supports many runtimes, autoscaling, deployment slots for blue/green deploys, and custom domains.</p><p><strong>Incorrect options:</strong></p><p><strong>VM Scale Sets:</strong> Manages groups of VMs but still requires OS management.</p><p><strong>Azure Batch:</strong> Designed for large-scale parallel batch jobs, not web apps.</p><p><strong>Azure Virtual Desktop:</strong> Delivers virtualized Windows desktops to users.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/app-service/overview\">Azure App Service overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q17",
+    "question_number": "17",
+    "question": "Yes or No: Azure regions and availability zones are the same thing.",
+    "choices": ["Yes", "No"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: No</strong></p><p>A region is a geographic area containing one or more datacenters. Availability zones are physically separate datacenters within a single region. Multiple zones live inside one region.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview\">Regions and availability zones</a></p>"
+  },
+  {
+    "id": "azure-az900-q18",
+    "question_number": "18",
+    "question": "Which Azure service provides a managed, fully isolated Windows or Linux server in the cloud that the customer is responsible for patching and configuring?",
+    "choices": ["Azure App Service", "Azure Virtual Machines", "Azure Functions", "Azure Logic Apps"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Virtual Machines</strong></p><p>Azure VMs are IaaS compute resources. Microsoft manages the hypervisor and hardware, but the customer is responsible for the guest OS, patching, runtime, and applications.</p><p><strong>Incorrect options:</strong></p><p><strong>App Service:</strong> PaaS - Microsoft manages the OS.</p><p><strong>Functions:</strong> Serverless - no OS responsibility.</p><p><strong>Logic Apps:</strong> A workflow service, not a server.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/virtual-machines/overview\">Azure Virtual Machines overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q19",
+    "question_number": "19",
+    "question": "Which Azure governance feature allows you to define rules that enforce or audit configurations across resources, for example requiring all storage accounts to use encryption?",
+    "choices": ["Azure Role-Based Access Control (RBAC)", "Azure Policy", "Azure Blueprints", "Azure Resource Locks"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Policy</strong></p><p>Azure Policy lets administrators define rules (policies) that resources must comply with, such as allowed regions, required tags, or enforced security settings. Non-compliant resources can be denied or flagged.</p><p><strong>Incorrect options:</strong></p><p><strong>RBAC:</strong> Controls who can perform actions, not what configurations resources must have.</p><p><strong>Blueprints:</strong> Bundle policies, RBAC, and templates into a repeatable environment definition.</p><p><strong>Resource Locks:</strong> Prevent accidental deletion or modification but don't enforce configuration rules.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/governance/policy/overview\">Azure Policy overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q20",
+    "question_number": "20",
+    "question": "Which Azure service is used to grant a specific user permission to read all virtual machines in one resource group, but not modify them?",
+    "choices": ["Azure Policy", "Azure RBAC", "Azure Active Directory Conditional Access", "Azure Resource Locks"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure RBAC</strong></p><p>Role-Based Access Control assigns roles (such as Reader) to users, groups, or service principals at a defined scope (management group, subscription, resource group, or resource).</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Policy:</strong> Enforces configuration compliance, not user permissions.</p><p><strong>Conditional Access:</strong> Applies sign-in conditions like MFA based on signals, not granular Azure resource permissions.</p><p><strong>Resource Locks:</strong> Prevent delete/modify operations for everyone, not specific users.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/role-based-access-control/overview\">Azure RBAC overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q21",
+    "question_number": "21",
+    "question": "A team wants to estimate the monthly cost of running a set of Azure VMs before deploying them. Which tool should they use?",
+    "choices": ["Azure Advisor", "Azure Pricing Calculator", "Azure Cost Management + Billing", "Azure Total Cost of Ownership (TCO) Calculator"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Pricing Calculator</strong></p><p>The Pricing Calculator lets you model the cost of specific Azure services you plan to deploy, producing an estimated monthly bill.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Advisor:</strong> Recommends optimizations for existing resources.</p><p><strong>Cost Management + Billing:</strong> Tracks and analyzes actual spend after deployment.</p><p><strong>TCO Calculator:</strong> Compares on-premises versus Azure costs, not the per-service estimate for new deployments.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/aws-azure-pricing-calculator\">Azure Pricing Calculator</a></p>"
+  },
+  {
+    "id": "azure-az900-q22",
+    "question_number": "22",
+    "question": "Select TWO ways customers can reduce the cost of Azure Virtual Machines.",
+    "choices": ["Purchase Azure Reservations for predictable workloads", "Use Azure Hybrid Benefit with eligible Windows Server or SQL Server licenses", "Deploy VMs in multiple regions for redundancy", "Increase the VM size to a larger SKU", "Enable Azure DDoS Protection Standard"],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Azure Reservations; Azure Hybrid Benefit</strong></p><p>Reservations provide up to ~72% savings by committing to 1- or 3-year terms. Azure Hybrid Benefit lets customers apply existing on-premises Windows Server or SQL Server licenses with Software Assurance to Azure, reducing compute cost significantly.</p><p><strong>Incorrect options:</strong></p><p><strong>Multiple regions:</strong> Improves resiliency but increases cost.</p><p><strong>Larger SKU:</strong> Increases cost.</p><p><strong>DDoS Protection Standard:</strong> Is a paid security service, not a savings option.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations\">Save with Azure Reservations</a></p>"
+  },
+  {
+    "id": "azure-az900-q23",
+    "question_number": "23",
+    "question": "Which Azure tool provides personalized best-practice recommendations on cost, security, reliability, performance, and operational excellence for your deployed resources?",
+    "choices": ["Azure Monitor", "Azure Advisor", "Microsoft Defender for Cloud", "Azure Service Health"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Advisor</strong></p><p>Azure Advisor analyzes your usage and configuration and produces recommendations across cost, security, reliability, operational excellence, and performance.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Monitor:</strong> Collects metrics and logs for observability.</p><p><strong>Defender for Cloud:</strong> Focuses on security posture and threat protection.</p><p><strong>Service Health:</strong> Reports on Azure platform incidents and planned maintenance.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/advisor/advisor-overview\">Azure Advisor overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q24",
+    "question_number": "24",
+    "question": "Which Azure service provides a unified security posture management and threat protection solution that assesses resources against industry standards like the Microsoft cloud security benchmark?",
+    "choices": ["Azure Sentinel", "Microsoft Defender for Cloud", "Azure Key Vault", "Microsoft Entra ID Protection"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Microsoft Defender for Cloud</strong></p><p>Defender for Cloud (formerly Azure Security Center) provides cloud security posture management (CSPM) and cloud workload protection (CWP), including secure score, regulatory compliance dashboards, and threat alerts.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Sentinel:</strong> A cloud-native SIEM/SOAR for security analytics across the enterprise.</p><p><strong>Key Vault:</strong> Stores secrets, keys, and certificates.</p><p><strong>Entra ID Protection:</strong> Detects identity-based risks, not infrastructure posture.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction\">Microsoft Defender for Cloud</a></p>"
+  },
+  {
+    "id": "azure-az900-q25",
+    "question_number": "25",
+    "question": "Which Azure tool provides a way to define and deploy Azure infrastructure declaratively using a JSON-based format, with idempotent deployments?",
+    "choices": ["Azure CLI scripts", "Azure Resource Manager (ARM) templates", "Azure PowerShell scripts", "Azure DevOps Pipelines"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Resource Manager (ARM) templates</strong></p><p>ARM templates are JSON files describing the desired state of Azure resources. ARM deploys them idempotently, meaning re-running the same template produces the same result.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure CLI / PowerShell scripts:</strong> Are imperative tools, not declarative templates.</p><p><strong>Azure DevOps Pipelines:</strong> Is an orchestration service for CI/CD, not the deployment language itself.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/overview\">ARM template overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q26",
+    "question_number": "26",
+    "question": "Which Azure service notifies administrators about Azure platform issues, planned maintenance, and health advisories affecting their resources?",
+    "choices": ["Azure Monitor", "Azure Service Health", "Azure Advisor", "Microsoft Defender for Cloud"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Service Health</strong></p><p>Azure Service Health provides personalized alerts about Azure outages, planned maintenance, and health advisories scoped to the subscriptions and services you use.</p><p><strong>Incorrect options:</strong></p><p><strong>Azure Monitor:</strong> Observes your own resources, not Azure platform health.</p><p><strong>Azure Advisor:</strong> Suggests best practices.</p><p><strong>Defender for Cloud:</strong> Provides security posture and threat detection.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/service-health/overview\">Azure Service Health</a></p>"
+  },
+  {
+    "id": "azure-az900-q27",
+    "question_number": "27",
+    "question": "Which Azure support plan provides 24/7 access to technical support engineers and is the minimum recommended for business-critical production workloads requiring fastest response to severe issues?",
+    "choices": ["Basic", "Developer", "Standard", "Professional Direct"],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Standard</strong></p><p>The Standard plan is the minimum tier offering 24/7 technical support and a 1-hour response SLA for Severity A (critical business impact) cases. It is the typical baseline for production workloads.</p><p><strong>Incorrect options:</strong></p><p><strong>Basic:</strong> Free with every subscription but no technical support included for break-fix issues at high severity.</p><p><strong>Developer:</strong> Business-hour support intended for non-production use.</p><p><strong>Professional Direct:</strong> Higher tier than Standard with additional advisory services, but Standard is the minimum for 24/7 technical support.</p><p>Reference: <a href=\"https://azure.microsoft.com/en-us/support/plans/\">Azure support plans</a></p>"
+  },
+  {
+    "id": "azure-az900-q28",
+    "question_number": "28",
+    "question": "Yes or No: An Azure Service Level Agreement (SLA) of 99.9% means the service is guaranteed to never have downtime.",
+    "choices": ["Yes", "No"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: No</strong></p><p>An SLA expresses a target uptime percentage, not a guarantee of zero downtime. 99.9% allows roughly 8.76 hours of downtime per year. If Microsoft fails to meet the SLA, customers may be eligible for service credits.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/availability-zones/availability-service-supportability\">Azure SLAs</a></p>"
+  },
+  {
+    "id": "azure-az900-q29",
+    "question_number": "29",
+    "question": "Which Azure tool collects metrics, logs, and traces from applications and infrastructure for analysis, dashboards, and alerting?",
+    "choices": ["Azure Monitor", "Azure Service Health", "Azure Advisor", "Azure Policy"],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Azure Monitor</strong></p><p>Azure Monitor is the platform observability service that collects metrics, logs, and traces (via Application Insights and Log Analytics) and supports alerts, workbooks, and dashboards.</p><p><strong>Incorrect options:</strong></p><p><strong>Service Health:</strong> Reports Azure platform incidents.</p><p><strong>Advisor:</strong> Recommends best practices.</p><p><strong>Policy:</strong> Enforces configuration compliance, not telemetry collection.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/azure/azure-monitor/overview\">Azure Monitor overview</a></p>"
+  },
+  {
+    "id": "azure-az900-q30",
+    "question_number": "30",
+    "question": "Which feature of Microsoft Entra ID (formerly Azure Active Directory) allows users to access multiple cloud applications using a single set of credentials?",
+    "choices": ["Conditional Access", "Single Sign-On (SSO)", "Multi-Factor Authentication (MFA)", "Privileged Identity Management (PIM)"],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Single Sign-On (SSO)</strong></p><p>SSO allows users to sign in once and access many integrated applications without re-entering credentials. Microsoft Entra ID provides SSO across thousands of SaaS apps.</p><p><strong>Incorrect options:</strong></p><p><strong>Conditional Access:</strong> Enforces access policies based on signals (location, device, risk).</p><p><strong>MFA:</strong> Adds an additional verification factor beyond password.</p><p><strong>PIM:</strong> Provides just-in-time, time-bounded privileged role activation.</p><p>Reference: <a href=\"https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/what-is-single-sign-on\">Microsoft Entra Single Sign-On</a></p>"
+  }
+]

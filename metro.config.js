@@ -9,7 +9,7 @@ config.transformer = {
   minifierPath: 'metro-minify-terser',
   minifierConfig: {
     compress: {
-      drop_console: !__DEV__,
+      drop_console: process.env.NODE_ENV === 'production',
       drop_debugger: true,
       passes: 2,
     },

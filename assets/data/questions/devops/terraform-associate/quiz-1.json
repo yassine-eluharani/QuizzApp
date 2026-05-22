@@ -1,0 +1,392 @@
+[
+  {
+    "id": "devops-terraform-q1",
+    "question_number": "1",
+    "question": "A platform team is migrating from clicking through cloud consoles to using Terraform to provision their environments. Which of the following is the PRIMARY benefit they gain by adopting Infrastructure as Code (IaC) with Terraform?",
+    "choices": [
+      "Cloud provider bills are automatically reduced because Terraform negotiates pricing.",
+      "Infrastructure changes become versioned, reviewable, and reproducible across environments.",
+      "Terraform eliminates the need for any cloud provider credentials.",
+      "Resources are provisioned faster than the cloud provider APIs natively allow."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Infrastructure changes become versioned, reviewable, and reproducible.</strong></p><p>IaC's core value is treating infrastructure definitions as source code that can live in version control, be peer-reviewed, and produce identical environments on demand.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Terraform has no influence on cloud pricing.</p><p><strong>Option C:</strong> Providers still require credentials to authenticate against their APIs.</p><p><strong>Option D:</strong> Terraform calls the same provider APIs; it is not faster than the underlying APIs.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro\">Introduction to Terraform</a></p>"
+  },
+  {
+    "id": "devops-terraform-q2",
+    "question_number": "2",
+    "question": "Terraform configuration files use a declarative approach. What does \"declarative\" mean in this context?",
+    "choices": [
+      "You write the exact sequence of API calls Terraform must execute, in order.",
+      "You describe the desired end state of the infrastructure, and Terraform determines the steps to reach it.",
+      "You declare every variable at the top of every file before use.",
+      "You must explicitly handle every error condition that may occur during provisioning."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: You describe the desired end state.</strong></p><p>Declarative IaC means you specify what you want; the tool figures out how to achieve it via a dependency graph and a diff against current state.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes an imperative model (e.g., shell scripts).</p><p><strong>Option C:</strong> Declaration order in Terraform does not matter; HCL is not procedural.</p><p><strong>Option D:</strong> Error handling is not what \"declarative\" refers to.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro#manage-any-infrastructure\">Manage any infrastructure</a></p>"
+  },
+  {
+    "id": "devops-terraform-q3",
+    "question_number": "3",
+    "question": "Which TWO of the following are advantages of using Infrastructure as Code over manual provisioning? (Select TWO)",
+    "choices": [
+      "It guarantees zero downtime for every change.",
+      "It enables peer review of infrastructure changes via pull requests.",
+      "It removes the need for cloud provider quotas.",
+      "It allows the same configuration to deploy multiple identical environments (dev, staging, prod)."
+    ],
+    "correct_answer_indices": [1, 3],
+    "explanation_html": "<p><strong>Correct: Peer review via PRs, and reproducible environments.</strong></p><p>Treating infra as code means you can use version control workflows (review, history, rollback) and reuse the same definitions across environments.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Zero downtime depends on how you design changes, not on IaC itself.</p><p><strong>Option C:</strong> Cloud quotas are enforced by the provider regardless of IaC.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro/use-cases\">Terraform use cases</a></p>"
+  },
+  {
+    "id": "devops-terraform-q4",
+    "question_number": "4",
+    "question": "Which statement BEST describes the difference between declarative and imperative infrastructure tools?",
+    "choices": [
+      "Declarative tools run on Linux only; imperative tools run anywhere.",
+      "Declarative tools focus on the desired final state; imperative tools focus on the sequence of steps to reach a state.",
+      "Declarative tools use YAML; imperative tools use JSON.",
+      "Declarative tools are always slower than imperative tools."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Declarative = desired state; imperative = step-by-step.</strong></p><p>Terraform is declarative: you write the target state and let Terraform compute the plan. An imperative tool requires you to specify each step.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> OS support is unrelated to the paradigm.</p><p><strong>Option C:</strong> File format is not what defines declarative vs imperative.</p><p><strong>Option D:</strong> Speed is not a defining trait.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro\">Introduction to Terraform</a></p>"
+  },
+  {
+    "id": "devops-terraform-q5",
+    "question_number": "5",
+    "question": "Which characteristic makes Terraform configurations \"idempotent\"?",
+    "choices": [
+      "Running `terraform apply` twice always creates two copies of every resource.",
+      "Running `terraform apply` on an already-converged configuration produces no further changes.",
+      "Each run generates a unique random ID for every resource.",
+      "Each run requires a fresh authentication token."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: A converged apply is a no-op.</strong></p><p>Idempotency means applying the same configuration repeatedly results in the same end state. After the first successful apply, subsequent applies show no changes unless the configuration or real-world state has drifted.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That would be the opposite of idempotent.</p><p><strong>Option C:</strong> Random IDs are not what idempotency means.</p><p><strong>Option D:</strong> Authentication has no bearing on idempotency.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro\">Introduction to Terraform</a></p>"
+  },
+  {
+    "id": "devops-terraform-q6",
+    "question_number": "6",
+    "question": "Which of the following BEST distinguishes Terraform from a configuration management tool such as Ansible, Chef, or Puppet?",
+    "choices": [
+      "Terraform is open-source while configuration management tools are commercial.",
+      "Terraform primarily provisions and manages immutable infrastructure resources; configuration management tools primarily configure software inside existing servers.",
+      "Terraform only works with AWS; configuration management tools work with any cloud.",
+      "Terraform requires agents on every managed host; configuration management tools are agentless."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Terraform provisions infrastructure; CM tools configure software on existing infrastructure.</strong></p><p>Terraform's sweet spot is the infrastructure layer (VMs, networks, load balancers). Configuration management focuses on package install, file content, and service state on already-running machines.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Both categories have open-source members.</p><p><strong>Option C:</strong> Terraform supports many providers, not just AWS.</p><p><strong>Option D:</strong> Terraform is generally agentless; the statement is also reversed.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro/vs/chef-puppet\">Terraform vs. Chef, Puppet</a></p>"
+  },
+  {
+    "id": "devops-terraform-q7",
+    "question_number": "7",
+    "question": "How does Terraform's approach to multi-cloud provisioning differ from a tool like AWS CloudFormation?",
+    "choices": [
+      "Terraform can manage resources across many providers (AWS, Azure, GCP, Kubernetes, SaaS) using a single workflow; CloudFormation is specific to AWS.",
+      "CloudFormation supports more providers than Terraform.",
+      "Terraform cannot provision AWS resources at all.",
+      "CloudFormation uses HCL while Terraform uses JSON."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Terraform is provider-agnostic; CloudFormation is AWS-only.</strong></p><p>Terraform's provider model lets one configuration target multiple platforms with a single workflow (init/plan/apply). CloudFormation is tied to AWS services.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Reversed.</p><p><strong>Option C:</strong> Terraform has an extensive AWS provider.</p><p><strong>Option D:</strong> Terraform uses HCL (and supports JSON); CloudFormation uses YAML/JSON.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro/use-cases#multi-cloud-deployment\">Multi-cloud deployment</a></p>"
+  },
+  {
+    "id": "devops-terraform-q8",
+    "question_number": "8",
+    "question": "In Terraform terminology, what is the distinction between a `provider` and a `provisioner`?",
+    "choices": [
+      "Providers are vendor-supplied while provisioners are written by HashiCorp.",
+      "A provider is a plugin that translates Terraform configuration into API calls against a platform (e.g., AWS); a provisioner runs scripts or commands on a local or remote machine as part of resource creation/destruction.",
+      "Providers run only during `terraform init`; provisioners run only during `terraform destroy`.",
+      "They are synonyms and can be used interchangeably."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Providers integrate with platform APIs; provisioners execute scripts/commands.</strong></p><p>Providers (AWS, Azure, Kubernetes, etc.) are the plugins Terraform downloads during init. Provisioners (local-exec, remote-exec, file) are a last-resort mechanism to run code as part of a resource lifecycle.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Many providers are community-maintained.</p><p><strong>Option C:</strong> Providers are used throughout the lifecycle.</p><p><strong>Option D:</strong> They are distinct concepts.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax\">Provisioners (last resort)</a></p>"
+  },
+  {
+    "id": "devops-terraform-q9",
+    "question_number": "9",
+    "question": "Which of the following is a common reason to prefer Terraform over a tool like Pulumi for a team?",
+    "choices": [
+      "Terraform supports more cloud APIs than Pulumi by definition.",
+      "Terraform uses HCL, a domain-specific language designed for infrastructure that is approachable to non-programmers, while Pulumi uses general-purpose languages (TypeScript, Python, Go).",
+      "Terraform does not require state, while Pulumi does.",
+      "Terraform is always faster than Pulumi."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: HCL is purpose-built and approachable.</strong></p><p>HCL was designed specifically for declarative configuration. Teams that prefer a configuration language over a general-purpose programming language often choose Terraform. Pulumi is a viable alternative if the team prefers full programming languages.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Provider coverage varies; the claim is not categorically true.</p><p><strong>Option C:</strong> Both tools track state.</p><p><strong>Option D:</strong> Performance is not a reliable distinguishing trait.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language\">Terraform language overview</a></p>"
+  },
+  {
+    "id": "devops-terraform-q10",
+    "question_number": "10",
+    "question": "Examine the following Terraform configuration block:\n\n```hcl\nterraform {\n  required_providers {\n    aws = {\n      source  = \"hashicorp/aws\"\n      version = \"~> 5.0\"\n    }\n  }\n}\n```\n\nWhat does the version constraint `~> 5.0` mean?",
+    "choices": [
+      "Exactly version 5.0 and no other version.",
+      "Any version greater than or equal to 5.0 and less than 6.0 (allows 5.x updates).",
+      "Any version greater than 5.0, including 6.0 and above.",
+      "Any version less than 5.0."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: >= 5.0 and < 6.0 (the pessimistic constraint).</strong></p><p>The `~>` operator pins the leftmost specified version and allows the rightmost component to float. `~> 5.0` allows 5.0, 5.1, 5.99, but not 6.0. Use `~> 5.0.0` to lock the patch version only.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Use `= 5.0` for exact pinning.</p><p><strong>Option C:</strong> 6.0 is excluded by `~> 5.0`.</p><p><strong>Option D:</strong> Versions below 5.0 are disallowed.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/expressions/version-constraints\">Version constraints</a></p>"
+  },
+  {
+    "id": "devops-terraform-q11",
+    "question_number": "11",
+    "question": "Which Terraform construct is BEST suited to read existing infrastructure that was NOT created by the current configuration (for example, an AMI ID published by AWS) so that other resources can reference it?",
+    "choices": [
+      "A `resource` block",
+      "A `data` block (data source)",
+      "An `output` block",
+      "A `locals` block"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: A data block.</strong></p><p>Data sources let Terraform read information from external systems without managing those objects. The classic example is `data \"aws_ami\" \"ubuntu\"` to look up the latest AMI ID.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A `resource` block creates and manages an object's lifecycle.</p><p><strong>Option C:</strong> Outputs expose values from the root module; they do not query external systems.</p><p><strong>Option D:</strong> Locals are named expressions reused inside a module.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/data-sources\">Data sources</a></p>"
+  },
+  {
+    "id": "devops-terraform-q12",
+    "question_number": "12",
+    "question": "To declare a variable that must be supplied at apply time but should NEVER be written to the CLI output or `terraform plan` output, which argument do you set to true on the `variable` block?",
+    "choices": [
+      "`hidden`",
+      "`secret`",
+      "`sensitive`",
+      "`private`"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: `sensitive = true`.</strong></p><p>Setting `sensitive = true` on a variable (or an output) causes Terraform to redact the value in plan/apply output. Note: the value is still stored in plaintext in the state file.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A, B, D:</strong> Not valid Terraform variable arguments.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/values/variables#suppressing-values-in-cli-output\">Sensitive input variables</a></p>"
+  },
+  {
+    "id": "devops-terraform-q13",
+    "question_number": "13",
+    "question": "Consider the following snippet:\n\n```hcl\nlocals {\n  common_tags = {\n    Environment = var.environment\n    Owner       = \"platform-team\"\n  }\n}\n```\n\nWhat is the purpose of `locals` here?",
+    "choices": [
+      "To define values that must be supplied via `-var` on the CLI.",
+      "To define named, reusable expressions/values that simplify the configuration but are not exposed outside the module.",
+      "To declare resources that will be created in the local provider only.",
+      "To override outputs from child modules."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Named, reusable expressions inside a module.</strong></p><p>Locals are useful for centralizing computed values (like a tag map) that several resources share. They are NOT settable from outside the module.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That is `variable`, not `locals`.</p><p><strong>Option C:</strong> Locals have nothing to do with a \"local provider\".</p><p><strong>Option D:</strong> Locals do not affect child module outputs.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/values/locals\">Local values</a></p>"
+  },
+  {
+    "id": "devops-terraform-q14",
+    "question_number": "14",
+    "question": "Which TWO of the following statements about Terraform `output` values are TRUE? (Select TWO)",
+    "choices": [
+      "Outputs can be marked `sensitive` to hide their values in CLI output.",
+      "Outputs in a child module are accessible from the parent module as `module.<name>.<output_name>`.",
+      "Outputs are persisted only in memory and never written to the state file.",
+      "Outputs can be used to declare new resources."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Outputs can be sensitive, and parent modules access child outputs via `module.<name>.<output_name>`.</strong></p><p>Outputs surface values from a module. Marking them sensitive redacts them from CLI output. The parent reaches into a child module's outputs using the `module.` reference.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Outputs ARE recorded in state.</p><p><strong>Option D:</strong> Outputs only expose values; they do not declare resources.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/values/outputs\">Output values</a></p>"
+  },
+  {
+    "id": "devops-terraform-q15",
+    "question_number": "15",
+    "question": "Which of the following is a VALID Terraform variable type?",
+    "choices": [
+      "`array`",
+      "`dict`",
+      "`map(string)`",
+      "`bytes`"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: `map(string)`.</strong></p><p>Terraform's type system includes primitive types (`string`, `number`, `bool`), and structural/collection types (`list(...)`, `set(...)`, `map(...)`, `object({...})`, `tuple([...])`). `map(string)` is a map whose values are strings.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Use `list` or `tuple`, not `array`.</p><p><strong>Option B:</strong> Use `map` or `object`, not `dict`.</p><p><strong>Option D:</strong> `bytes` is not a Terraform type.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/expressions/types\">Types and values</a></p>"
+  },
+  {
+    "id": "devops-terraform-q16",
+    "question_number": "16",
+    "question": "When does Terraform download provider plugins into the working directory's `.terraform` folder?",
+    "choices": [
+      "On `terraform plan`",
+      "On `terraform init`",
+      "On `terraform apply` (but only the first time)",
+      "On `terraform validate`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `terraform init` downloads providers and modules.</strong></p><p>`terraform init` is the bootstrapping command that fetches required providers, downloads modules, and configures the backend. It must be re-run when providers, modules, or backend configuration change.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A, C, D:</strong> These commands assume init has already prepared the working directory.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/init\">terraform init</a></p>"
+  },
+  {
+    "id": "devops-terraform-q17",
+    "question_number": "17",
+    "question": "Which command produces an execution plan that can be saved to a file and later applied verbatim?",
+    "choices": [
+      "`terraform plan -out=plan.tfplan`",
+      "`terraform apply --save=plan.tfplan`",
+      "`terraform state save plan.tfplan`",
+      "`terraform refresh -out=plan.tfplan`"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: `terraform plan -out=plan.tfplan`.</strong></p><p>This writes the plan to a binary file. You then run `terraform apply plan.tfplan` to execute exactly what was planned, with no re-evaluation. This is the recommended workflow for CI/CD pipelines.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> `apply` does not have a `--save` flag.</p><p><strong>Option C:</strong> `terraform state save` is not a valid command.</p><p><strong>Option D:</strong> `refresh` does not produce an applyable plan file.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/plan\">terraform plan</a></p>"
+  },
+  {
+    "id": "devops-terraform-q18",
+    "question_number": "18",
+    "question": "Which command rewrites Terraform configuration files to canonical formatting and style?",
+    "choices": [
+      "`terraform validate`",
+      "`terraform fmt`",
+      "`terraform lint`",
+      "`terraform style`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `terraform fmt`.</strong></p><p>`terraform fmt` rewrites `.tf` files to canonical HCL formatting. Use `-check` in CI to fail on unformatted files and `-recursive` to walk subdirectories.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `validate` checks syntax and internal consistency; it does not rewrite files.</p><p><strong>Option C, D:</strong> Not Terraform commands.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/fmt\">terraform fmt</a></p>"
+  },
+  {
+    "id": "devops-terraform-q19",
+    "question_number": "19",
+    "question": "What does `terraform validate` do?",
+    "choices": [
+      "Authenticates with the backend and confirms credentials are valid.",
+      "Checks whether the configuration is syntactically valid and internally consistent, without contacting providers.",
+      "Compares state to real infrastructure and updates state.",
+      "Applies the configuration in a sandbox."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Syntactic and internal-consistency checks; no provider API calls.</strong></p><p>`terraform validate` runs offline against the configuration. It does not check whether referenced resources exist in the cloud.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Validate does not contact the backend.</p><p><strong>Option C:</strong> That is closer to `refresh`.</p><p><strong>Option D:</strong> Terraform does not have a sandbox apply.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/validate\">terraform validate</a></p>"
+  },
+  {
+    "id": "devops-terraform-q20",
+    "question_number": "20",
+    "question": "You need to bring an existing manually-created AWS S3 bucket under Terraform management. Which command associates the existing real-world resource with a `resource` block in your configuration?",
+    "choices": [
+      "`terraform state mv aws_s3_bucket.legacy aws_s3_bucket.new`",
+      "`terraform import aws_s3_bucket.legacy my-existing-bucket-name`",
+      "`terraform refresh aws_s3_bucket.legacy`",
+      "`terraform taint aws_s3_bucket.legacy`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `terraform import`.</strong></p><p>`terraform import <resource_address> <provider_id>` writes an entry into state that links a configured resource block to an existing real-world object. You must still author the matching resource block in HCL.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `state mv` renames an existing tracked resource within state; it cannot pick up an object Terraform has never seen.</p><p><strong>Option C:</strong> `refresh` only updates state for resources already tracked.</p><p><strong>Option D:</strong> `taint` marks an already-managed resource for replacement.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/import\">terraform import</a></p>"
+  },
+  {
+    "id": "devops-terraform-q21",
+    "question_number": "21",
+    "question": "In modern Terraform (v0.15.2+), which approach is the recommended way to force a single resource to be recreated on the next apply?",
+    "choices": [
+      "`terraform taint aws_instance.web`",
+      "`terraform apply -replace=aws_instance.web`",
+      "`terraform state rm aws_instance.web`",
+      "Delete the resource block, apply, then re-add it."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `terraform apply -replace=...`.</strong></p><p>The `-replace` flag is the modern, plan-visible way to force replacement of a specific resource. `terraform taint` still exists but is deprecated in favor of `-replace`.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Deprecated approach (still works, but not recommended).</p><p><strong>Option C:</strong> `state rm` only forgets the resource; it does not destroy or recreate it.</p><p><strong>Option D:</strong> A destructive and error-prone workaround.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/plan#replace-address\">-replace flag</a></p>"
+  },
+  {
+    "id": "devops-terraform-q22",
+    "question_number": "22",
+    "question": "Which command starts an interactive REPL where you can evaluate Terraform expressions against the current state and configuration?",
+    "choices": [
+      "`terraform repl`",
+      "`terraform shell`",
+      "`terraform console`",
+      "`terraform eval`"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: `terraform console`.</strong></p><p>`terraform console` is an interactive expression evaluator useful for testing built-in functions, references, and interpolations.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A, B, D:</strong> Not valid Terraform commands.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/console\">terraform console</a></p>"
+  },
+  {
+    "id": "devops-terraform-q23",
+    "question_number": "23",
+    "question": "Which TWO statements about Terraform workspaces (the CLI workspaces, not Terraform Cloud) are TRUE? (Select TWO)",
+    "choices": [
+      "Each workspace has a separate state, so the same configuration can manage multiple parallel environments.",
+      "Workspaces eliminate the need for any variable changes between environments.",
+      "The current workspace name is available in configuration via `terraform.workspace`.",
+      "Workspaces are stored as separate Git branches automatically."
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Separate state per workspace; `terraform.workspace` exposes the name.</strong></p><p>CLI workspaces are lightweight: they let one configuration manage multiple distinct state files. `terraform.workspace` is commonly used to scope names/tags per environment.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> You typically still vary variables (e.g., instance sizes) per environment.</p><p><strong>Option D:</strong> Workspaces have no connection to Git branches.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/state/workspaces\">Workspaces</a></p>"
+  },
+  {
+    "id": "devops-terraform-q24",
+    "question_number": "24",
+    "question": "What does `terraform refresh` do in current Terraform versions?",
+    "choices": [
+      "Re-downloads all providers and modules.",
+      "Updates the state file to reflect the real-world status of managed resources, without applying any configuration changes.",
+      "Destroys and recreates all resources.",
+      "Reformats configuration files."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Reads real infrastructure and updates state.</strong></p><p>`terraform refresh` (or, more commonly today, the refresh phase of `terraform plan`/`apply`) queries providers for current resource attributes and updates state to match. It does NOT change real infrastructure.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That is `terraform init`.</p><p><strong>Option C:</strong> Refresh does not change resources.</p><p><strong>Option D:</strong> That is `terraform fmt`.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/refresh\">terraform refresh</a></p>"
+  },
+  {
+    "id": "devops-terraform-q25",
+    "question_number": "25",
+    "question": "Which command produces a visual representation (DOT format) of the resource dependency graph?",
+    "choices": [
+      "`terraform plan -graph`",
+      "`terraform graph`",
+      "`terraform show -dot`",
+      "`terraform state list -graph`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `terraform graph`.</strong></p><p>`terraform graph` outputs the dependency graph in DOT format. Pipe it through Graphviz (`dot -Tpng`) to render an image. Useful for understanding resource ordering.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A, C, D:</strong> Not valid commands/flags.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/cli/commands/graph\">terraform graph</a></p>"
+  },
+  {
+    "id": "devops-terraform-q26",
+    "question_number": "26",
+    "question": "Examine the module block below:\n\n```hcl\nmodule \"vpc\" {\n  source  = \"terraform-aws-modules/vpc/aws\"\n  version = \"5.5.0\"\n\n  name = \"prod-vpc\"\n  cidr = \"10.0.0.0/16\"\n}\n```\n\nWhich statement about the `source` argument is TRUE?",
+    "choices": [
+      "`source` is optional; if omitted, Terraform uses the local directory as the module.",
+      "The address `terraform-aws-modules/vpc/aws` refers to a module on the public Terraform Registry; the `version` argument is supported because Registry sources support version constraints.",
+      "`source` only accepts a local file path; remote sources require an external plugin.",
+      "The `version` argument is ignored unless the source is a Git URL with a tag."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: This is a Terraform Registry source; `version` is supported.</strong></p><p>Sources of the form `<NAMESPACE>/<NAME>/<PROVIDER>` resolve to the public Terraform Registry. Registry and Terraform Cloud private registry sources accept a `version` argument; raw Git URLs do not (you embed a `?ref=` instead).</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `source` is required.</p><p><strong>Option C:</strong> `source` supports local paths, registries, Git, HTTP, S3, GCS, and more.</p><p><strong>Option D:</strong> Incorrect; registries support `version` directly.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/modules/sources\">Module sources</a></p>"
+  },
+  {
+    "id": "devops-terraform-q27",
+    "question_number": "27",
+    "question": "To pin a module from the public Terraform Registry to a specific version range, the recommended argument on the `module` block is ____.",
+    "choices": [
+      "`ref`",
+      "`tag`",
+      "`version`",
+      "`pin`"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: `version`.</strong></p><p>For Registry sources, the `version` argument accepts the same constraint syntax used elsewhere (`= 1.2.3`, `~> 1.2`, `>= 1.0, < 2.0`).</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `?ref=` is a query parameter used with Git sources; it is not a module block argument.</p><p><strong>Option B, D:</strong> Not valid arguments.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/modules/syntax#version\">Module version constraint</a></p>"
+  },
+  {
+    "id": "devops-terraform-q28",
+    "question_number": "28",
+    "question": "Which of the following is the CORRECT way to consume a local module that lives in `../modules/network` relative to the current configuration?",
+    "choices": [
+      "`source = \"local::../modules/network\"`",
+      "`source = \"../modules/network\"`",
+      "`source = \"file:///modules/network\"`",
+      "`source = \"./modules/network/main.tf\"`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `source = \"../modules/network\"`.</strong></p><p>Local paths must begin with `./` or `../` so Terraform can distinguish them from registry addresses. The source points at the module directory (not a specific file).</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `local::` is not a valid Terraform source prefix.</p><p><strong>Option C:</strong> Terraform does not use `file://` URLs for module sources.</p><p><strong>Option D:</strong> The source must be a directory, not a file.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/modules/sources#local-paths\">Local paths</a></p>"
+  },
+  {
+    "id": "devops-terraform-q29",
+    "question_number": "29",
+    "question": "What is the standard Terraform core workflow?",
+    "choices": [
+      "Apply, Plan, Write",
+      "Write, Plan, Apply",
+      "Init, Destroy, Apply",
+      "Validate, Apply, Refresh"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Write, Plan, Apply.</strong></p><p>The Terraform core workflow is: write configuration, plan to preview changes, then apply to enact them. `terraform init` is a one-time bootstrapping step before the first plan.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Wrong order.</p><p><strong>Option C:</strong> Destroy is a teardown action, not part of the standard build workflow.</p><p><strong>Option D:</strong> Refresh is implicit in plan/apply.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/intro/core-workflow\">Core workflow</a></p>"
+  },
+  {
+    "id": "devops-terraform-q30",
+    "question_number": "30",
+    "question": "Examine this backend configuration:\n\n```hcl\nterraform {\n  backend \"s3\" {\n    bucket         = \"company-tfstate\"\n    key            = \"prod/network.tfstate\"\n    region         = \"us-east-1\"\n    dynamodb_table = \"tf-locks\"\n    encrypt        = true\n  }\n}\n```\n\nWhat is the purpose of the `dynamodb_table` argument?",
+    "choices": [
+      "It stores the actual Terraform state instead of S3.",
+      "It enables state locking, so concurrent runs against the same state file are serialized and cannot corrupt state.",
+      "It encrypts the state file at rest.",
+      "It is required to authenticate with AWS."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: State locking.</strong></p><p>The S3 backend stores state in S3, but S3 alone does not provide locking. A DynamoDB table (with a `LockID` primary key of type String) provides the locking primitive that prevents two simultaneous `apply` runs from corrupting state.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> State lives in S3; DynamoDB holds the lock record.</p><p><strong>Option C:</strong> `encrypt = true` handles encryption at rest.</p><p><strong>Option D:</strong> Authentication uses AWS credentials, not DynamoDB.</p><p>Reference: <a href=\"https://developer.hashicorp.com/terraform/language/backend/s3#dynamodb_table\">S3 backend with DynamoDB locking</a></p>"
+  }
+]

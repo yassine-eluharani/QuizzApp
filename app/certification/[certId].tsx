@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, Href } from 'expo-router';
 import ThemedText from '@/components/ui/ThemedText';
 import QuizListItem from '@/components/browse/QuizListItem';
@@ -22,7 +22,7 @@ export default function CertificationScreen() {
   const { certId } = useLocalSearchParams<{ certId: string }>();
   const router = useRouter();
   const { getBestScore, getAttemptsForCert } = useAppContext();
-  const { isPro, showPaywall } = usePurchase();
+  const { isPro } = usePurchase();
   const [aboutExpanded, setAboutExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('quizzes');
 
@@ -43,6 +43,12 @@ export default function CertificationScreen() {
   const isComingSoon = cert.comingSoon === true;
   const freeQuiz = cert.quizzes[0];
   const freeQuizBestScore = freeQuiz ? getBestScore(freeQuiz.id) : null;
+
+  const showComingSoonAlert = () =>
+    Alert.alert(
+      'Coming Soon',
+      'Additional quizzes and Practice Exam mode arrive with Pro in a future update. For now, enjoy the free quiz for each certification.'
+    );
 
   return (
     <>
@@ -208,7 +214,7 @@ export default function CertificationScreen() {
                 >
                   Exam Mode
                 </ThemedText>
-                {examLocked && <ProBadge />}
+                {examLocked && <ProBadge variant="comingSoon" />}
               </View>
             </TouchableOpacity>
           </View>
@@ -250,18 +256,15 @@ export default function CertificationScreen() {
               </TouchableOpacity>
             )}
 
-            {/* Pro upsell — only shown to free users when there are more quizzes */}
+            {/* Coming-soon strip — only shown to free users when there are more quizzes */}
             {!isPro && cert.quizzes.length > 1 && (
-              <TouchableOpacity style={styles.proUpsell} onPress={showPaywall} activeOpacity={0.8}>
-                <Ionicons name="lock-closed" size={14} color={Colors.primary} />
+              <View style={styles.proUpsell}>
+                <Ionicons name="sparkles-outline" size={14} color={Colors.primary} />
                 <ThemedText variant="caption" style={styles.proUpsellText}>
                   {cert.quizzes.length - 1} more{' '}
-                  {cert.quizzes.length - 1 === 1 ? 'quiz' : 'quizzes'} + practice exam with Pro
+                  {cert.quizzes.length - 1 === 1 ? 'quiz' : 'quizzes'} + practice exam coming soon
                 </ThemedText>
-                <ThemedText variant="caption" style={{ color: Colors.primary }}>
-                  Unlock →
-                </ThemedText>
-              </TouchableOpacity>
+              </View>
             )}
 
             {/* Rest of quizzes */}
@@ -275,7 +278,7 @@ export default function CertificationScreen() {
                   bestScore={locked ? null : getBestScore(quiz.id)}
                   isLocked={locked}
                   onPress={() => {
-                    if (locked) showPaywall();
+                    if (locked) showComingSoonAlert();
                     else router.push(`/quiz/${quiz.id}` as Href);
                   }}
                 />
@@ -378,9 +381,9 @@ export default function CertificationScreen() {
             </View>
 
             <Button
-              title={examLocked ? 'Unlock with Pro' : 'Start Practice Exam'}
+              title={examLocked ? 'Coming Soon' : 'Start Practice Exam'}
               onPress={() => {
-                if (examLocked) showPaywall();
+                if (examLocked) showComingSoonAlert();
                 else router.push(`/exam/${cert.id}` as Href);
               }}
               color={examLocked ? Colors.primary : platform.color}
@@ -389,7 +392,7 @@ export default function CertificationScreen() {
 
             {examLocked && (
               <ThemedText variant="caption" style={styles.examLockNote}>
-                Pro unlocks all practice exams across every certification.
+                Practice Exam mode arrives with Pro in a future update.
               </ThemedText>
             )}
           </View>

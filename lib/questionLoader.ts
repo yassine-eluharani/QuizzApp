@@ -15,6 +15,28 @@ const questionFiles: Record<string, Question[]> = {
   'aws-dva-quiz-1': require('@/assets/data/questions/aws/developer-associate/quiz-1.json'),
   'aws-dva-quiz-2': require('@/assets/data/questions/aws/developer-associate/quiz-2.json'),
   'aws-dva-quiz-3': require('@/assets/data/questions/aws/developer-associate/quiz-3.json'),
+  // AWS SysOps Administrator
+  'aws-soa-quiz-1': require('@/assets/data/questions/aws/sysops-admin/quiz-1.json'),
+  // AWS DevOps Engineer Professional
+  'aws-dop-quiz-1': require('@/assets/data/questions/aws/devops-professional/quiz-1.json'),
+  // Azure Fundamentals
+  'azure-az900-quiz-1': require('@/assets/data/questions/azure/az-900/quiz-1.json'),
+  // Azure Administrator
+  'azure-az104-quiz-1': require('@/assets/data/questions/azure/az-104/quiz-1.json'),
+  // Azure Solutions Architect Expert
+  'azure-az305-quiz-1': require('@/assets/data/questions/azure/az-305/quiz-1.json'),
+  // GCP Associate Cloud Engineer
+  'gcp-ace-quiz-1': require('@/assets/data/questions/gcp/associate-cloud-engineer/quiz-1.json'),
+  // GCP Professional Cloud Architect
+  'gcp-pca-quiz-1': require('@/assets/data/questions/gcp/professional-cloud-architect/quiz-1.json'),
+  // GCP Professional Data Engineer
+  'gcp-pde-quiz-1': require('@/assets/data/questions/gcp/professional-data-engineer/quiz-1.json'),
+  // HashiCorp Terraform Associate
+  'devops-terraform-quiz-1': require('@/assets/data/questions/devops/terraform-associate/quiz-1.json'),
+  // Kubernetes CKA (conceptual study quiz)
+  'devops-cka-quiz-1': require('@/assets/data/questions/devops/cka-ckad/quiz-1.json'),
+  // Docker Certified Associate
+  'devops-docker-quiz-1': require('@/assets/data/questions/devops/docker-dca/quiz-1.json'),
 };
 
 // Validate quiz ID format before processing

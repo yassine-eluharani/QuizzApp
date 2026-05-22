@@ -83,8 +83,9 @@ export const platforms: Platform[] = [
           ],
           note: 'Includes optional exam labs section (hands-on tasks in a live AWS environment).',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          { id: 'aws-soa-quiz-1', name: 'Quiz 1', certificationId: 'aws-soa', questionCount: 30 },
+        ],
       },
       {
         id: 'aws-dop',
@@ -106,8 +107,9 @@ export const platforms: Platform[] = [
             { name: 'Security and Compliance', percentage: 17 },
           ],
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          { id: 'aws-dop-quiz-1', name: 'Quiz 1', certificationId: 'aws-dop', questionCount: 30 },
+        ],
       },
     ],
   },
@@ -136,8 +138,14 @@ export const platforms: Platform[] = [
           ],
           note: 'Domain percentages are approximate ranges (Microsoft uses 5% bands).',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          {
+            id: 'azure-az900-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'azure-az900',
+            questionCount: 30,
+          },
+        ],
       },
       {
         id: 'azure-az104',
@@ -159,8 +167,14 @@ export const platforms: Platform[] = [
           ],
           note: 'Domain percentages are approximate ranges (Microsoft uses 5% bands).',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          {
+            id: 'azure-az104-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'azure-az104',
+            questionCount: 30,
+          },
+        ],
       },
       {
         id: 'azure-az305',
@@ -181,8 +195,14 @@ export const platforms: Platform[] = [
           ],
           note: 'Domain percentages are approximate ranges (Microsoft uses 5% bands).',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          {
+            id: 'azure-az305-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'azure-az305',
+            questionCount: 30,
+          },
+        ],
       },
     ],
   },
@@ -212,8 +232,9 @@ export const platforms: Platform[] = [
             { name: 'Configuring Access and Security', percentage: 20 },
           ],
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          { id: 'gcp-ace-quiz-1', name: 'Quiz 1', certificationId: 'gcp-ace', questionCount: 30 },
+        ],
       },
       {
         id: 'gcp-pca',
@@ -235,8 +256,9 @@ export const platforms: Platform[] = [
             { name: 'Ensuring Solution and Operations Reliability', percentage: 14 },
           ],
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          { id: 'gcp-pca-quiz-1', name: 'Quiz 1', certificationId: 'gcp-pca', questionCount: 30 },
+        ],
       },
       {
         id: 'gcp-pde',
@@ -257,8 +279,9 @@ export const platforms: Platform[] = [
             { name: 'Maintaining and Automating Data Workloads', percentage: 18 },
           ],
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          { id: 'gcp-pde-quiz-1', name: 'Quiz 1', certificationId: 'gcp-pde', questionCount: 30 },
+        ],
       },
     ],
   },
@@ -291,8 +314,14 @@ export const platforms: Platform[] = [
           ],
           note: 'Online proctored only via PSI. No in-person testing centers.',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          {
+            id: 'devops-terraform-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'devops-terraform',
+            questionCount: 30,
+          },
+        ],
       },
       {
         id: 'devops-cka',
@@ -314,8 +343,14 @@ export const platforms: Platform[] = [
           ],
           note: 'Performance-based exam — you work in a live Kubernetes environment, no multiple choice. Online proctored only via PSI.',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          {
+            id: 'devops-cka-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'devops-cka',
+            questionCount: 30,
+          },
+        ],
       },
       {
         id: 'devops-docker',
@@ -338,8 +373,14 @@ export const platforms: Platform[] = [
           ],
           note: 'Online proctored only via Mirantis.',
         },
-        quizzes: [],
-        comingSoon: true,
+        quizzes: [
+          {
+            id: 'devops-docker-quiz-1',
+            name: 'Quiz 1',
+            certificationId: 'devops-docker',
+            questionCount: 30,
+          },
+        ],
       },
     ],
   },

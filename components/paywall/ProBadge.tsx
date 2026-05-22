@@ -5,13 +5,15 @@ import { Theme } from '@/constants/Theme';
 
 interface ProBadgeProps {
   size?: 'sm' | 'md';
+  variant?: 'pro' | 'comingSoon';
 }
 
-export default function ProBadge({ size = 'sm' }: ProBadgeProps) {
+export default function ProBadge({ size = 'sm', variant = 'pro' }: ProBadgeProps) {
   const isSmall = size === 'sm';
+  const label = variant === 'comingSoon' ? 'SOON' : 'PRO';
   return (
     <View style={[styles.badge, isSmall && styles.badgeSmall]}>
-      <Text style={[styles.text, isSmall && styles.textSmall]}>PRO</Text>
+      <Text style={[styles.text, isSmall && styles.textSmall]}>{label}</Text>
     </View>
   );
 }

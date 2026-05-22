@@ -10,8 +10,8 @@ import { Theme } from '@/constants/Theme';
 import type { PurchaseResult } from '@/lib/purchases';
 
 const FEATURES = [
-  { icon: 'book' as const, text: 'All 19 quizzes across 4 platforms' },
-  { icon: 'school' as const, text: 'Practice Exam mode with timers' },
+  { icon: 'book' as const, text: 'Additional quizzes across every certification' },
+  { icon: 'school' as const, text: 'Practice Exam mode with realistic timers' },
   { icon: 'bookmark' as const, text: 'Unlimited bookmarks' },
   { icon: 'infinite' as const, text: 'Lifetime access — one-time purchase' },
 ];
@@ -107,14 +107,20 @@ export default function Paywall() {
 
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name="rocket" size={48} color={Colors.primary} />
+            <Ionicons
+              name={isPurchasesConfigured ? 'rocket' : 'sparkles'}
+              size={48}
+              color={Colors.primary}
+            />
           </View>
 
           <ThemedText variant="heading" style={styles.title}>
-            CloudPrep Pro
+            {isPurchasesConfigured ? 'CloudPrep Pro' : 'Pro — Coming Soon'}
           </ThemedText>
           <ThemedText variant="body" style={styles.subtitle}>
-            Unlock everything and ace your cloud certification
+            {isPurchasesConfigured
+              ? 'Unlock everything and ace your cloud certification'
+              : 'For now the first quiz of every certification is free. More quizzes and Practice Exam mode arrive with Pro in a future update.'}
           </ThemedText>
 
           <View style={styles.featureList}>
@@ -130,34 +136,30 @@ export default function Paywall() {
             ))}
           </View>
 
-          {!isPurchasesConfigured && (
-            <View style={styles.banner} accessibilityRole="alert">
-              <Ionicons name="warning" size={16} color={Colors.warning ?? '#F59E0B'} />
-              <ThemedText variant="caption" style={styles.bannerText}>
-                Purchases are temporarily unavailable in this build.
-              </ThemedText>
-            </View>
-          )}
-
           <View style={styles.actions}>
-            <Button
-              title="Unlock CloudPrep Pro"
-              onPress={handlePurchase}
-              loading={loading}
-              size="lg"
-              disabled={!isPurchasesConfigured}
-            />
-            <TouchableOpacity
-              onPress={handleRestore}
-              disabled={restoring}
-              style={styles.restoreButton}
-              accessibilityRole="button"
-              accessibilityLabel="Restore previous purchases"
-            >
-              <ThemedText variant="body" color={Colors.textSecondary}>
-                {restoring ? 'Restoring...' : 'Restore Purchases'}
-              </ThemedText>
-            </TouchableOpacity>
+            {isPurchasesConfigured ? (
+              <>
+                <Button
+                  title="Unlock CloudPrep Pro"
+                  onPress={handlePurchase}
+                  loading={loading}
+                  size="lg"
+                />
+                <TouchableOpacity
+                  onPress={handleRestore}
+                  disabled={restoring}
+                  style={styles.restoreButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Restore previous purchases"
+                >
+                  <ThemedText variant="body" color={Colors.textSecondary}>
+                    {restoring ? 'Restoring...' : 'Restore Purchases'}
+                  </ThemedText>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <Button title="Got it" onPress={hidePaywall} size="lg" />
+            )}
             <TouchableOpacity
               onPress={hidePaywall}
               style={styles.dismissButton}
@@ -165,7 +167,7 @@ export default function Paywall() {
               accessibilityLabel="Dismiss paywall"
             >
               <ThemedText variant="caption" color={Colors.textMuted}>
-                Not now
+                {isPurchasesConfigured ? 'Not now' : 'Close'}
               </ThemedText>
             </TouchableOpacity>
           </View>

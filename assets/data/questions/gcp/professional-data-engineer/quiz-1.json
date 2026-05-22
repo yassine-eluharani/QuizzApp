@@ -1,0 +1,460 @@
+[
+  {
+    "id": "gcp-pde-q1",
+    "question_number": "1",
+    "question": "A retail company ingests 80 TB of clickstream data per day from its e-commerce platform. Analysts run ad-hoc SQL queries against the last 90 days of data, and most queries filter by event_date and customer_country. The team needs the lowest possible query cost and fast scan performance. Which storage and table design should the data engineer choose?",
+    "choices": [
+      "Store the data in Cloud Bigtable with a row key of customer_country#event_date#event_id and query through the HBase API.",
+      "Store the data in BigQuery in a single table partitioned by ingestion time and clustered by event_id.",
+      "Store the data in BigQuery in a table partitioned by event_date and clustered by customer_country.",
+      "Store the data as Parquet files in Cloud Storage and query through a BigLake external table with no partitioning."
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Partition by event_date, cluster by customer_country.</strong></p><p>Partitioning by the date column most commonly used in filters lets BigQuery prune partitions and scan only the relevant days, drastically reducing bytes processed. Clustering by customer_country further sorts data within each partition so filters on country reduce scans even more. This combination is the canonical low-cost, high-performance BigQuery design for time-series analytical workloads.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Bigtable is optimized for high-throughput key/value lookups and time-series with known row-key access, not ad-hoc analytical SQL with aggregations across 90 days.</p><p><strong>Option B:</strong> Partitioning by ingestion time can work, but clustering by event_id (a high-cardinality non-filter column) does not help these queries; partitioning by the queried event_date is better.</p><p><strong>Option D:</strong> An unpartitioned external table will scan all files on every query and is significantly slower and more expensive than a native partitioned/clustered BigQuery table.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/clustered-tables\">BigQuery clustered tables</a></p>"
+  },
+  {
+    "id": "gcp-pde-q2",
+    "question_number": "2",
+    "question": "An online gaming company needs a database for player session state. Requirements: globally distributed reads and writes, strong consistency across regions, ACID transactions, and the ability to scale to hundreds of thousands of QPS. Which Google Cloud service is the best fit?",
+    "choices": [
+      "Cloud SQL for PostgreSQL with cross-region read replicas",
+      "Cloud Spanner with a multi-region instance configuration",
+      "Cloud Bigtable with replication across regions",
+      "Firestore in Datastore mode with multi-region location"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Cloud Spanner multi-region.</strong></p><p>Spanner is the only Google Cloud database that combines horizontal scale, strong external consistency, and ACID transactions across multiple regions. Multi-region instance configurations provide low-latency reads in multiple geographies with synchronously replicated writes.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud SQL cross-region replicas are read-only and asynchronous; failover involves promotion and is not strongly consistent globally.</p><p><strong>Option C:</strong> Bigtable supports replication but does not provide cross-row ACID transactions or strong consistency across all replicas for arbitrary reads.</p><p><strong>Option D:</strong> Firestore offers strong consistency within a database but lacks Spanner's relational SQL, joins, and per-row global QPS scaling for this workload pattern.</p><p>Reference: <a href=\"https://cloud.google.com/spanner/docs/instance-configurations\">Spanner instance configurations</a></p>"
+  },
+  {
+    "id": "gcp-pde-q3",
+    "question_number": "3",
+    "question": "A media analytics team must compute per-user video watch-time aggregations from a Pub/Sub stream of viewing events. Events may arrive up to 30 minutes late due to mobile network buffering. The team wants accurate per-hour aggregates that include late events. Which Apache Beam windowing strategy in Dataflow should they apply? (Select TWO)",
+    "choices": [
+      "Use FixedWindows of 1 hour with an allowed lateness of 30 minutes.",
+      "Use GlobalWindow with no triggers or watermarks.",
+      "Configure a watermark with accumulating triggers that fire on event-time progress and on late data.",
+      "Use SlidingWindows with a duration of 5 minutes and a period of 1 hour.",
+      "Use SessionWindows with a gap duration of 30 minutes."
+    ],
+    "correct_answer_indices": [
+      0,
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Fixed 1-hour windows with 30 min allowed lateness, plus event-time/late-data triggers in accumulating mode.</strong></p><p>FixedWindows give per-hour buckets. Setting allowedLateness to 30 minutes ensures late events are still assigned to their correct event-time window. Combining this with triggers that fire at watermark and on late arrivals (accumulating mode) emits an initial result and updates as late data appears, which is the standard Beam pattern for accurate late-tolerant streaming aggregations.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> GlobalWindow without triggers never emits results in a streaming pipeline.</p><p><strong>Option D:</strong> A 5-minute sliding window with a 1-hour period does not produce per-hour aggregates as required.</p><p><strong>Option E:</strong> Session windows group activity bursts per key; they do not produce uniform per-hour buckets.</p><p>Reference: <a href=\"https://cloud.google.com/dataflow/docs/concepts/streaming-with-cloud-pubsub\">Streaming with Pub/Sub and windowing</a></p>"
+  },
+  {
+    "id": "gcp-pde-q4",
+    "question_number": "4",
+    "question": "An IoT platform ingests 200,000 sensor readings per second. Each reading must be looked up by sensor_id and a recent time range with single-digit-millisecond latency. The platform stores 5 years of historical data, totaling about 1.2 PB. Which storage system and row-key design should the data engineer recommend?",
+    "choices": [
+      "BigQuery with table partitioned by ingestion timestamp and clustered by sensor_id.",
+      "Cloud Bigtable with row key sensor_id#reverse_timestamp.",
+      "Cloud Bigtable with row key timestamp#sensor_id.",
+      "Cloud Spanner with a primary key of (timestamp, sensor_id)."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Bigtable with row key sensor_id#reverse_timestamp.</strong></p><p>Bigtable delivers single-digit-millisecond latency at the required throughput. Putting sensor_id first distributes load across tablets (avoiding hotspots) and using reverse timestamp clusters the most recent readings together, enabling fast prefix scans for a sensor's recent data.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> BigQuery is not designed for sub-10 ms per-row lookups at 200k QPS; it is an analytical engine.</p><p><strong>Option C:</strong> Leading with timestamp causes all writes to hit the same tablet (hotspotting).</p><p><strong>Option D:</strong> Spanner can scale, but it is unnecessarily expensive and slower than Bigtable for this simple time-series key-value pattern, and a leading timestamp PK creates write hotspots.</p><p>Reference: <a href=\"https://cloud.google.com/bigtable/docs/schema-design-time-series\">Bigtable schema design for time series</a></p>"
+  },
+  {
+    "id": "gcp-pde-q5",
+    "question_number": "5",
+    "question": "A data engineer needs to migrate a 30-node on-premise Apache Spark cluster running mature PySpark ETL jobs to Google Cloud with minimal code changes. The jobs run nightly for 2-3 hours. Which architecture provides the lowest cost while preserving the existing code?",
+    "choices": [
+      "Rewrite the jobs in Apache Beam and run on Dataflow with autoscaling.",
+      "Run an ephemeral Dataproc cluster per job, store data in Cloud Storage, and shut down the cluster on completion.",
+      "Run a persistent Dataproc cluster sized for peak load 24/7 with autoscaling disabled.",
+      "Run the Spark jobs on Compute Engine VMs managed by an instance group."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Ephemeral Dataproc cluster with GCS storage.</strong></p><p>Ephemeral (job-scoped) Dataproc clusters separate compute from storage by using Cloud Storage as the data lake. You only pay for cluster time during job execution, and PySpark code runs unchanged. This is the recommended pattern for cost-efficient lift-and-shift of Spark workloads.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Rewriting in Beam violates the minimal-code-change constraint.</p><p><strong>Option C:</strong> A 24/7 cluster wastes 21+ hours of idle compute per day.</p><p><strong>Option D:</strong> Self-managing Spark on raw VMs adds significant operational overhead vs. Dataproc.</p><p>Reference: <a href=\"https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/ephemeral-clusters\">Dataproc ephemeral clusters</a></p>"
+  },
+  {
+    "id": "gcp-pde-q6",
+    "question_number": "6",
+    "question": "A bank's fraud team must enrich each transaction event from Pub/Sub with the latest customer risk profile (about 50 GB) and write the enriched event to BigQuery within 5 seconds of arrival. Risk profiles update daily. Which Dataflow pattern minimizes latency and cost?",
+    "choices": [
+      "For each event, query the risk profile from Cloud Bigtable inside a ParDo using single-row lookups.",
+      "Load the risk profile as a side input refreshed every 24 hours and join in a ParDo.",
+      "Join the streaming events with the risk profile loaded as a windowed PCollection per event.",
+      "Use a Dataflow SQL streaming pipeline that joins the Pub/Sub topic with a BigQuery table on every record."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Side input refreshed every 24 hours.</strong></p><p>Slowly changing reference data is the canonical use case for Beam side inputs. Loading the 50 GB profile as a side input that refreshes daily avoids a per-event network call, keeps latency well under 5 seconds, and minimizes cost.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Per-event Bigtable lookups add latency and cost; side inputs are preferred for slowly changing dimensions.</p><p><strong>Option C:</strong> Joining streaming events with a separately windowed PCollection of reference data is complex and doesn't match the daily-refresh pattern.</p><p><strong>Option D:</strong> Per-record BigQuery joins on streaming inserts are slow and very expensive.</p><p>Reference: <a href=\"https://cloud.google.com/dataflow/docs/guides/side-inputs\">Dataflow side inputs</a></p>"
+  },
+  {
+    "id": "gcp-pde-q7",
+    "question_number": "7",
+    "question": "A data engineer is designing a Pub/Sub topic that feeds a Dataflow pipeline writing to BigQuery. The business requires no duplicate rows in BigQuery even if Pub/Sub redelivers messages. Which combination guarantees end-to-end exactly-once delivery?",
+    "choices": [
+      "Enable Pub/Sub message ordering and use BigQuery streaming inserts without insertId.",
+      "Use Pub/Sub exactly-once delivery subscription and a Dataflow pipeline with the BigQueryIO connector using streaming inserts with insertId, or the Storage Write API in EXACTLY_ONCE mode.",
+      "Use a Pub/Sub pull subscription with manual ack and use BigQuery load jobs only.",
+      "Use Pub/Sub Lite with regional subscription and BigQuery batch loads from GCS."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Pub/Sub exactly-once subscription + Dataflow with BigQueryIO using insertId or Storage Write API EXACTLY_ONCE.</strong></p><p>Pub/Sub exactly-once delivery prevents re-delivery within the acknowledgment deadline, and Dataflow's BigQueryIO with insertIds deduplicates streaming inserts; the Storage Write API offers a native EXACTLY_ONCE stream type. Together this provides end-to-end exactly-once semantics.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Ordering does not prevent duplicates, and omitting insertId disables BigQuery dedup.</p><p><strong>Option C:</strong> Pull with manual ack can still redeliver; load jobs add long latency and don't dedup automatically.</p><p><strong>Option D:</strong> Pub/Sub Lite + batch GCS loads can still produce duplicates without dedup logic.</p><p>Reference: <a href=\"https://cloud.google.com/pubsub/docs/exactly-once-delivery\">Pub/Sub exactly-once delivery</a></p>"
+  },
+  {
+    "id": "gcp-pde-q8",
+    "question_number": "8",
+    "question": "A team's BigQuery query scans 10 TB and costs $50 per run. Analysts run the query roughly 200 times per day. The underlying base table refreshes hourly with only a small delta. Which optimization most reduces cost without changing the query logic?",
+    "choices": [
+      "Create a materialized view on the query and let BigQuery use automatic query rewrites.",
+      "Switch the project to flat-rate (capacity-based) pricing only.",
+      "Cache results manually in Memorystore.",
+      "Re-cluster the table on a high-cardinality column unrelated to the filters."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Materialized view with automatic rewrites.</strong></p><p>Materialized views precompute and incrementally maintain aggregations. BigQuery's query optimizer can transparently rewrite matching queries to use the materialized view, scanning far fewer bytes (often near zero), without analysts changing their SQL.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Flat-rate may help budgeting but does not reduce work performed; if slots are saturated, queries will queue.</p><p><strong>Option C:</strong> Memorystore is not integrated into BigQuery query execution.</p><p><strong>Option D:</strong> Clustering on an unrelated column doesn't help these queries and may hurt other workloads.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/materialized-views-intro\">BigQuery materialized views</a></p>"
+  },
+  {
+    "id": "gcp-pde-q9",
+    "question_number": "9",
+    "question": "A data warehouse team uses Cloud Composer to orchestrate nightly ETL. Several DAGs depend on the completion of an upstream DAG that loads raw data from GCS to BigQuery. What is the recommended way to express this cross-DAG dependency?",
+    "choices": [
+      "Schedule downstream DAGs 1 hour later and hope upstream finishes.",
+      "Use ExternalTaskSensor or Dataset-aware scheduling (Airflow Datasets) to trigger downstream DAGs on upstream completion.",
+      "Combine all logic into a single monolithic DAG with hundreds of tasks.",
+      "Use a Cloud Function watching GCS to start downstream DAGs."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: ExternalTaskSensor or Airflow Datasets.</strong></p><p>ExternalTaskSensor waits for a specific task in another DAG to complete; Airflow Datasets (Airflow 2.4+) declaratively trigger downstream DAGs when an upstream DAG updates a logical dataset. Both are first-class, reliable cross-DAG dependency mechanisms.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Time-based hope is fragile; upstream variability will cause failures.</p><p><strong>Option C:</strong> A monolith reduces modularity and team autonomy.</p><p><strong>Option D:</strong> GCS triggers add unrelated infrastructure and bypass Airflow's dependency model.</p><p>Reference: <a href=\"https://airflow.apache.org/docs/apache-airflow/stable/authoring-and-scheduling/datasets.html\">Airflow Datasets</a></p>"
+  },
+  {
+    "id": "gcp-pde-q10",
+    "question_number": "10",
+    "question": "A BigQuery dataset contains PII (email, phone, national ID). The compliance team requires that data scientists can query aggregate metrics but cannot see raw PII values. Which combination satisfies this requirement? (Select TWO)",
+    "choices": [
+      "Apply column-level security with policy tags from Data Catalog to PII columns and grant scientists Data Viewer without the Fine-Grained Reader role.",
+      "Create an authorized view that exposes only hashed or aggregated PII to data scientists.",
+      "Grant data scientists the bigquery.dataOwner role on the dataset.",
+      "Use Cloud DLP de-identification with format-preserving encryption then drop access controls.",
+      "Make the dataset public and rely on query history auditing."
+    ],
+    "correct_answer_indices": [
+      0,
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Policy-tag column-level security and authorized views.</strong></p><p>Policy tags let you mask or deny access to specific columns based on IAM principals. Authorized views expose only a curated, transformed result set without granting source-table access. Both are recommended BigQuery patterns for PII protection.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> dataOwner grants full access including raw PII.</p><p><strong>Option D:</strong> DLP de-identification is useful, but removing access controls is unsafe and unnecessary.</p><p><strong>Option E:</strong> Public access is a severe data leak; auditing is detective, not preventive.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/column-level-security\">BigQuery column-level security</a></p>"
+  },
+  {
+    "id": "gcp-pde-q11",
+    "question_number": "11",
+    "question": "A startup stores raw log data in Cloud Storage. Logs are read heavily during the first 30 days and rarely after 90 days. Logs older than 365 days must be retained for compliance but are essentially never read. Which lifecycle configuration minimizes cost?",
+    "choices": [
+      "Keep all objects in Standard storage forever.",
+      "Standard for 30 days, then transition to Nearline at 30 days, Coldline at 90 days, and Archive at 365 days.",
+      "Standard immediately to Archive at 7 days.",
+      "Multi-region Standard storage for all objects."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Standard to Nearline to Coldline to Archive tiering.</strong></p><p>Each storage class has minimum storage durations and access-frequency assumptions: Nearline (~once per month), Coldline (~once per quarter), Archive (~once per year). Aligning lifecycle transitions to the access pattern minimizes storage cost while keeping data accessible.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Standard is most expensive for cold data.</p><p><strong>Option C:</strong> Moving to Archive at 7 days violates Archive's access pattern and incurs heavy retrieval costs in the first 30 days.</p><p><strong>Option D:</strong> Multi-region is even more expensive and unnecessary for log retention.</p><p>Reference: <a href=\"https://cloud.google.com/storage/docs/lifecycle\">GCS object lifecycle management</a></p>"
+  },
+  {
+    "id": "gcp-pde-q12",
+    "question_number": "12",
+    "question": "A data engineer must migrate an Oracle OLTP database to Google Cloud with near-real-time replication and minimal downtime. After the initial backfill, ongoing changes must stream into BigQuery for analytics. Which service combination is the best fit?",
+    "choices": [
+      "Cloud Data Fusion batch pipelines exporting nightly Oracle dumps to BigQuery.",
+      "Datastream for CDC from Oracle to Cloud Storage, then Dataflow templates to load BigQuery.",
+      "Database Migration Service from Oracle to Cloud SQL only.",
+      "Storage Transfer Service from on-prem to GCS."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Datastream + Dataflow to BigQuery.</strong></p><p>Datastream is Google's serverless CDC service that captures change events from Oracle/MySQL/PostgreSQL with low latency. Combined with the Dataflow Datastream-to-BigQuery template, it provides near-real-time replication into BigQuery.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Nightly dumps are not near-real-time and cause long sync gaps.</p><p><strong>Option C:</strong> DMS to Cloud SQL keeps data in an OLTP store, not in BigQuery for analytics.</p><p><strong>Option D:</strong> Storage Transfer Service moves files in bulk; it doesn't do CDC.</p><p>Reference: <a href=\"https://cloud.google.com/datastream/docs/overview\">Datastream overview</a></p>"
+  },
+  {
+    "id": "gcp-pde-q13",
+    "question_number": "13",
+    "question": "An analytics team runs the following BigQuery query daily and complains it is slow and scans 8 TB:\n\nSELECT user_id, COUNT(*) AS sessions\nFROM `proj.ds.events`\nWHERE DATE(event_ts) BETWEEN '2026-04-01' AND '2026-04-30'\nGROUP BY user_id;\n\nThe table is partitioned by event_ts (timestamp partitioning). Which change reduces bytes scanned the most?",
+    "choices": [
+      "Rewrite the WHERE clause as event_ts BETWEEN TIMESTAMP('2026-04-01') AND TIMESTAMP('2026-04-30 23:59:59 UTC').",
+      "Add a SELECT * to ensure all columns are scanned for the optimizer.",
+      "Wrap the column in CAST(event_ts AS STRING) in the WHERE clause.",
+      "Disable query cache."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Filter directly on the timestamp partition column without wrapping it in DATE().</strong></p><p>Wrapping the partition column in a function (DATE(event_ts)) prevents partition pruning, so BigQuery scans the entire table. Filtering with TIMESTAMP literals on the raw partition column lets the optimizer prune to only the relevant partitions, scanning a small fraction of the data.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> SELECT * increases scan cost.</p><p><strong>Option C:</strong> Casting to STRING also defeats pruning and adds CPU.</p><p><strong>Option D:</strong> Disabling cache makes the query more expensive, not less.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/querying-partitioned-tables\">Querying partitioned tables</a></p>"
+  },
+  {
+    "id": "gcp-pde-q14",
+    "question_number": "14",
+    "question": "A company runs hundreds of concurrent BigQuery queries during business hours. Some are mission-critical executive dashboards; others are exploratory data-science workloads. Critical dashboards must not be slowed by exploratory queries. Which BigQuery feature should the platform team use?",
+    "choices": [
+      "Create separate BigQuery projects and rely on per-project quotas.",
+      "Use BigQuery reservations with assignments: a dedicated reservation for dashboards and a separate reservation for ad-hoc workloads.",
+      "Run all queries with maximum_bytes_billed = 0 to make them faster.",
+      "Move all dashboards to on-demand billing while ad-hoc uses flat-rate."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: BigQuery reservations with assignments.</strong></p><p>Reservations let you allocate dedicated slot capacity to workloads via assignments (e.g., one reservation for the dashboard project, another for ad-hoc analytics). This isolates contention and guarantees slot availability for critical queries.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Per-project quotas don't isolate slot contention if both project on the same on-demand pool or share a reservation.</p><p><strong>Option C:</strong> maximum_bytes_billed = 0 simply fails queries.</p><p><strong>Option D:</strong> On-demand can be more expensive and is still subject to fair-share contention; this doesn't solve isolation.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/reservations-intro\">BigQuery reservations</a></p>"
+  },
+  {
+    "id": "gcp-pde-q15",
+    "question_number": "15",
+    "question": "A team needs to run a low-latency dashboard in Looker that hits a BigQuery table receiving frequent streaming inserts. End-user query latency must stay under 1 second for aggregations on the latest 24 hours. Which BigQuery feature should they enable?",
+    "choices": [
+      "Enable BI Engine reservation for the dataset and let it cache hot data in memory.",
+      "Switch the table to external Parquet format on GCS.",
+      "Convert all queries to scheduled queries that materialize hourly.",
+      "Increase the BigQuery slot reservation to 10000 slots."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: BI Engine reservation.</strong></p><p>BigQuery BI Engine is an in-memory analysis service that accelerates BigQuery queries with sub-second response times, integrating natively with Looker, Looker Studio, and other BI tools. It is the recommended way to meet low-latency dashboard SLAs without changing query semantics.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> External Parquet tables are typically slower than native storage, not faster.</p><p><strong>Option C:</strong> Hourly snapshots violate freshness for streaming data.</p><p><strong>Option D:</strong> More slots help concurrency, but BI Engine's in-memory acceleration is the canonical sub-second-latency solution.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/bi-engine-intro\">BigQuery BI Engine</a></p>"
+  },
+  {
+    "id": "gcp-pde-q16",
+    "question_number": "16",
+    "question": "A Dataflow streaming pipeline is processing events but downstream consumers report increasing latency. The data engineer observes that the pipeline's system lag is growing and the watermark is far behind real time. Which actions are appropriate diagnostic steps? (Select TWO)",
+    "choices": [
+      "Check the Dataflow job's worker CPU utilization and autoscaling settings to confirm whether throughput is bottlenecked.",
+      "Investigate the source: a Pub/Sub subscription with high backlog or a slow side-input refresh can hold the watermark back.",
+      "Immediately increase BigQuery slot reservations regardless of pipeline metrics.",
+      "Switch to batch mode by setting --streaming=false.",
+      "Delete and recreate the Dataflow job without analysis."
+    ],
+    "correct_answer_indices": [
+      0,
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Inspect workers/autoscaling and source backlog/side inputs.</strong></p><p>A lagging watermark in streaming Dataflow typically indicates either insufficient worker capacity (CPU-bound, throttled autoscaling) or a source/side-input that is not advancing the watermark (e.g., a Pub/Sub backlog or a slow refresh). Both should be examined first.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> BigQuery slots are unrelated to Dataflow watermark progression unless BQ writes are the bottleneck specifically, and even then changes should be measured.</p><p><strong>Option D:</strong> Disabling streaming defeats the use case.</p><p><strong>Option E:</strong> Blindly recreating the job loses state and is not a diagnosis.</p><p>Reference: <a href=\"https://cloud.google.com/dataflow/docs/guides/troubleshoot-streaming\">Troubleshoot streaming pipelines</a></p>"
+  },
+  {
+    "id": "gcp-pde-q17",
+    "question_number": "17",
+    "question": "A data engineer needs to share a curated BigQuery dataset with an external partner organization. The partner must run their own queries and pay for their own query costs, while the data engineer's company controls dataset access and pays only for storage. Which feature meets these requirements?",
+    "choices": [
+      "Export the dataset nightly to GCS and share signed URLs.",
+      "Use Analytics Hub to publish the dataset as a listing the partner subscribes to in their own project.",
+      "Copy the entire dataset into the partner's project on every change.",
+      "Grant the partner's service account roles/bigquery.dataOwner on your dataset."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Analytics Hub listing.</strong></p><p>Analytics Hub allows publishers to share BigQuery datasets as listings. Subscribers create a linked dataset in their own project, query it under their own billing, and the publisher retains control over schema, version, and revocation, paying only for the source storage.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Nightly GCS exports lose freshness, require their own access management, and don't allow SQL.</p><p><strong>Option C:</strong> Copying duplicates storage cost and creates drift.</p><p><strong>Option D:</strong> dataOwner gives the partner schema-modifying rights, which is over-permissive and doesn't shift compute billing.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/analytics-hub-introduction\">Analytics Hub</a></p>"
+  },
+  {
+    "id": "gcp-pde-q18",
+    "question_number": "18",
+    "question": "An e-commerce service stores its primary product catalog in Cloud SQL for PostgreSQL. A new mobile app requires single-digit-millisecond reads at global scale on the catalog. The catalog updates a few hundred times per hour. Which architecture meets the requirement with the least operational complexity?",
+    "choices": [
+      "Add read replicas of Cloud SQL in every region.",
+      "Replicate changes from Cloud SQL to Firestore in Native mode with global access, and serve mobile reads from Firestore.",
+      "Migrate everything to Cloud Bigtable in a single region.",
+      "Add a Memorystore for Redis instance in front of Cloud SQL in one region."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Replicate to Firestore for global low-latency reads.</strong></p><p>Firestore in Native mode is a globally distributed document database with low-latency reads and minimal ops overhead, ideal for mobile catalog serving. Keeping the system of record in Cloud SQL while replicating to Firestore decouples write authority from read scale.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud SQL cross-region replicas are asynchronous read-only and have higher latency than Firestore.</p><p><strong>Option C:</strong> Bigtable single-region doesn't meet \"global scale.\"</p><p><strong>Option D:</strong> A regional Redis cache doesn't address global low-latency reads.</p><p>Reference: <a href=\"https://cloud.google.com/firestore/docs/locations\">Firestore locations</a></p>"
+  },
+  {
+    "id": "gcp-pde-q19",
+    "question_number": "19",
+    "question": "Which statement about BigQuery streaming inserts (legacy tabledata.insertAll) vs. the BigQuery Storage Write API is correct?",
+    "choices": [
+      "Streaming inserts are free; Storage Write API is billed per row.",
+      "Storage Write API supports exactly-once semantics via committed streams, higher throughput, and is generally cheaper than legacy streaming inserts.",
+      "Storage Write API only supports batch loads, not streaming.",
+      "Streaming inserts always provide exactly-once delivery without insertId."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Storage Write API supports exactly-once, higher throughput, cheaper.</strong></p><p>The Storage Write API is Google's recommended modern path for ingesting data into BigQuery: it provides committed (exactly-once) and pending streams, supports much higher throughput than legacy streaming inserts, and has lower per-byte pricing.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Legacy streaming inserts are billed; Storage Write API has its own (lower) per-byte rate, with a free tier.</p><p><strong>Option C:</strong> Storage Write API supports both streaming and batch loading via pending streams.</p><p><strong>Option D:</strong> Without insertId, streaming inserts can duplicate rows.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/write-api\">BigQuery Storage Write API</a></p>"
+  },
+  {
+    "id": "gcp-pde-q20",
+    "question_number": "20",
+    "question": "A data engineer is designing a Bigtable schema for a multi-tenant SaaS analytics product. Each tenant has spiky workloads at unpredictable times. What row-key strategy avoids hotspots and supports per-tenant range scans?",
+    "choices": [
+      "tenant_id#timestamp",
+      "timestamp#tenant_id",
+      "hash(tenant_id)#tenant_id#reverse_timestamp",
+      "auto-incrementing sequential integer"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: hash(tenant_id) prefix + tenant_id + reverse_timestamp.</strong></p><p>Prefixing with a hash of tenant_id evenly distributes tenants across tablets to avoid hotspots when one tenant spikes. Including tenant_id keeps tenant rows colocated for range scans, and reverse_timestamp makes \"most recent first\" scans efficient.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Without a hash, popular tenants can dominate a single tablet.</p><p><strong>Option B:</strong> Leading with timestamp causes severe write hotspots.</p><p><strong>Option D:</strong> Sequential keys hotspot the last tablet for both reads and writes.</p><p>Reference: <a href=\"https://cloud.google.com/bigtable/docs/schema-design\">Bigtable schema design best practices</a></p>"
+  },
+  {
+    "id": "gcp-pde-q21",
+    "question_number": "21",
+    "question": "A team needs to discover, classify, and govern all BigQuery datasets and GCS buckets in a large organization. Requirements include automatic detection of PII in tables, business glossary definitions, and tag templates applied via API. Which service should they use?",
+    "choices": [
+      "Dataplex with Data Catalog (now Dataplex Catalog) features and DLP-driven sensitive data discovery.",
+      "Cloud Logging with sink to BigQuery.",
+      "VPC Service Controls with a custom dictionary.",
+      "Cloud KMS key rings to label data."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Dataplex/Data Catalog with DLP scans.</strong></p><p>Dataplex Catalog (the unified successor to Data Catalog) provides organization-wide metadata discovery, tag templates, business glossary, and IAM-aware search. Integrated DLP scans automatically detect PII and classify columns with policy tags for downstream BigQuery enforcement.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Cloud Logging is observability, not data governance.</p><p><strong>Option C:</strong> VPC Service Controls is a network-perimeter security feature, not metadata management.</p><p><strong>Option D:</strong> KMS handles encryption keys, not data classification.</p><p>Reference: <a href=\"https://cloud.google.com/dataplex/docs/data-catalog-in-dataplex\">Dataplex Catalog</a></p>"
+  },
+  {
+    "id": "gcp-pde-q22",
+    "question_number": "22",
+    "question": "A pipeline must transform CSV files arriving randomly in a GCS bucket and load the result into BigQuery. Volume is unpredictable (sometimes zero files for a day, sometimes 1000 files at once). The team wants no idle infrastructure cost and minimal code. Which architecture fits best?",
+    "choices": [
+      "A persistent Dataproc cluster polling GCS every minute.",
+      "An Eventarc trigger on Cloud Storage object creation that invokes a Cloud Run (or Cloud Functions) handler, which launches a Dataflow Flex Template job to transform and load into BigQuery.",
+      "Run an Apache Airflow worker 24/7 on Compute Engine watching the bucket.",
+      "Use BigQuery Data Transfer Service scheduled hourly."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Eventarc/GCS trigger -> Cloud Run/Functions -> Dataflow Flex Template.</strong></p><p>This is the canonical event-driven serverless pattern: storage events trigger a lightweight function that launches a Dataflow job. There is no idle compute, the system scales to zero, and Dataflow Flex Templates provide reusable parameterized pipelines.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Persistent Dataproc bills for idle time.</p><p><strong>Option C:</strong> 24/7 Airflow VM wastes cost during idle days.</p><p><strong>Option D:</strong> Data Transfer Service is for managed source connectors, not arbitrary CSV transformation logic.</p><p>Reference: <a href=\"https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates\">Dataflow Flex Templates</a></p>"
+  },
+  {
+    "id": "gcp-pde-q23",
+    "question_number": "23",
+    "question": "A BigQuery table is partitioned by event_date and clustered by user_id. Which of the following queries best leverages both partitioning and clustering?",
+    "choices": [
+      "SELECT * FROM tbl WHERE EXTRACT(YEAR FROM event_date) = 2026;",
+      "SELECT user_id, COUNT(*) FROM tbl WHERE event_date BETWEEN '2026-05-01' AND '2026-05-07' AND user_id = 'u-12345' GROUP BY user_id;",
+      "SELECT * FROM tbl;",
+      "SELECT * FROM tbl ORDER BY user_id;"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Filter on raw event_date range and on user_id.</strong></p><p>Filtering on the raw partition column (event_date BETWEEN ...) enables partition pruning. Filtering on the clustering column (user_id) lets BigQuery skip blocks within those partitions, reading much less data.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> EXTRACT() wraps the partition column, defeating pruning.</p><p><strong>Option C:</strong> SELECT * with no filter scans the entire table.</p><p><strong>Option D:</strong> ORDER BY user_id without a filter still scans all partitions and forces a sort.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/clustered-tables\">Clustered tables</a></p>"
+  },
+  {
+    "id": "gcp-pde-q24",
+    "question_number": "24",
+    "question": "A nightly Cloud Composer DAG occasionally fails on a transient Bigtable connectivity error. The team wants the task to retry automatically with exponential backoff before failing the run. Which DAG task configuration achieves this?",
+    "choices": [
+      "Set retries=5 and retry_delay=timedelta(minutes=2) with retry_exponential_backoff=True on the operator.",
+      "Schedule the DAG every minute so it eventually succeeds.",
+      "Catch the exception inside the task and swallow it silently.",
+      "Disable email_on_failure to mask the error."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: retries with retry_exponential_backoff.</strong></p><p>Airflow operators support retries, retry_delay, and retry_exponential_backoff parameters that automatically retry the task with growing delays before marking it failed, which is exactly the pattern for transient errors.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Scheduling every minute creates overlapping runs and resource waste.</p><p><strong>Option C:</strong> Silently swallowing errors hides data quality issues.</p><p><strong>Option D:</strong> Disabling alerts hides failures rather than fixing them.</p><p>Reference: <a href=\"https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/tasks.html#retries\">Airflow task retries</a></p>"
+  },
+  {
+    "id": "gcp-pde-q25",
+    "question_number": "25",
+    "question": "A streaming pipeline must enforce the principle of least privilege when writing to BigQuery from Dataflow. Which IAM configuration is most appropriate?",
+    "choices": [
+      "Grant the Dataflow worker service account roles/owner on the project.",
+      "Grant the Dataflow worker service account roles/bigquery.dataEditor on the target dataset only, plus roles/bigquery.jobUser on the project.",
+      "Grant the Dataflow worker service account roles/bigquery.admin organization-wide.",
+      "Use the default Compute Engine service account with Editor role."
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: dataEditor on the dataset + jobUser on the project.</strong></p><p>bigquery.dataEditor at the dataset level allows reads and writes to that dataset only; bigquery.jobUser at the project level allows running query/load/streaming jobs. This combination is the least-privilege standard for write-only pipelines.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A and C:</strong> Owner/admin grant far more than needed.</p><p><strong>Option D:</strong> The default Compute Engine SA with Editor is a notorious over-permission and is discouraged in production.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/access-control\">BigQuery IAM roles</a></p>"
+  },
+  {
+    "id": "gcp-pde-q26",
+    "question_number": "26",
+    "question": "A logistics company wants to run a one-time BigQuery query that joins a 5 TB BigQuery fact table with a 200 MB CSV reference file currently stored only in Google Drive. The CSV will not change. Which approach minimizes ETL work? (Select TWO)",
+    "choices": [
+      "Create a BigQuery external (federated) table pointing at the Drive CSV and JOIN it in SQL.",
+      "Load the CSV into a small native BigQuery table via bq load, then JOIN.",
+      "Manually copy each row of the CSV into the fact table.",
+      "Export the fact table to Drive and join in a spreadsheet.",
+      "Convert the fact table to an external table on GCS first."
+    ],
+    "correct_answer_indices": [
+      0,
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: External table on Drive, or one-time bq load into a native table.</strong></p><p>BigQuery natively supports external tables over Google Drive CSVs, allowing direct JOINs with no ETL. Alternatively, a one-time load of a small reference file into a native table is trivial, very cheap, and gives best query performance. Both fit the use case.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Manual row copy is error-prone and unnecessary.</p><p><strong>Option D:</strong> Exporting 5 TB to a spreadsheet is infeasible.</p><p><strong>Option E:</strong> Converting a native fact table to external storage degrades performance and provides no benefit here.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/external-data-drive\">External tables over Drive</a></p>"
+  },
+  {
+    "id": "gcp-pde-q27",
+    "question_number": "27",
+    "question": "A data engineer must run an ML feature engineering job on 50 TB of Parquet data in GCS, then write features back to GCS. The team is comfortable with PySpark and wants serverless execution without managing clusters. Which service is most appropriate?",
+    "choices": [
+      "Dataproc Serverless for Spark (Spark Batches)",
+      "Cloud Functions",
+      "BigQuery scheduled queries",
+      "App Engine Standard"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Dataproc Serverless for Spark.</strong></p><p>Dataproc Serverless runs PySpark/Spark batches without provisioning or managing a cluster. You submit a job, Google manages the underlying infrastructure, and you pay only for resources during execution.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Cloud Functions is for short-lived event handlers, not 50 TB Spark jobs.</p><p><strong>Option C:</strong> Scheduled queries run BigQuery SQL, not PySpark.</p><p><strong>Option D:</strong> App Engine Standard is a web app runtime, not a Spark engine.</p><p>Reference: <a href=\"https://cloud.google.com/dataproc-serverless/docs\">Dataproc Serverless</a></p>"
+  },
+  {
+    "id": "gcp-pde-q28",
+    "question_number": "28",
+    "question": "A team wants to find which BigQuery queries scanned the most bytes over the past 30 days to identify cost-optimization targets. What is the recommended approach?",
+    "choices": [
+      "Query INFORMATION_SCHEMA.JOBS_BY_PROJECT (or JOBS_BY_ORGANIZATION) filtering on creation_time and ordering by total_bytes_processed.",
+      "Manually inspect the BigQuery console for each query in history.",
+      "Query the audit log table only if Cloud Audit Logs are exported to BigQuery and parse JSON payloads from scratch.",
+      "Use Cloud Trace to look at BigQuery spans."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: INFORMATION_SCHEMA.JOBS views.</strong></p><p>INFORMATION_SCHEMA.JOBS_BY_PROJECT (and JOBS_BY_USER/JOBS_BY_ORGANIZATION) expose metadata for jobs including total_bytes_processed, user, query text, and timestamps. This is the canonical, query-driven way to identify costly queries.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Manual console inspection doesn't scale.</p><p><strong>Option C:</strong> Audit logs work but require export setup and JSON parsing; INFORMATION_SCHEMA is built-in and simpler.</p><p><strong>Option D:</strong> Cloud Trace is for application-level distributed tracing, not BigQuery job analysis.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/information-schema-jobs\">INFORMATION_SCHEMA.JOBS</a></p>"
+  },
+  {
+    "id": "gcp-pde-q29",
+    "question_number": "29",
+    "question": "Which design correctly produces a near-real-time daily moving-average revenue per product from streaming order events in Pub/Sub?",
+    "choices": [
+      "Dataflow streaming pipeline with sliding windows of 24 hours and 1-hour period, computing AVG(revenue) per product, writing to BigQuery via Storage Write API.",
+      "Cloud Functions triggered per event computing AVG in a global variable.",
+      "BigQuery scheduled query that runs nightly on the orders table.",
+      "Bigtable row aggregation triggered by a cron job on a single VM."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Dataflow with 24-hour sliding window, 1-hour period.</strong></p><p>Sliding windows of 24h with a 1h period emit a new 24-hour moving average every hour for each product, exactly matching \"near-real-time daily moving average.\" Writing via the Storage Write API gives high-throughput, low-latency BigQuery ingestion.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Cloud Functions are stateless and can't reliably maintain windowed aggregates across instances.</p><p><strong>Option C:</strong> Nightly is not near-real-time.</p><p><strong>Option D:</strong> Single-VM cron has no high-availability, no scaling, and isn't a streaming solution.</p><p>Reference: <a href=\"https://cloud.google.com/dataflow/docs/concepts/streaming-pipelines\">Streaming pipelines in Dataflow</a></p>"
+  },
+  {
+    "id": "gcp-pde-q30",
+    "question_number": "30",
+    "question": "A data engineer must implement a data quality check that quarantines BigQuery rows failing schema/value rules without dropping them. The team prefers a managed, declarative tool integrated with the lakehouse. Which Google Cloud service should they use?",
+    "choices": [
+      "Dataplex auto data quality (AutoDQ) with rules defined in YAML, applied to BigQuery tables and results published as metrics.",
+      "Cloud Run job that re-implements pandas validations.",
+      "Cloud Composer DAG that emails the team about bad rows manually.",
+      "Disable schema enforcement in BigQuery."
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Dataplex Auto Data Quality.</strong></p><p>Dataplex Auto Data Quality provides a declarative, YAML-driven framework for defining rules (non-null, ranges, regex, SQL expressions, custom checks), executes them as managed jobs against BigQuery, and publishes pass/fail metrics, lineage, and incidents. It integrates natively with the Dataplex catalog and quarantine workflows.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Custom Cloud Run jobs duplicate functionality and add ops burden.</p><p><strong>Option C:</strong> Manual email triage doesn't scale.</p><p><strong>Option D:</strong> Disabling schema enforcement worsens data quality.</p><p>Reference: <a href=\"https://cloud.google.com/dataplex/docs/auto-data-quality-overview\">Dataplex Auto Data Quality</a></p>"
+  }
+]

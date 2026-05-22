@@ -13,7 +13,7 @@ import { Theme } from '@/constants/Theme';
 
 export default function ProfileScreen() {
   const { streaks, history, bookmarks } = useAppContext();
-  const { isPro, showPaywall, restorePurchases } = usePurchase();
+  const { isPro, isPurchasesConfigured, restorePurchases } = usePurchase();
 
   const totalQuestions = history.reduce((s, a) => s + a.totalQuestions, 0);
   const totalCorrect = history.reduce((s, a) => s + a.score, 0);
@@ -38,15 +38,15 @@ export default function ProfileScreen() {
         {!isPro && (
           <Card style={styles.card}>
             <View style={styles.cardHeader}>
-              <Ionicons name="rocket" size={24} color={Colors.primary} />
+              <Ionicons name="sparkles" size={24} color={Colors.primary} />
               <ThemedText variant="title" style={styles.cardTitle}>
-                Upgrade to Pro
+                Pro — Coming Soon
               </ThemedText>
             </View>
             <ThemedText variant="body" style={styles.proDesc}>
-              Unlock all quizzes, practice exams, and unlimited bookmarks.
+              The first quiz of every certification is free. Additional quizzes, Practice Exam mode,
+              and unlimited bookmarks will arrive with Pro in a future update.
             </ThemedText>
-            <Button title="Unlock CloudPrep Pro" onPress={showPaywall} style={styles.proButton} />
           </Card>
         )}
 
@@ -121,15 +121,17 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
-        {/* Restore Purchases */}
-        <Button
-          title="Restore Purchases"
-          onPress={() => {
-            restorePurchases();
-          }}
-          variant="secondary"
-          style={styles.restoreButton}
-        />
+        {/* Restore Purchases — only useful once IAP is live */}
+        {isPurchasesConfigured && (
+          <Button
+            title="Restore Purchases"
+            onPress={() => {
+              restorePurchases();
+            }}
+            variant="secondary"
+            style={styles.restoreButton}
+          />
+        )}
 
         <ThemedText variant="caption" style={styles.version}>
           CloudPrep v1.0.0

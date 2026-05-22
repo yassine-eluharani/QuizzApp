@@ -1,0 +1,399 @@
+[
+  {
+    "id": "azure-az305-q1",
+    "question_number": "1",
+    "question": "A multinational manufacturing company is consolidating five Active Directory forests into a single Microsoft Entra ID tenant. Two of the forests contain legacy applications that authenticate using Kerberos and cannot be modified. The company requires single sign-on for users accessing both cloud SaaS apps and on-premises Kerberos applications, must enforce conditional access policies based on device compliance, and needs to keep password hashes synchronized to support Entra ID Identity Protection risk detections. The infrastructure team wants to minimize the on-premises footprint and avoid maintaining additional AD FS farms. Which hybrid identity architecture should the architect recommend?",
+    "choices": [
+      "Configure Microsoft Entra Connect with Pass-through Authentication (PTA) and Seamless SSO across all forests, with password hash sync disabled for compliance reasons.",
+      "Deploy Microsoft Entra Connect with Password Hash Synchronization (PHS) and Seamless SSO, and enable Microsoft Entra Kerberos for hybrid cloud Kerberos trust for the legacy applications.",
+      "Deploy a federated identity model using Active Directory Federation Services (AD FS) with Web Application Proxy in each forest, and enable password hash sync as a backup.",
+      "Use Microsoft Entra Cloud Sync agents for each forest with certificate-based authentication only, and configure Application Proxy for the Kerberos applications."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Microsoft Entra Connect with PHS + Seamless SSO + Microsoft Entra Kerberos.</strong></p><p>Password Hash Synchronization is required because the company explicitly needs Entra ID Identity Protection leaked-credential risk detections, which only function when password hashes are present in the cloud. Seamless SSO provides desktop SSO for cloud applications without requiring AD FS infrastructure. Microsoft Entra Kerberos (cloud Kerberos trust) lets Entra-joined devices request Kerberos tickets for on-premises Kerberos-only applications without modifying those applications, which directly satisfies the legacy SSO requirement while minimizing on-premises footprint.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Disabling PHS breaks Identity Protection leaked-credential detection.</p><p><strong>Option C:</strong> AD FS adds significant infrastructure and conflicts with the goal of minimizing on-premises footprint.</p><p><strong>Option D:</strong> Cloud Sync does not support all multi-forest topologies with the same fidelity as Entra Connect Sync and certificate-only authentication does not solve Kerberos SSO needs.</p><p>Reference: <a href=\"https://learn.microsoft.com/entra/identity/hybrid/connect/whatis-phs\">Entra Connect PHS</a>, <a href=\"https://learn.microsoft.com/entra/identity/devices/concept-azure-ad-kerberos\">Microsoft Entra Kerberos</a></p>"
+  },
+  {
+    "id": "azure-az305-q2",
+    "question_number": "2",
+    "question": "A global financial services firm is designing privileged access for its Azure subscriptions. Auditors require that no human account hold standing Owner or Contributor permissions over production subscriptions, that all privileged elevations require MFA and ticket-justification, and that approvals be required for production-tier subscription elevations only. Additionally, security must be able to review the full set of role assignments and active elevations across all subscriptions in a single pane. You need to recommend the most appropriate design. (Select TWO).",
+    "choices": [
+      "Assign permanent eligible role assignments using Microsoft Entra Privileged Identity Management (PIM) for Azure resources, scoped to each subscription, and require MFA + justification on activation.",
+      "Configure PIM approval workflows only for the management group containing production subscriptions, leaving non-production scopes with self-service activation.",
+      "Create a custom RBAC role with Owner permissions for production and assign it as an Active assignment to operations team members.",
+      "Disable PIM for Azure resources and rely on Conditional Access policies requiring MFA for all role assignments on production subscriptions.",
+      "Use a single PIM dashboard configured at the tenant root management group to centrally review eligible and active role assignments across all subscriptions."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: PIM eligible assignments scoped per subscription with MFA+justification, and approval workflows only on the production management group.</strong></p><p>PIM for Azure resources provides Just-In-Time (JIT) elevation, eliminating standing access. Eligible (not Active) assignments require activation, which can enforce MFA and justification. Approvals can be configured per role assignment, so applying them only to the production management group satisfies the requirement that approvals apply only to production-tier elevations while not slowing non-production work.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> An Active Owner assignment is permanent standing access, the exact opposite of what auditors require.</p><p><strong>Option D:</strong> Conditional Access alone cannot remove standing privileges; it only adds session controls.</p><p><strong>Option E:</strong> While PIM provides centralized visibility, there is no \"tenant root management group PIM dashboard\" as described; PIM for Azure is configured per resource scope, although audit logs can be queried centrally.</p><p>Reference: <a href=\"https://learn.microsoft.com/entra/id-governance/privileged-identity-management/pim-configure\">PIM Overview</a></p>"
+  },
+  {
+    "id": "azure-az305-q3",
+    "question_number": "3",
+    "question": "A SaaS company providing a consumer-facing mobile gaming platform needs an identity solution supporting 30 million end users with sign-up using Google, Apple, and Facebook social logins, plus self-service password reset and custom-branded sign-in pages per regional brand. They also need to enforce step-up MFA only for high-value in-app purchases and want progressive profiling to collect additional attributes after first sign-in. The architect must minimize per-user licensing cost at scale. Which identity service should be recommended?",
+    "choices": [
+      "Microsoft Entra ID with B2B collaboration and Conditional Access policies, paired with Azure AD External Identities P2 SKU.",
+      "Microsoft Entra External ID for customers (CIAM) with custom user flows, social federation, and Conditional Access for step-up MFA.",
+      "Azure AD B2C with custom policies (Identity Experience Framework) and per-policy MFA enforcement.",
+      "Self-hosted Keycloak deployed on AKS, federated to Microsoft Entra ID."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Azure AD B2C with custom policies.</strong></p><p>At 30 million consumer users, Azure AD B2C remains the most cost-effective option per Monthly Active User (MAU) for consumer-facing identity scenarios. Custom policies (Identity Experience Framework) provide the deepest extensibility, including conditional step-up MFA tied to high-risk operations such as in-app purchases, progressive profiling via custom journeys, and per-brand UI customization. Social IdPs (Google, Apple, Facebook) are first-class in B2C.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> B2B is designed for partner collaboration, not consumer-scale identity.</p><p><strong>Option B:</strong> Microsoft Entra External ID for customers is the newer offering but at the time of designing the question, B2C remains the recommended consumer-scale path for ultra-large workloads requiring custom policies; External ID custom flows are still in preview or have feature gaps for IEF-style customization at this scale.</p><p><strong>Option D:</strong> Self-hosted Keycloak adds significant operational burden and is not Azure-native.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/active-directory-b2c/custom-policy-overview\">Azure AD B2C Custom Policies</a></p>"
+  },
+  {
+    "id": "azure-az305-q4",
+    "question_number": "4",
+    "question": "A government agency operates 14 Azure subscriptions across three classification levels: Public, Internal, and Restricted. Each classification has different mandatory policy requirements (allowed locations, allowed VM SKUs, encryption requirements, and required tags). The agency needs to enforce these policies at scale, prevent administrators from moving subscriptions between classifications without an approval workflow, and allow security to view a single compliance dashboard for all 14 subscriptions. Which management group design is the most appropriate?",
+    "choices": [
+      "Place all 14 subscriptions under the tenant root management group and assign individual policies per subscription.",
+      "Create three management groups (Public, Internal, Restricted) under the tenant root, assign policy initiatives at each MG, and use Azure Resource Locks plus Entra PIM to gate subscription moves.",
+      "Create one management group per subscription to provide maximum isolation and assign identical policy initiatives to each.",
+      "Apply all policies at the tenant root management group level with policy parameters varied per subscription via deployment templates."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Three management groups by classification with initiatives + PIM-gated moves.</strong></p><p>Management groups exist precisely to apply policies to groups of subscriptions with shared compliance requirements. Three MGs aligned to classification levels let you assign initiatives (collections of related policies) at each MG, and child subscriptions automatically inherit those policies. Subscription move operations require Owner permissions on both source and destination MGs; gating those operations through PIM enforces the approval workflow. Azure Policy compliance is aggregated and viewable per MG, satisfying the single-dashboard requirement.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Flat structure under root doesn't scale and forces duplicate policy management.</p><p><strong>Option C:</strong> One MG per subscription defeats the purpose of MGs and creates 14x the management overhead.</p><p><strong>Option D:</strong> Tenant-root-only policies cannot easily differentiate by classification and parameter-per-subscription is brittle.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/governance/management-groups/overview\">Management Groups Overview</a></p>"
+  },
+  {
+    "id": "azure-az305-q5",
+    "question_number": "5",
+    "question": "A healthcare provider stores diagnostic application telemetry in three Azure regions (East US, West Europe, Southeast Asia). Compliance requires that data must remain in the region of origin, that telemetry must be retained for 7 years in immutable form, but that interactive query and operational alerts only need the most recent 90 days. The SecOps team needs a single workspace view that can correlate across all three regions for incident investigation. The architect must minimize ingestion and retention costs. Which Log Analytics workspace design is best?",
+    "choices": [
+      "Deploy a single global Log Analytics workspace in East US, configure data residency exceptions for EU and APAC regions, and retain all data for 7 years interactively.",
+      "Deploy three regional Log Analytics workspaces (one per region), set interactive retention to 90 days and archive tier retention to 7 years, and use cross-workspace KQL queries with Microsoft Sentinel as the central investigation pane.",
+      "Deploy three workspaces and replicate data via Azure Functions to a fourth central workspace for cross-region queries.",
+      "Deploy one workspace per region and export all logs to Azure Storage immutable blob containers for the 7-year requirement, querying storage via Azure Data Explorer."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Three regional workspaces with archive tier + cross-workspace queries via Sentinel.</strong></p><p>Data residency is satisfied by keeping workspaces in each region. Log Analytics now supports a two-tier retention model: an Analytics tier (default up to 30/90 days, extendable up to 2 years) for interactive query, and an Archive tier (up to 7 years, with low per-GB cost) for compliance retention. Search jobs and restore can re-hydrate archived data when needed. Cross-workspace KQL (the union or workspace() operator) and Microsoft Sentinel as a multi-workspace SIEM provide the single investigation pane.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Violates data residency.</p><p><strong>Option C:</strong> Custom replication is unnecessary; cross-workspace queries are native.</p><p><strong>Option D:</strong> While exporting to immutable blob works for archival, you lose KQL semantics and incur more engineering effort than using the built-in Archive tier.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/azure-monitor/logs/data-retention-archive\">Log Analytics retention and archive</a></p>"
+  },
+  {
+    "id": "azure-az305-q6",
+    "question_number": "6",
+    "question": "An enterprise's security team has identified that several break-glass emergency access accounts are not subject to consistent Conditional Access policies, which created a recent audit finding. The architect needs to design Conditional Access for the two break-glass accounts. They must be excluded from MFA and risk-based policies that could lock them out during an outage of MFA providers, but their use must trigger an immediate high-severity alert to security operations and be loggable. Which design satisfies the audit requirement while preserving emergency access?",
+    "choices": [
+      "Include both break-glass accounts in all Conditional Access policies and require FIDO2 keys for them as the MFA factor.",
+      "Exclude both break-glass accounts from every Conditional Access policy, ensure they are cloud-only accounts not synced from on-premises, store credentials in a physical safe with split knowledge, and configure an Azure Monitor alert on sign-ins for these accounts that pages the on-call.",
+      "Place break-glass accounts in a separate tenant and federate them in via guest invitation when needed.",
+      "Apply Conditional Access policies excluding break-glass accounts only from MFA but include them in risk-based block policies."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Exclude from all CA, cloud-only, physical safe + alert on sign-in.</strong></p><p>Microsoft's documented break-glass guidance is to maintain two cloud-only emergency access accounts excluded from all Conditional Access and MFA policies so they remain usable during identity-system outages. To compensate for the reduced controls, sign-in activity must be monitored (Azure Monitor / Sentinel alert), credentials must be physically secured with split knowledge, and the accounts must not be synced from on-premises (so an AD compromise can't affect them). This combination is what auditors typically expect to see.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Requiring MFA defeats the break-glass purpose during MFA outages.</p><p><strong>Option C:</strong> A separate tenant adds significant complexity and is not the documented best practice.</p><p><strong>Option D:</strong> Including them in risk-based block policies could lock them out during the very incidents they exist to recover from.</p><p>Reference: <a href=\"https://learn.microsoft.com/entra/identity/role-based-access-control/security-emergency-access\">Emergency access accounts</a></p>"
+  },
+  {
+    "id": "azure-az305-q7",
+    "question_number": "7",
+    "question": "A retailer's Azure infrastructure spans 600 VMs, 40 AKS clusters, and 200 PaaS resources. Operations wants a unified observability strategy with the following constraints: out-of-the-box VM guest OS metrics and processes, container insights, dependency mapping for application performance, and the ability to alert on custom application metrics emitted via OpenTelemetry. The strategy should minimize the number of agents installed per VM and embrace Microsoft's current agent direction. Which monitoring strategy is most appropriate? (Select TWO).",
+    "choices": [
+      "Deploy the Azure Monitor Agent (AMA) with Data Collection Rules to all VMs and configure Container Insights for AKS using the AMA-based ContainerInsightsExtension.",
+      "Continue using the legacy Log Analytics Agent (MMA) and Diagnostics Extension (WAD/LAD) until end of life in 2024, with no migration plan.",
+      "Use Application Insights (workspace-based) with auto-instrumentation where possible and the OpenTelemetry distro for custom metric ingestion.",
+      "Install only the Network Watcher Agent and rely on Azure Monitor metrics scraped from Azure Resource Manager for all telemetry.",
+      "Deploy Telegraf agents to every VM and forward metrics to a self-hosted Prometheus instance."
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: AMA with DCRs + workspace-based Application Insights with OpenTelemetry.</strong></p><p>Azure Monitor Agent (AMA) is Microsoft's current strategic agent that replaces the Log Analytics Agent (MMA, retired in August 2024) and the Diagnostics Extension. AMA uses Data Collection Rules (DCRs) for flexible, targeted data collection across both Windows and Linux. For AKS, Container Insights now uses an AMA-based extension. Application Insights workspace-based mode integrates AI telemetry into Log Analytics for unified KQL queries, and OpenTelemetry is Microsoft's recommended path for custom application metrics and distributed traces.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> MMA is retired; this is the opposite of best practice.</p><p><strong>Option D:</strong> ARM-level metrics cannot provide guest OS or process-level telemetry.</p><p><strong>Option E:</strong> Self-hosted Prometheus adds operational burden; Azure Monitor managed Prometheus is the native path.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/azure-monitor/agents/azure-monitor-agent-overview\">Azure Monitor Agent</a></p>"
+  },
+  {
+    "id": "azure-az305-q8",
+    "question_number": "8",
+    "question": "A defense contractor must federate identity from its on-premises Active Directory to Microsoft Entra ID. The CISO mandates that no password hashes leave the on-premises environment under any circumstances, that authentication must occur on premises so that account lockouts and password policies apply, and that the solution must continue to authenticate cloud applications even during a brief on-premises connectivity outage of up to 4 hours. Which hybrid identity authentication option satisfies all constraints?",
+    "choices": [
+      "Password Hash Synchronization (PHS) only.",
+      "Pass-through Authentication (PTA) with Seamless SSO and no PHS.",
+      "Active Directory Federation Services (AD FS) with no PHS.",
+      "Pass-through Authentication (PTA) with Seamless SSO and PHS enabled as a disaster recovery backup."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: AD FS with no PHS.</strong></p><p>The CISO requires authentication to occur on premises (rules out PHS as primary), no password hashes leaving on premises (rules out PHS entirely, including as backup), and continued cloud-app authentication during a brief on-premises outage. AD FS, when deployed with appropriate redundancy and a Web Application Proxy, can be made resilient. More importantly, AD FS issues SAML/WS-Fed tokens that the cloud accepts without re-checking on-premises during their lifetime, so cloud sessions can survive brief outages. PTA without PHS would fail outright during a connectivity outage because every authentication requires the connector to reach AD.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> PHS violates the no-hash-leaves-on-prem rule.</p><p><strong>Option B:</strong> PTA without PHS cannot survive a 4-hour on-premises outage.</p><p><strong>Option D:</strong> Enabling PHS, even as backup, violates the explicit no-hash rule.</p><p>Reference: <a href=\"https://learn.microsoft.com/entra/identity/hybrid/connect/choose-ad-authn\">Choose Entra hybrid authentication</a></p>"
+  },
+  {
+    "id": "azure-az305-q9",
+    "question_number": "9",
+    "question": "A global ride-sharing platform stores driver location pings in a NoSQL data store. The workload averages 250,000 writes per second across the world. Reads must be served from the closest region with single-digit-millisecond latency. The application tolerates that a driver's most recent ping might be slightly stale on read (up to a few seconds), but the read must never go backwards in time within a single client session. Cost must be minimized. Which Cosmos DB configuration is the most appropriate?",
+    "choices": [
+      "Single-region write with strong consistency.",
+      "Multi-region write enabled, with consistency level set to Strong.",
+      "Multi-region write enabled, with consistency level set to Session.",
+      "Multi-region write enabled, with consistency level set to Eventual."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Multi-region writes with Session consistency.</strong></p><p>Multi-region writes are required to achieve 250k writes/sec globally and to serve reads from the nearest region. Session consistency is Cosmos DB's default and provides per-session monotonic reads, read-your-writes, and monotonic writes within the session token — which exactly matches \"never go backwards in time within a single client session\" while allowing the small staleness across sessions/replicas the application tolerates. Session also has the lowest RU cost of the strong-or-bounded family.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Single-region writes cannot meet global write throughput needs nor local-region low-latency writes.</p><p><strong>Option B:</strong> Strong consistency is not supported with multi-region writes; Cosmos requires Bounded Staleness or weaker.</p><p><strong>Option D:</strong> Eventual gives no monotonic read guarantee within a session, violating the \"no backward-in-time\" requirement.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/cosmos-db/consistency-levels\">Cosmos DB consistency levels</a></p>"
+  },
+  {
+    "id": "azure-az305-q10",
+    "question_number": "10",
+    "question": "A logistics company is partitioning a Cosmos DB container that stores 50 TB of shipment records. The dominant access pattern is querying all shipments for a specific customer, but there is also a less-frequent administrative report that scans by ShipmentStatus. They have ~120,000 customers, but 20 enterprise customers generate 60% of all shipments. The architect must avoid hot partitions while ensuring single-partition queries for the dominant pattern. Which partition key strategy is best?",
+    "choices": [
+      "Use ShipmentStatus as the partition key since it appears in the administrative report.",
+      "Use CustomerId as the partition key directly for all customers.",
+      "Use a synthetic partition key combining CustomerId and a hash bucket suffix (e.g., CustomerId_0 through CustomerId_99) for the enterprise customers and CustomerId for the rest, with the suffix appended at application layer.",
+      "Use ShipmentId (a GUID) as the partition key."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Hierarchical / synthetic partition key for hot tenants.</strong></p><p>CustomerId-only partitioning would create hot partitions for the 20 enterprise customers driving 60% of traffic, potentially exceeding the 20 GB and 10,000 RU/s per-logical-partition limits. A synthetic partition key (or equivalently, Cosmos DB hierarchical partition keys) spreads enterprise customers' data across many physical partitions while still keeping non-enterprise customers as a single-partition query. The application can fan out queries across the small known number of buckets for enterprise customers.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> ShipmentStatus has very low cardinality (a handful of values) and would create severe hot partitions.</p><p><strong>Option B:</strong> Hot partitions on enterprise customers will be created.</p><p><strong>Option D:</strong> GUID partitioning destroys query locality; every customer query becomes a cross-partition fan-out.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/cosmos-db/partitioning-overview\">Cosmos DB partitioning</a></p>"
+  },
+  {
+    "id": "azure-az305-q11",
+    "question_number": "11",
+    "question": "An enterprise is migrating a 6 TB on-premises SQL Server 2016 database that uses SQL Server Agent jobs, Database Mail, cross-database queries, CLR assemblies, and the Service Broker. They want minimal code changes, automated OS and SQL patching, and built-in high availability with an SLA of at least 99.99%. They are willing to accept higher per-vCore cost in exchange for compatibility. Which Azure SQL deployment option is most appropriate?",
+    "choices": [
+      "Azure SQL Database — Hyperscale tier with read replicas.",
+      "Azure SQL Database — Business Critical with zone redundancy.",
+      "Azure SQL Managed Instance — Business Critical tier.",
+      "SQL Server on Azure VMs using an Always On availability group."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Azure SQL Managed Instance — Business Critical.</strong></p><p>Azure SQL Managed Instance provides near-100% surface compatibility with the on-premises SQL Server engine, including SQL Server Agent jobs, Database Mail, cross-database queries, CLR (with constraints), and Service Broker — all of which Azure SQL Database (single DB) does not support. Business Critical tier provides built-in Always On with a 99.99% SLA and automated patching at the platform level. SQL on Azure VMs would meet compatibility but requires customer-managed patching and AG configuration, contradicting the operational requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Hyperscale doesn't support SQL Agent natively (until recent additions, with constraints) and lacks several instance-scoped features.</p><p><strong>Option B:</strong> Azure SQL Database lacks cross-database queries, SQL Agent, Service Broker, etc.</p><p><strong>Option D:</strong> Requires self-managed OS and SQL patching.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/azure-sql/managed-instance/sql-managed-instance-paas-overview\">Azure SQL Managed Instance overview</a></p>"
+  },
+  {
+    "id": "azure-az305-q12",
+    "question_number": "12",
+    "question": "A media analytics startup ingests 80 TB/day of clickstream and ad-impression events into a data lake. Data scientists primarily use Apache Spark with notebooks, ML libraries (MLflow, scikit-learn) and require highly elastic Spark clusters that auto-scale. The BI team needs SQL-based ad-hoc analytics over curated tables with strong concurrency and predictable cost. The architect must minimize lock-in to a single product. Which architecture should be recommended?",
+    "choices": [
+      "Use Azure Synapse Analytics Dedicated SQL pools for everything, including data science workloads.",
+      "Use Azure Databricks with Delta Lake for data engineering and data science, and Synapse Serverless SQL pools for BI ad-hoc queries over the Delta tables.",
+      "Use Azure HDInsight on-demand clusters for both BI and data science.",
+      "Use Power BI Premium with imported datasets and skip the lake layer."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Databricks + Delta Lake + Synapse Serverless SQL.</strong></p><p>Databricks excels at Spark-based data engineering and data science with MLflow integration and elastic auto-scaling clusters that align to the data scientist workflow. Delta Lake on ADLS Gen2 provides ACID guarantees and is an open format (Linux Foundation), minimizing lock-in. Synapse Serverless SQL pools can query Delta and Parquet tables directly in the lake with pay-per-query pricing — ideal for BI ad-hoc workloads with predictable cost characteristics. This is the canonical lakehouse pattern on Azure.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Dedicated SQL pools are MPP data warehouses, not data science platforms, and require capacity provisioning.</p><p><strong>Option C:</strong> HDInsight requires manual cluster management and lacks the modern Spark/MLflow developer experience.</p><p><strong>Option D:</strong> Power BI Premium import models cannot handle 80 TB/day ingestion or data science workflows.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/databricks/lakehouse/\">Lakehouse on Azure</a></p>"
+  },
+  {
+    "id": "azure-az305-q13",
+    "question_number": "13",
+    "question": "A pharmaceutical company stores 800 TB of clinical trial documents in Azure Blob Storage. Regulatory requirements specify that documents must be retained for 15 years and be immutable (no deletes or modifications) for the first 7 years of storage. Access patterns: 90% of documents are read at most once after ingestion; the remaining 10% are read multiple times during active trials lasting 2-3 years. The architect must minimize storage cost while satisfying compliance. Which design is best? (Select THREE).",
+    "choices": [
+      "Use lifecycle management to transition documents from Hot to Cool after 30 days and from Cool to Archive after 180 days.",
+      "Enable time-based retention immutability policies on the container for the 7-year period, locked, with append-only semantics enforced.",
+      "Use Locally Redundant Storage (LRS) to minimize cost.",
+      "Use Geo-Zone-Redundant Storage (GZRS) or RA-GZRS for the documents to satisfy regional disaster recovery for regulated long-term data.",
+      "Encrypt documents with customer-managed keys (CMK) stored in Azure Key Vault Premium with HSM-backed keys.",
+      "Use blob soft delete with a 7-day window as the immutability mechanism."
+    ],
+    "correct_answer_indices": [0, 1, 3],
+    "explanation_html": "<p><strong>Correct: Lifecycle Hot→Cool→Archive, locked time-based immutability, GZRS.</strong></p><p>Lifecycle management automatically tiers infrequently accessed data to lower-cost tiers; Archive is the cheapest tier and is appropriate for the 90% of documents read at most once. Time-based retention immutability policies (which can be locked) enforce WORM semantics that satisfy SEC 17a-4(f), HIPAA, and FDA 21 CFR Part 11 style compliance for the 7-year window. GZRS provides cross-region durability that regulatory bodies typically expect for long-term clinical records.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> LRS provides no regional DR; a regional disaster would lose the data.</p><p><strong>Option E:</strong> CMK with HSM is valuable but is not required by the stated compliance scenario and adds operational cost; the question's compliance is satisfied by immutability + retention, and Microsoft-managed keys already provide AES-256 encryption at rest.</p><p><strong>Option F:</strong> Soft delete is recovery, not immutability — it does not prevent intentional deletes during the protection window when properly authorized.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview\">Blob immutability</a></p>"
+  },
+  {
+    "id": "azure-az305-q14",
+    "question_number": "14",
+    "question": "A travel-booking platform requires geographically distributed reads with eventual consistency tolerance, must handle bursty seasonal traffic (10x baseline RPS during sales), and stores semi-structured booking documents averaging 4 KB. They want pay-per-request pricing during off-peak and predictable cost during sales events. They also require a SQL-like query language for ad-hoc operations team queries. Which Cosmos DB throughput and API choice is best?",
+    "choices": [
+      "Cosmos DB for NoSQL with Autoscale throughput on the database, and a separate Provisioned throughput container for the hottest collection.",
+      "Cosmos DB for MongoDB with Serverless throughput and shared autoscale across all collections.",
+      "Cosmos DB for Cassandra with manually provisioned throughput sized for peak.",
+      "Cosmos DB for Table API with Serverless throughput."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Cosmos DB for NoSQL with Autoscale + targeted Provisioned for hot container.</strong></p><p>The NoSQL API supports the richest SQL-like query language for ops team ad-hoc queries. Autoscale RU/s automatically scales between 10%-100% of a configured maximum and bills hourly at the highest RU/s in the hour — ideal for the 10x bursty pattern while not paying peak rates off-peak. For an extremely hot single container that runs at sustained high load, isolating it on Provisioned (manual) RU/s avoids the 1.5x autoscale price premium. Serverless caps at 5,000 RU/s and ~1 TB per container and would not handle the peak load.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Serverless has throughput and storage limits unsuitable for the 10x peak, and MongoDB API uses MQL, not SQL.</p><p><strong>Option C:</strong> Manual provisioning sized for peak wastes ~90% of capacity off-peak.</p><p><strong>Option D:</strong> Table API has limited query expressiveness and serverless capacity limits apply.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/cosmos-db/provision-throughput-autoscale\">Cosmos DB autoscale</a></p>"
+  },
+  {
+    "id": "azure-az305-q15",
+    "question_number": "15",
+    "question": "An ERP modernization project needs to expose a 12 TB Azure SQL Database to ~50 reporting users running heavy aggregation queries that historically slow down the OLTP workload. Reports tolerate up to 5 minutes of data staleness. The architect needs to minimize OLTP impact and minimize cost. Which design should be recommended?",
+    "choices": [
+      "Scale up the primary database to a higher tier so OLTP and reporting can coexist.",
+      "Configure Active geo-replication to a secondary readable replica in the same region and point reporting users to the replica.",
+      "Use the Hyperscale tier with named read replicas (Hyperscale named replicas) dedicated to the reporting workload.",
+      "Run reports directly against transaction log shipping copies restored hourly to a separate SQL VM."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Hyperscale named replicas for reporting workload isolation.</strong></p><p>Azure SQL Hyperscale named replicas (introduced as a Hyperscale feature) allow you to create up to 30 read-only replicas that share the same page server storage as the primary, with independent compute sized for the reporting workload. They isolate the heavy reporting queries from the OLTP primary, scale independently, and are far cheaper than full geo-replicas because they don't duplicate storage. Data lag is typically a few seconds, well within the 5-minute tolerance.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Scaling up doesn't isolate workloads and is expensive.</p><p><strong>Option B:</strong> Geo-replicas duplicate storage costs and same-region geo-replication is unnecessary versus named replicas.</p><p><strong>Option D:</strong> Log shipping is operationally heavy and provides hourly staleness, not the smooth few-seconds lag of Hyperscale replicas.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/azure-sql/database/service-tier-hyperscale-replicas\">Hyperscale named replicas</a></p>"
+  },
+  {
+    "id": "azure-az305-q16",
+    "question_number": "16",
+    "question": "A genomics research lab ingests 200 TB/month of sequencing files into Azure. Each file is 50-200 GB. Files are processed once within 14 days of arrival, then accessed extremely rarely (perhaps once every few years for re-analysis). The lab is highly cost-sensitive. Which storage and lifecycle design minimizes cost while keeping data available?",
+    "choices": [
+      "Store files in Hot tier of a Premium block blob storage account with no lifecycle policy.",
+      "Store files in Hot tier initially, lifecycle to Cool at day 14, then to Archive at day 30, in a Standard general-purpose v2 account with LRS.",
+      "Store files in Archive tier from day 0 to minimize cost, and rehydrate as needed.",
+      "Store files in an Azure Files Premium share and snapshot weekly."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Hot → Cool at 14d → Archive at 30d, GPv2 LRS.</strong></p><p>The access pattern (heavy ingest read for 14 days, then near-zero access for years) maps exactly to the canonical Hot/Cool/Archive lifecycle. Cool tier from 14 days reduces storage cost; Archive tier from 30 days provides another ~5-10x cost reduction for data accessed once every few years. The slight rehydration cost when needed is acceptable for once-in-years access. LRS is acceptable for cost-sensitive research data where the source instrument can re-sequence if needed; if not, ZRS or GRS would be chosen.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Premium block blob is for low-latency small-object workloads; storing 50-200 GB files in Hot Premium with no lifecycle is wildly expensive.</p><p><strong>Option C:</strong> Archive from day 0 prevents the day-1-to-14 processing reads (Archive blobs are offline; you'd pay rehydration costs for every file).</p><p><strong>Option D:</strong> Azure Files Premium is dramatically more expensive per GB than blob storage.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview\">Blob access tiers</a></p>"
+  },
+  {
+    "id": "azure-az305-q17",
+    "question_number": "17",
+    "question": "An online lottery platform requires that ticket sales transactions be globally consistent: a ticket sold in any region must not be re-sold in another, even during a regional failure. Latency for purchase confirmation can be up to 200 ms. The platform must continue accepting purchases if any single region fails. Which Cosmos DB consistency configuration is most appropriate?",
+    "choices": [
+      "Strong consistency with multi-region writes.",
+      "Strong consistency with a single write region and multiple read regions, with automatic failover enabled.",
+      "Bounded Staleness with multi-region writes and a 5-second staleness bound.",
+      "Session consistency with multi-region writes."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Strong consistency, single-write-region with multi-region reads and automatic failover.</strong></p><p>Cosmos DB Strong consistency provides linearizable reads — exactly the guarantee needed to prevent double-selling a ticket. Cosmos requires Strong consistency to use single write region (multi-region writes are incompatible with Strong). Automatic failover promotes a read region to write if the write region fails, satisfying the resilience requirement; the 200 ms tolerance accommodates the cross-region quorum latency of Strong.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Strong + multi-region writes is not a supported combination.</p><p><strong>Option C:</strong> Bounded Staleness allows lag within the staleness bound — a ticket could be double-sold within the 5-second window during normal operation.</p><p><strong>Option D:</strong> Session is per-session monotonic; it provides no global ordering across users in different regions and would allow double-selling.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/cosmos-db/consistency-levels\">Cosmos DB consistency</a></p>"
+  },
+  {
+    "id": "azure-az305-q18",
+    "question_number": "18",
+    "question": "A SaaS platform stores tenant data in Azure SQL Database. The architect must design a backup strategy meeting: 35-day point-in-time-restore (PITR) within the same region, weekly full backups retained for 10 years for compliance, restoreable to any historical week, and cross-region restore capability with an RPO of at most 1 hour. Which combination should be configured? (Select TWO).",
+    "choices": [
+      "Configure PITR retention to 35 days on each database (the default 7-day retention is insufficient).",
+      "Configure Long-Term Retention (LTR) policy with weekly backups retained for 520 weeks (10 years).",
+      "Enable Active geo-replication to a paired region; this satisfies the 10-year backup requirement.",
+      "Export BACPAC files weekly to a blob container as the LTR mechanism.",
+      "Enable Geo-redundant backup storage (GRS) on the server, which provides cross-region restore with the documented RPO."
+    ],
+    "correct_answer_indices": [1, 4],
+    "explanation_html": "<p><strong>Correct: LTR weekly for 520 weeks + GRS-backed backups.</strong></p><p>Azure SQL Database Long-Term Retention (LTR) policies natively support weekly/monthly/yearly retention up to 10 years, replacing manual BACPAC export pipelines. PITR can be set up to 35 days, but the LTR weekly@520w covers compliance archival. GRS-backed backup storage is the default and provides geo-restore from the paired region with a documented RPO of ~1 hour, satisfying the cross-region capability.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The 35-day PITR is correct but is the maximum PITR window — this option is largely redundant with the default backup capability and does not by itself satisfy any of the compliance retention requirements; the LTR policy is the load-bearing setting.</p><p><strong>Option C:</strong> Geo-replication is for HA/DR of live data, not for compliance backup retention.</p><p><strong>Option D:</strong> BACPAC export is a transactionally inconsistent export not suitable as a backup mechanism, and LTR has superseded it.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/azure-sql/database/long-term-retention-overview\">Azure SQL LTR</a></p>"
+  },
+  {
+    "id": "azure-az305-q19",
+    "question_number": "19",
+    "question": "A telecom operator runs a customer-facing portal in Azure App Service across two regions (West Europe primary, North Europe secondary) using Azure SQL Database with active geo-replication. They want a documented RPO of less than 5 seconds and an RTO of less than 1 minute for the portal, with automatic application-side failover. Which design satisfies the RTO/RPO targets?",
+    "choices": [
+      "Use Azure SQL Database failover groups with auto-failover policy, and use Azure Front Door with health probes to route traffic to the active App Service region.",
+      "Use Active geo-replication with manual failover invoked via runbooks, and Traffic Manager performance routing.",
+      "Use SQL Database long-term retention and restore on disaster, with Azure Front Door priority routing.",
+      "Use database export/import to a hot standby instance every 5 minutes, with DNS-level failover via Traffic Manager."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Failover groups + Azure Front Door health probes.</strong></p><p>Azure SQL Failover Groups provide a stable read-write listener endpoint that automatically updates on failover and support automatic failover policy with configurable grace period. RPO is typically less than 5 seconds and RTO is in the range of seconds to one minute. Azure Front Door provides global Layer-7 routing with health probes that can fail traffic over to the secondary region in seconds. Together they meet the stated RTO/RPO.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Manual failover via runbooks cannot meet a 1-minute RTO reliably; Traffic Manager DNS-level routing has TTL-driven propagation delays.</p><p><strong>Option C:</strong> LTR + restore is for compliance, not DR; restore times far exceed 1 minute.</p><p><strong>Option D:</strong> Export/import every 5 minutes is not transactionally consistent and cannot achieve sub-5-second RPO.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/azure-sql/database/auto-failover-group-overview\">Failover groups</a></p>"
+  },
+  {
+    "id": "azure-az305-q20",
+    "question_number": "20",
+    "question": "A financial trading firm runs a latency-sensitive workload on 80 Azure VMs in a single region. They require an RPO of zero (no data loss) for the underlying disks for an entire-region failure scenario, an RTO of 4 hours, and the lowest cost option meeting both. Which DR design should be recommended?",
+    "choices": [
+      "Azure Site Recovery (ASR) with continuous replication of the VMs to the paired region; orchestrated failover plans for RTO.",
+      "Azure Backup with daily snapshots restored cross-region in the event of a regional failure.",
+      "Manually scripted nightly disk snapshots copied to a secondary region's storage account.",
+      "Zone-Redundant Storage (ZRS) managed disks on the source VMs."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Azure Site Recovery (ASR) continuous replication.</strong></p><p>ASR provides continuous block-level replication of VM disks to the paired region with an RPO measured in seconds (effectively zero for the constraint as stated; ASR's documented RPO is as low as ~30 seconds for most workloads, which is materially the closest to zero among the choices). Recovery plans orchestrate the failover sequence, networking, and runbooks to bring the workload up within the 4-hour RTO. Backup-based options have RPOs measured in hours (the snapshot interval), failing the requirement. ZRS protects against a single AZ failure within a region, not a region failure.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Backup RPO is hours/days, not near-zero.</p><p><strong>Option C:</strong> Nightly snapshots produce up to 24-hour RPO.</p><p><strong>Option D:</strong> ZRS does not protect against a regional failure.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/site-recovery/site-recovery-overview\">Azure Site Recovery</a></p>"
+  },
+  {
+    "id": "azure-az305-q21",
+    "question_number": "21",
+    "question": "A bank wants to standardize backup operations across 600 VMs, 30 Azure SQL servers, 50 Azure Files shares, and 200 Azure Blob accounts spanning 8 subscriptions. They need a single pane to monitor backup jobs, define backup policies centrally, demonstrate compliance against an enterprise retention standard, and enforce that no resource can disable its own backup unilaterally. Which service should be recommended?",
+    "choices": [
+      "Azure Backup Center with Backup vaults and Recovery Services vaults, and Azure Policy to enforce required backup configuration; combined with Multi-User Authorization (MUA) to prevent unilateral disablement.",
+      "A combination of independent Recovery Services vaults per subscription, monitored via separately deployed Log Analytics workspaces.",
+      "Azure Site Recovery as the central backup orchestration tool.",
+      "Use only Azure Storage account soft delete and point-in-time restore for everything."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Backup Center + Azure Policy + Multi-User Authorization.</strong></p><p>Azure Backup Center provides a single pane of glass across multiple subscriptions, regions, and workload types, including VM, SQL, Azure Files, and Blob backups. Azure Policy can require that resources have a specific backup policy assigned (Built-in policies exist for VMs and SQL). Multi-User Authorization (MUA) protects backup configurations from unilateral modification by requiring approval from a Resource Guard owner in a different RBAC scope — exactly the protection the bank needs against insider risk.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Independent vaults with separate workspaces lack the single-pane visibility requirement.</p><p><strong>Option C:</strong> ASR is for DR (replication and failover), not backup retention.</p><p><strong>Option D:</strong> Soft delete is not a substitute for managed backup with retention policies.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/backup/backup-center-overview\">Backup Center</a></p>"
+  },
+  {
+    "id": "azure-az305-q22",
+    "question_number": "22",
+    "question": "A retailer's e-commerce platform must remain available for read traffic during a regional Azure outage of the paired region. They use Azure Storage to serve a 4 TB catalog of product images. The architect needs to choose a replication strategy that allows the application to read images directly from the secondary region without waiting for a failover process to complete. Cost should be minimized within the constraint. Which storage redundancy should be recommended?",
+    "choices": [
+      "Locally Redundant Storage (LRS).",
+      "Zone-Redundant Storage (ZRS).",
+      "Geo-Redundant Storage (GRS).",
+      "Read-Access Geo-Zone-Redundant Storage (RA-GZRS)."
+    ],
+    "correct_answer_indices": [3],
+    "explanation_html": "<p><strong>Correct: RA-GZRS.</strong></p><p>The application needs to read directly from the secondary region without failover — this requires \"Read-Access\" (RA) redundancy variants, which expose a secondary read endpoint always available. RA-GZRS combines availability-zone redundancy in the primary region (better than RA-GRS for intra-region zone failures) with cross-region replication and read-access to the secondary. Standard GRS replicates cross-region but doesn't expose a secondary read endpoint unless the storage account is in failover state.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> LRS does not replicate cross-region.</p><p><strong>Option B:</strong> ZRS is intra-region only.</p><p><strong>Option C:</strong> GRS without RA doesn't allow direct reads from the secondary; only RA-GRS or RA-GZRS does. RA-GZRS is preferred over RA-GRS when AZs are available in the primary region.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/storage/common/storage-redundancy\">Storage redundancy options</a></p>"
+  },
+  {
+    "id": "azure-az305-q23",
+    "question_number": "23",
+    "question": "An insurance company has a stateless web tier and a stateful database tier. The web tier can be redeployed from infrastructure-as-code in 20 minutes. The database is Azure SQL Database Business Critical with auto-failover groups configured between West US 2 and West US 3. The business defines an RTO of 30 minutes and an RPO of less than 1 minute for the application. Following the principle of paired regions, what should the architect choose? (Select TWO).",
+    "choices": [
+      "Use the paired region of West US 2 (West US) instead of West US 3, because paired regions get sequential platform updates and prioritized recovery.",
+      "Accept West US 3 as the DR region because availability zones in both regions plus failover groups already meet the documented RPO/RTO, and West US 3 is a modern region with AZ support, while West US (West US 2's paired region) lacks AZ support.",
+      "Deploy ARM/Bicep templates and a pre-warmed App Service Plan in the DR region to satisfy the 20-minute redeploy claim, even though the web tier is stateless.",
+      "Rely solely on the database failover group region for DR, and redeploy the web tier on demand in any available region.",
+      "Configure cross-region failover group with planned failover testing every 12 months."
+    ],
+    "correct_answer_indices": [1, 4],
+    "explanation_html": "<p><strong>Correct: Use West US 3 (AZ-supported) + scheduled DR drills.</strong></p><p>The original Microsoft \"paired regions\" model recommended using the platform-paired region. However, several newer regions (including West US 3) are not in a traditional pairing but offer availability zones, which deliver stronger within-region resilience. Microsoft has updated its guidance to recommend AZ-based architectures where available, and AZ-supported region pairs across geography satisfy modern DR design even without a formal pairing. With failover groups (which give sub-minute RPO and RTO measured in seconds-to-minutes) and AZ deployments, the RTO/RPO are met. Scheduled DR drills (planned failovers) are a critical operational practice to validate the design.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Forcing West US for paired-region orthodoxy gives up AZ benefits.</p><p><strong>Option C:</strong> Pre-warming an App Service Plan in DR adds standing cost; the 20-minute redeploy already fits the 30-minute RTO.</p><p><strong>Option D:</strong> \"Any available region\" is brittle; the DR region should be predetermined and tested.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/reliability/availability-zones-overview\">Availability zones</a>, <a href=\"https://learn.microsoft.com/azure/reliability/cross-region-replication-azure\">Cross-region replication</a></p>"
+  },
+  {
+    "id": "azure-az305-q24",
+    "question_number": "24",
+    "question": "A logistics company has 300 Linux VMs running a custom telemetry-ingest service. Each VM uses ephemeral local NVMe storage for hot processing and the persistent application state is replicated to Azure Cosmos DB. The business RPO for telemetry is up to 15 minutes (some loss is acceptable; replay is possible). The cheapest DR design that meets a 2-hour RTO across regions should be selected. Which design is most appropriate?",
+    "choices": [
+      "Azure Site Recovery replication of all 300 VMs to a secondary region with managed disk replication.",
+      "ARM/Bicep + Azure DevOps deploy pipelines that redeploy the 300 VMs in the secondary region on-demand from a Shared Image Gallery image, with Cosmos DB multi-region writes providing the state.",
+      "Azure Backup with hourly snapshots and restore on disaster.",
+      "Manually maintained warm standby VMs in the DR region, scaled to 50% capacity."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Redeploy from images + Cosmos multi-region writes.</strong></p><p>For stateless or near-stateless compute where persistent state lives in a globally-replicated data store (Cosmos DB multi-region writes), the cheapest DR pattern is \"don't pay for warm compute; just redeploy from images on demand.\" Shared Image Gallery + IaC pipelines can deploy 300 VMs across many scale units in well under 2 hours. Because Cosmos provides the durable state, there is no need to replicate the VMs themselves. ASR replication would add ongoing storage and compute charges in the DR region that are unnecessary given the data architecture.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> ASR is appropriate for VMs that hold critical persistent state, not for stateless workers — and it's significantly more expensive.</p><p><strong>Option C:</strong> Backup-based recovery has hours-long RTO and unnecessary because state isn't on the VMs.</p><p><strong>Option D:</strong> Warm standby pays for idle compute and is the most expensive option listed.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/virtual-machines/shared-image-galleries\">Azure Compute Gallery</a></p>"
+  },
+  {
+    "id": "azure-az305-q25",
+    "question_number": "25",
+    "question": "A FinTech startup is launching a microservices-based API platform with 18 services. The team has Kubernetes operational experience and wants fine-grained control over networking (service mesh, network policies), GPU node support for one ML inference service, and the ability to use spot instances for batch services. The platform must be production-ready in 8 weeks. Which compute platform is the best choice?",
+    "choices": [
+      "Azure Container Apps with managed Dapr and KEDA.",
+      "Azure App Service multi-container with deployment slots.",
+      "Azure Kubernetes Service (AKS) with node pools (system, user, GPU, spot) and a service mesh add-on or Istio.",
+      "Azure Container Instances with virtual network integration for each service."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: AKS with mixed node pools and a service mesh.</strong></p><p>The team's requirements — fine-grained Kubernetes-native networking, service mesh, GPU and spot node pools, and existing Kubernetes operational expertise — map directly to AKS. AKS supports multiple node pools (system, user, GPU, spot) in the same cluster, integrates with Calico and Cilium for NetworkPolicy, and offers a managed Istio service-mesh add-on. The 8-week timeline is feasible with managed AKS plus IaC templates.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Container Apps abstracts away networking and node pools — it cannot expose GPU nodes or spot instances at the node level and doesn't give the fine-grained network control the team needs.</p><p><strong>Option B:</strong> App Service is not designed for 18 microservices with service mesh and GPU.</p><p><strong>Option D:</strong> ACI is for short-lived single-task containers; it isn't a platform for an 18-service application.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/aks/use-multiple-node-pools\">AKS node pools</a></p>"
+  },
+  {
+    "id": "azure-az305-q26",
+    "question_number": "26",
+    "question": "A media company needs to deliver a globally accessed REST API with the lowest possible end-user latency. The API is served from origins in three regions (East US, West Europe, Southeast Asia). The architecture needs to support TLS termination at the edge, WAF for OWASP rule sets, anycast IP, URL-based routing, and the ability to cache GET responses at the edge for 60 seconds. Which Azure service should be recommended?",
+    "choices": [
+      "Azure Traffic Manager with performance routing and Azure Application Gateway WAF in each region.",
+      "Azure Front Door (Premium tier) with WAF policies, caching rules, and anycast routing to the regional origins.",
+      "Azure Application Gateway in a single region with WAFv2 and Azure Cache for Redis for caching.",
+      "Azure Load Balancer Standard with cross-region tier and a third-party CDN layered in front."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Front Door Premium.</strong></p><p>Azure Front Door is the global L7 load balancer that delivers anycast routing (single global IP, fastest-region selection at the Microsoft edge), TLS termination at the edge, native caching of GET responses with configurable TTLs, and integrated WAF (with OWASP rule sets in Premium). It uniquely satisfies all stated requirements with a single service. Traffic Manager is DNS-only (no caching, no WAF, no TLS termination). Application Gateway is regional. Load Balancer is L4 and has no WAF/caching.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Traffic Manager uses DNS responses, with TTL propagation latency and no edge caching or TLS termination.</p><p><strong>Option C:</strong> Single-region App Gateway cannot provide global low-latency anycast.</p><p><strong>Option D:</strong> Azure Load Balancer is L4; layering CDN adds complexity Front Door provides natively.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/frontdoor/front-door-overview\">Azure Front Door</a></p>"
+  },
+  {
+    "id": "azure-az305-q27",
+    "question_number": "27",
+    "question": "An enterprise with 35 spoke VNets across 4 regions is hitting management limits with its hub-and-spoke topology: VPN throughput is limited at the central hub, transit between spokes requires NVA traversal, and adding new regions requires significant manual configuration of route tables, peering, and gateways. The architect wants to reduce operational overhead, provide automated any-to-any branch and VNet connectivity, and support ExpressRoute and VPN at the same hubs. Which connectivity model should be recommended?",
+    "choices": [
+      "Continue with the existing hub-and-spoke design and scale up the VPN gateway SKU to AggressiveActive.",
+      "Migrate to Azure Virtual WAN with secured virtual hubs (Azure Firewall integrated), one virtual hub per region, and connect ExpressRoute circuits and VPN connections to the same hub.",
+      "Flatten to a single global VNet across all regions via global VNet peering.",
+      "Deploy a third-party SD-WAN appliance cluster in each region for routing."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Virtual WAN with secured hubs.</strong></p><p>Azure Virtual WAN provides a Microsoft-managed transit network with regional hubs that natively support ExpressRoute, site-to-site VPN, point-to-site VPN, and Azure Firewall (secured hub) in a single managed construct. Any-to-any routing between VNets and branches is automatic across hubs, eliminating the manual route-table and peering complexity of a self-built hub-and-spoke. The 35-spoke, 4-region scale is exactly the operational pain point Virtual WAN was designed to address.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> No SKU named \"AggressiveActive\" exists; scaling the existing hub doesn't solve the architectural scaling problem.</p><p><strong>Option C:</strong> Global VNet peering doesn't provide branch connectivity or transit through Firewall.</p><p><strong>Option D:</strong> Third-party SD-WAN adds vendor management; Virtual WAN includes managed transit natively.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/virtual-wan/virtual-wan-about\">Azure Virtual WAN</a></p>"
+  },
+  {
+    "id": "azure-az305-q28",
+    "question_number": "28",
+    "question": "An enterprise PaaS application uses Azure SQL Database, Azure Storage, and Azure Key Vault. Security policy requires that no traffic to these PaaS services traverses the public internet, that DNS resolution be consistent across on-premises and Azure VNets, and that access from on-premises through ExpressRoute uses private IP addresses for these PaaS services. Which design satisfies all requirements? (Select TWO).",
+    "choices": [
+      "Create Private Endpoints for Azure SQL, Azure Storage, and Azure Key Vault in a dedicated services subnet of the hub VNet.",
+      "Use Service Endpoints on each spoke VNet's subnets to reach the PaaS services privately.",
+      "Configure Azure Private DNS zones (e.g., privatelink.database.windows.net) linked to all VNets, and use Azure DNS Private Resolver inbound endpoints so on-premises DNS forwarders can resolve private endpoint FQDNs.",
+      "Use public IPs for the PaaS services and rely on IP filtering for security.",
+      "Configure split-horizon DNS at every on-premises DNS server with hardcoded private IPs for each PaaS service."
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Private Endpoints + Private DNS zones + DNS Private Resolver inbound.</strong></p><p>Private Endpoints give each PaaS service a private NIC in a VNet subnet, accessible by private IP only — traffic does not traverse the public internet. Azure Private DNS zones with the standard privatelink.* names ensure VNet-side resolution. The Azure DNS Private Resolver inbound endpoint exposes Azure Private DNS to on-premises forwarders over ExpressRoute, ensuring consistent FQDN-based resolution from on-premises without hardcoding IPs.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Service Endpoints route Azure-to-Azure over the Azure backbone but the destination still has a public IP and Service Endpoints are not reachable from on-premises via ExpressRoute private peering.</p><p><strong>Option D:</strong> Public IPs with IP filtering doesn't meet the no-public-internet requirement.</p><p><strong>Option E:</strong> Hardcoded IPs are brittle; Private Endpoint IPs can change on recreation and should be resolved via DNS.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/private-link/private-endpoint-overview\">Private Endpoint</a>, <a href=\"https://learn.microsoft.com/azure/dns/dns-private-resolver-overview\">DNS Private Resolver</a></p>"
+  },
+  {
+    "id": "azure-az305-q29",
+    "question_number": "29",
+    "question": "A startup is launching a B2B SaaS product with an unpredictable load pattern (could be 10 users or 10,000 within a day), HTTP-driven only, written in Python and Node.js, with each microservice scale-to-zero capable. The team has minimal infrastructure experience and wants the lowest operational overhead. Which compute platform best fits?",
+    "choices": [
+      "Azure Kubernetes Service with cluster autoscaler and KEDA.",
+      "Azure Container Apps with HTTP-based autoscaling and scale-to-zero.",
+      "Azure App Service Premium V3 plan with a fixed minimum of 2 instances per service.",
+      "Azure Virtual Machine Scale Sets with custom scaling rules."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Azure Container Apps.</strong></p><p>Container Apps is built on AKS + KEDA + Dapr + Envoy under the hood but exposes a serverless, fully managed surface. It scales HTTP services to zero between requests (paying only for actual compute used), scales out automatically on concurrent request count, and requires no node-pool management. For a small team with unpredictable load and minimal ops experience, it is the lowest-overhead choice that still allows container portability.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> AKS provides maximum flexibility but requires Kubernetes operational expertise the team explicitly lacks.</p><p><strong>Option C:</strong> App Service P V3 with a fixed minimum of 2 instances per service does not scale to zero — costly at the low end of the unpredictable range.</p><p><strong>Option D:</strong> VMSS is IaaS, the most operational overhead of all options.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/container-apps/overview\">Azure Container Apps</a></p>"
+  },
+  {
+    "id": "azure-az305-q30",
+    "question_number": "30",
+    "question": "A regulated bank is sizing VMs for its core banking workload migration. The workload has a sustained ~80% CPU utilization, requires consistent memory bandwidth, must run on Intel processors for ISV certification, requires premium SSD storage with at least 25,000 IOPS per VM, and benefits from accelerated networking. Cost is a secondary consideration to predictable performance. Which VM family is most appropriate?",
+    "choices": [
+      "B-series (burstable) VMs.",
+      "D-series v5 (general purpose, Intel) VMs with Premium SSD v2 disks.",
+      "Av2-series VMs to minimize cost.",
+      "Lsv3-series (storage optimized AMD) VMs."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: D-series v5 (Intel) with Premium SSD v2.</strong></p><p>The D-series v5 (Dv5/Dsv5) is the current Intel-based general-purpose family on Ice Lake processors, offering balanced CPU-to-memory ratio appropriate for a 24x7 banking workload at sustained ~80% CPU. Premium SSD v2 supports up to 80,000 IOPS per disk and allows independent provisioning of IOPS, throughput, and capacity. Accelerated networking is supported. B-series is burstable (credit-based) and unsuitable for sustained 80% CPU. Av2 is entry-level legacy. Lsv3 is AMD-based storage-optimized, failing the Intel ISV requirement.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> B-series CPU credits would be exhausted under sustained 80% load, causing throttling.</p><p><strong>Option C:</strong> Av2 lacks modern CPU performance and Premium SSD support on many sizes.</p><p><strong>Option D:</strong> Lsv3 is AMD EPYC — disqualified by the Intel-only ISV requirement.</p><p>Reference: <a href=\"https://learn.microsoft.com/azure/virtual-machines/sizes-general\">Azure VM sizes</a></p>"
+  }
+]

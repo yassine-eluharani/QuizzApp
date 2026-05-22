@@ -1,0 +1,396 @@
+[
+  {
+    "id": "gcp-ace-q1",
+    "question_number": "1",
+    "question": "A startup is preparing to migrate workloads to Google Cloud. The finance team requires that all charges across multiple projects roll up to a single invoice while engineering teams retain isolation between projects. What is the most appropriate way to set up billing?",
+    "choices": [
+      "Create a separate billing account for each project and consolidate invoices manually each month",
+      "Create one Cloud Billing account and link every project to it",
+      "Enable Cloud Billing only on the production project and run other projects under the free tier",
+      "Create a billing account per team and use folders to group invoices"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Create one Cloud Billing account and link every project to it.</strong></p><p>A single Cloud Billing account can pay for any number of projects. All linked projects appear together on one invoice while each project remains an independent IAM and resource boundary, satisfying both the finance and engineering requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Multiple billing accounts mean multiple invoices and complex manual reconciliation, which is exactly what the team wants to avoid.</p><p><strong>Option C:</strong> The GCP free tier is not a billing strategy and does not cover production workloads; projects must be linked to a valid billing account to use most services.</p><p><strong>Option D:</strong> Folders organize resources for IAM, not invoices. Each billing account still produces its own invoice regardless of folder structure.</p><p>Reference: <a href=\"https://cloud.google.com/billing/docs/concepts\">Cloud Billing concepts</a></p>"
+  },
+  {
+    "id": "gcp-ace-q2",
+    "question_number": "2",
+    "question": "An engineer has just installed the Google Cloud CLI on a new workstation. Which command should they run first to authenticate the gcloud CLI with their user credentials and set up a default configuration?",
+    "choices": [
+      "gcloud auth activate-service-account",
+      "gcloud config set account",
+      "gcloud init",
+      "gcloud components update"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: gcloud init.</strong></p><p>The <code>gcloud init</code> command launches an interactive workflow that authorizes gcloud to access Google Cloud with the user's credentials, lets the user pick a default project and compute region/zone, and creates a named configuration. It is the recommended first command after installing the SDK.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> <code>gcloud auth activate-service-account</code> authenticates using a service account key file, not user credentials, and does not set up project defaults.</p><p><strong>Option B:</strong> <code>gcloud config set account</code> only changes which already-authenticated account is active; it does not initiate the login flow.</p><p><strong>Option D:</strong> <code>gcloud components update</code> updates SDK components but does nothing for authentication or default configuration.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/docs/initializing\">Initializing the gcloud CLI</a></p>"
+  },
+  {
+    "id": "gcp-ace-q3",
+    "question_number": "3",
+    "question": "You need to programmatically enable the Cloud Run Admin API in a project named `prod-app-42` from a CI pipeline that already has gcloud authenticated. Which command will enable the API?",
+    "choices": [
+      "gcloud services list --project=prod-app-42 run.googleapis.com",
+      "gcloud projects add-iam-policy-binding prod-app-42 --role=roles/run.admin",
+      "gcloud services enable run.googleapis.com --project=prod-app-42",
+      "gcloud api-gateway apis create run.googleapis.com --project=prod-app-42"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: gcloud services enable run.googleapis.com --project=prod-app-42.</strong></p><p>The <code>gcloud services enable</code> command activates a Google service (API) on a project. Cloud Run's service name is <code>run.googleapis.com</code>, and <code>--project</code> targets the correct project from a CI environment.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> <code>gcloud services list</code> shows enabled or available services; it does not enable anything.</p><p><strong>Option B:</strong> Granting an IAM role does not turn on the underlying API. The API must still be enabled separately.</p><p><strong>Option D:</strong> <code>gcloud api-gateway</code> manages API Gateway resources, which are unrelated to enabling Google service APIs.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/gcloud/reference/services/enable\">gcloud services enable</a></p>"
+  },
+  {
+    "id": "gcp-ace-q4",
+    "question_number": "4",
+    "question": "A company organizes its Google Cloud resources with an Organization at the top, followed by a `prod` folder and a `dev` folder. They want a policy that prevents the creation of external IP addresses on Compute Engine VMs across all production projects but not in development. Where should the organization policy be applied?",
+    "choices": [
+      "At the Organization node so it applies everywhere",
+      "At each individual production project, repeating the constraint per project",
+      "At the `prod` folder, so all projects under it inherit the policy",
+      "At the billing account associated with production"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: At the `prod` folder, so all projects under it inherit the policy.</strong></p><p>Organization policies are inherited down the resource hierarchy. Setting the <code>compute.vmExternalIpAccess</code> constraint at the prod folder cleanly targets all current and future production projects without affecting development, and avoids per-project drift.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Applying at the Organization node would also block development projects, which the requirement explicitly excludes.</p><p><strong>Option B:</strong> Repeating the policy in every project is error-prone and will not cover newly created projects automatically.</p><p><strong>Option D:</strong> Billing accounts are not part of the resource hierarchy for organization policies and cannot be used as a policy target.</p><p>Reference: <a href=\"https://cloud.google.com/resource-manager/docs/organization-policy/overview\">Organization policy overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q5",
+    "question_number": "5",
+    "question": "An engineer needs to switch the gcloud CLI from working on the `dev-sandbox` project to the `staging-eu` project for a one-off command without changing the active gcloud configuration. Which approach is best?",
+    "choices": [
+      "Run `gcloud config set project staging-eu` before the command and reset it afterwards",
+      "Pass the `--project=staging-eu` flag on that single gcloud command",
+      "Create a new gcloud configuration and activate it permanently",
+      "Edit the `~/.config/gcloud/configurations/config_default` file manually"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Pass the `--project=staging-eu` flag on that single gcloud command.</strong></p><p>The <code>--project</code> flag overrides the active project for one command only, leaving the active configuration untouched. This is the safest pattern for one-off operations across projects.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Mutating and resetting global state is error-prone, especially if the command in between fails before the reset runs.</p><p><strong>Option C:</strong> Creating a new configuration is heavier than needed for a single command and can lead to configuration sprawl.</p><p><strong>Option D:</strong> Hand-editing internal configuration files is unsupported and risks corrupting gcloud state.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/gcloud/reference/topic/configurations\">gcloud configurations</a></p>"
+  },
+  {
+    "id": "gcp-ace-q6",
+    "question_number": "6",
+    "question": "A team is choosing a compute platform for a containerized stateless HTTP service that must scale to zero when idle, requires no cluster management, and is deployed by pushing a container image. Which option best fits?",
+    "choices": [
+      "Compute Engine managed instance group with autoscaling",
+      "GKE Standard cluster with a Deployment and HorizontalPodAutoscaler",
+      "App Engine Flexible environment",
+      "Cloud Run (fully managed)"
+    ],
+    "correct_answer_indices": [3],
+    "explanation_html": "<p><strong>Correct: Cloud Run (fully managed).</strong></p><p>Cloud Run runs stateless containers, scales from zero to many instances based on request load, charges only while requests are being served, and has no cluster or VM to manage. It is the canonical fit for the stated requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> MIGs do not scale to zero by default and require managing VMs, OS images, and load balancers.</p><p><strong>Option B:</strong> GKE Standard requires running a cluster (with node pools that are always on), which contradicts the no-cluster-management and scale-to-zero requirements.</p><p><strong>Option C:</strong> App Engine Flexible runs on always-on VMs and does not scale to zero.</p><p>Reference: <a href=\"https://cloud.google.com/run/docs/overview/what-is-cloud-run\">What is Cloud Run</a></p>"
+  },
+  {
+    "id": "gcp-ace-q7",
+    "question_number": "7",
+    "question": "A workload has steady 24/7 CPU utilization on Compute Engine and is expected to run unchanged for at least the next three years. Which pricing option will minimize cost without sacrificing availability?",
+    "choices": [
+      "On-demand (pay-as-you-go) pricing",
+      "Spot VMs",
+      "Committed use discount for 3 years",
+      "Sustained use discount only"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Committed use discount for 3 years.</strong></p><p>Committed use discounts (CUDs) offer the deepest discount on Compute Engine vCPU and memory in exchange for a 1- or 3-year commitment. For predictable, always-on workloads with a 3-year horizon, a 3-year CUD typically delivers the lowest total cost.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> On-demand pricing has no commitment but also no discount and is the most expensive for sustained workloads.</p><p><strong>Option B:</strong> Spot VMs are much cheaper but can be preempted at any time, which is unacceptable for a workload that requires availability.</p><p><strong>Option D:</strong> Sustained use discounts apply automatically but are smaller than CUDs and do not match the savings of a multi-year commitment.</p><p>Reference: <a href=\"https://cloud.google.com/compute/docs/instances/committed-use-discounts-overview\">Committed use discounts overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q8",
+    "question_number": "8",
+    "question": "An analytics team needs to run ad-hoc SQL queries over hundreds of terabytes of historical web logs. Storage is append-only and queries are run a few times per day by a small group of analysts. Which service is the best fit?",
+    "choices": [
+      "Cloud SQL for PostgreSQL",
+      "Cloud Spanner",
+      "BigQuery",
+      "Cloud Bigtable"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: BigQuery.</strong></p><p>BigQuery is a serverless, columnar data warehouse designed for ad-hoc SQL analytics on petabyte-scale datasets. Append-only log analysis with infrequent interactive querying is a textbook use case.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud SQL is a managed OLTP relational database and is not designed for hundred-terabyte analytical scans.</p><p><strong>Option B:</strong> Spanner is a globally distributed OLTP database optimized for strongly consistent transactional workloads, not large analytical scans.</p><p><strong>Option D:</strong> Bigtable is a wide-column NoSQL store for high-throughput key lookups and time-series, without ad-hoc SQL.</p><p>Reference: <a href=\"https://cloud.google.com/bigquery/docs/introduction\">BigQuery introduction</a></p>"
+  },
+  {
+    "id": "gcp-ace-q9",
+    "question_number": "9",
+    "question": "A team is choosing between GKE Autopilot and GKE Standard for a new application. They want Google to manage and bill per pod, with no node-level operations, while still supporting standard Kubernetes APIs. Which mode is appropriate, and why? (Select TWO)",
+    "choices": [
+      "GKE Autopilot — Google manages and provisions nodes; billing is per pod resource request",
+      "GKE Standard — the team must size, upgrade, and scale node pools themselves",
+      "GKE Autopilot — exposes raw node SSH access for debugging",
+      "GKE Standard — bills per pod regardless of node usage",
+      "Both modes are billed identically and only differ in regional vs zonal availability"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: GKE Autopilot manages nodes and bills per pod; GKE Standard requires the team to manage node pools.</strong></p><p>Autopilot abstracts the node layer entirely and bills based on the CPU, memory, and ephemeral storage requested by running pods. Standard exposes node pools that customers must size, upgrade, and scale, and bills per node (VM) regardless of pod packing.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Autopilot does not expose SSH or node-level access; that is a deliberate restriction.</p><p><strong>Option D:</strong> Standard bills for the underlying VMs, not per pod.</p><p><strong>Option E:</strong> The modes differ primarily in operational model and billing, not in regional vs zonal availability.</p><p>Reference: <a href=\"https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview\">GKE Autopilot overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q10",
+    "question_number": "10",
+    "question": "An e-commerce platform needs a relational database that supports strong consistency and horizontal scaling across multiple regions for global transactions. Which Google Cloud service should you choose?",
+    "choices": [
+      "Cloud SQL for MySQL with read replicas",
+      "Cloud Spanner",
+      "Firestore in Datastore mode",
+      "BigQuery"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Cloud Spanner.</strong></p><p>Spanner is a globally distributed, strongly consistent relational database that scales horizontally and supports cross-region transactions with SQL semantics, which exactly matches the requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud SQL scales vertically and supports cross-region read replicas, but writes are single-region; it cannot meet global strong-consistency transactional needs at scale.</p><p><strong>Option C:</strong> Firestore is a document database and is not a relational SQL store.</p><p><strong>Option D:</strong> BigQuery is an analytical warehouse, not an OLTP system.</p><p>Reference: <a href=\"https://cloud.google.com/spanner/docs/overview\">Cloud Spanner overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q11",
+    "question_number": "11",
+    "question": "You need to deploy a stateless internal microservice from a container image stored in Artifact Registry. It should be HTTPS-only, scale based on concurrent requests, and not be reachable from the public internet. Which deployment is appropriate?",
+    "choices": [
+      "Cloud Run service with ingress set to `internal`",
+      "Compute Engine VM with a public IP and a firewall rule limited to a specific subnet",
+      "App Engine Standard with default routing",
+      "GKE Standard cluster with a `LoadBalancer` Service of type external"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Cloud Run service with ingress set to `internal`.</strong></p><p>Cloud Run can restrict ingress to internal traffic only (from the same VPC network or VPC Service Controls perimeter), serves HTTPS by default, and autoscales by concurrent requests. This satisfies all three requirements with minimal infrastructure.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A VM with a public IP exposes the service to the internet even when firewalled; this also requires managing TLS and scaling.</p><p><strong>Option C:</strong> App Engine Standard does not natively limit ingress to a VPC the way Cloud Run's internal ingress does, and the default deployment is internet-facing.</p><p><strong>Option D:</strong> A `LoadBalancer` Service of type external is internet-facing, which violates the requirement.</p><p>Reference: <a href=\"https://cloud.google.com/run/docs/securing/ingress\">Cloud Run ingress settings</a></p>"
+  },
+  {
+    "id": "gcp-ace-q12",
+    "question_number": "12",
+    "question": "Which gcloud command creates a Compute Engine instance named `web-1` in zone `europe-west1-b` using the e2-medium machine type and the latest Debian 12 image from the public image family?",
+    "choices": [
+      "gcloud compute instances create web-1 --zone=europe-west1-b --machine-type=e2-medium --image-family=debian-12 --image-project=debian-cloud",
+      "gcloud compute vms add web-1 --region=europe-west1 --type=e2-medium --image=debian-12",
+      "gcloud compute create-instance --name web-1 --zone europe-west1-b --image debian-12-latest",
+      "gcloud compute instances launch web-1 --machine-type=e2.medium --image-family=debian/12"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: gcloud compute instances create web-1 --zone=europe-west1-b --machine-type=e2-medium --image-family=debian-12 --image-project=debian-cloud.</strong></p><p>The proper command group is <code>gcloud compute instances create</code>. The image is selected from a public image family by pairing <code>--image-family</code> with <code>--image-project=debian-cloud</code>.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> There is no <code>gcloud compute vms add</code> subcommand, and instances are created per-zone, not per-region.</p><p><strong>Option C:</strong> The subcommand <code>create-instance</code> does not exist; the correct verb is <code>create</code> under <code>gcloud compute instances</code>.</p><p><strong>Option D:</strong> The machine type syntax uses a hyphen (<code>e2-medium</code>) and there is no <code>launch</code> subcommand.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/gcloud/reference/compute/instances/create\">gcloud compute instances create</a></p>"
+  },
+  {
+    "id": "gcp-ace-q13",
+    "question_number": "13",
+    "question": "You want to store backup tarballs that are accessed at most once a year, are kept for compliance, and must be retrievable within a few hours. Which Cloud Storage class minimizes cost while meeting the access pattern?",
+    "choices": [
+      "Standard",
+      "Nearline",
+      "Coldline",
+      "Archive"
+    ],
+    "correct_answer_indices": [3],
+    "explanation_html": "<p><strong>Correct: Archive.</strong></p><p>Archive Storage has the lowest at-rest cost among Cloud Storage classes and is designed for data accessed less than once a year, with a 365-day minimum storage duration. Retrieval is still measured in milliseconds via the standard API, well within \"a few hours.\"</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Standard is the most expensive at-rest class and is sized for frequent access.</p><p><strong>Option B:</strong> Nearline targets access about once per month; it costs more than Archive for once-a-year access.</p><p><strong>Option C:</strong> Coldline targets access about once per quarter; it costs more than Archive for once-a-year access.</p><p>Reference: <a href=\"https://cloud.google.com/storage/docs/storage-classes\">Cloud Storage storage classes</a></p>"
+  },
+  {
+    "id": "gcp-ace-q14",
+    "question_number": "14",
+    "question": "You need a managed message bus to decouple producers and consumers with at-least-once delivery, automatic global routing, and the ability to fan out to multiple subscriber services. Which service should you pick?",
+    "choices": [
+      "Cloud Tasks",
+      "Pub/Sub",
+      "Cloud Scheduler",
+      "Cloud Storage object notifications via Eventarc"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Pub/Sub.</strong></p><p>Pub/Sub is Google Cloud's managed messaging service. It provides at-least-once delivery, global topics, and one-to-many fan-out via multiple subscriptions on the same topic, which matches all stated requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud Tasks delivers each task to one target endpoint; it does not natively fan out to multiple subscribers.</p><p><strong>Option C:</strong> Cloud Scheduler triggers jobs on a cron schedule and is not a general-purpose message bus.</p><p><strong>Option D:</strong> Eventarc on object notifications is event-driven but limited to a specific event source; it is not a generic decoupling bus.</p><p>Reference: <a href=\"https://cloud.google.com/pubsub/docs/overview\">Pub/Sub overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q15",
+    "question_number": "15",
+    "question": "A team uses Cloud SQL for PostgreSQL and wants point-in-time recovery (PITR) for the last 7 days plus automatic daily backups. Which steps should they take? (Select TWO)",
+    "choices": [
+      "Enable automated backups on the Cloud SQL instance",
+      "Enable point-in-time recovery on the Cloud SQL instance, which turns on write-ahead log retention",
+      "Manually copy `pg_dump` output to Cloud Storage every hour",
+      "Promote a read replica to the primary every day",
+      "Configure a Cloud Scheduler job to restart the instance nightly"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Enable automated backups and enable point-in-time recovery on the Cloud SQL instance.</strong></p><p>PITR in Cloud SQL relies on automated backups plus retained write-ahead logs; both must be enabled. Once configured, the instance can be restored to any moment within the retention window.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Manual <code>pg_dump</code> exports are logical snapshots, not PITR, and are operationally heavy.</p><p><strong>Option D:</strong> Promoting a replica is for failover or sharding scenarios, not PITR.</p><p><strong>Option E:</strong> Restarting an instance does not create backups or enable PITR.</p><p>Reference: <a href=\"https://cloud.google.com/sql/docs/postgres/backup-recovery/pitr\">Cloud SQL point-in-time recovery</a></p>"
+  },
+  {
+    "id": "gcp-ace-q16",
+    "question_number": "16",
+    "question": "You need to upload a directory of files from a CI runner into the Cloud Storage bucket `gs://artifacts-prod/build-77/`. Which command is correct?",
+    "choices": [
+      "gcloud storage cp -r ./dist gs://artifacts-prod/build-77/",
+      "gcloud storage upload ./dist gs://artifacts-prod/build-77/",
+      "gcloud bucket sync ./dist gs://artifacts-prod/build-77/",
+      "gcloud cs put-objects --bucket=artifacts-prod --prefix=build-77 ./dist"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: gcloud storage cp -r ./dist gs://artifacts-prod/build-77/.</strong></p><p>The <code>gcloud storage cp</code> command (which replaces <code>gsutil cp</code> in current SDKs) copies files or directories, with <code>-r</code> for recursive directory uploads.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> There is no <code>gcloud storage upload</code> subcommand.</p><p><strong>Option C:</strong> The sync verb on <code>gcloud storage</code> is <code>rsync</code>, not <code>gcloud bucket sync</code>.</p><p><strong>Option D:</strong> <code>gcloud cs put-objects</code> is not a real command.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/gcloud/reference/storage/cp\">gcloud storage cp</a></p>"
+  },
+  {
+    "id": "gcp-ace-q17",
+    "question_number": "17",
+    "question": "A real-time pipeline must ingest millions of events per minute from Pub/Sub, transform them with windowed aggregations, and write the results to BigQuery. Which Google Cloud service is purpose-built for this?",
+    "choices": [
+      "Cloud Composer",
+      "Cloud Dataflow",
+      "Cloud Functions",
+      "Cloud Run jobs"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Cloud Dataflow.</strong></p><p>Dataflow is a managed Apache Beam runner designed for unified batch and streaming data processing. It autoscales for high-throughput streaming, has native Pub/Sub and BigQuery connectors, and supports windowed aggregations out of the box.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud Composer (managed Airflow) orchestrates workflows but is not a streaming data processor.</p><p><strong>Option C:</strong> Cloud Functions handle event-driven invocations but are not designed for sustained, high-throughput stream aggregation.</p><p><strong>Option D:</strong> Cloud Run jobs are for batch container executions, not continuous streaming pipelines.</p><p>Reference: <a href=\"https://cloud.google.com/dataflow/docs/overview\">Dataflow overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q18",
+    "question_number": "18",
+    "question": "You need a Compute Engine deployment that survives the loss of a single zone, runs identical VM instances behind an HTTPS load balancer, and automatically scales based on CPU. What should you configure?",
+    "choices": [
+      "A zonal managed instance group with autoscaling and a regional external HTTPS load balancer",
+      "A regional managed instance group with autoscaling and a global external HTTPS load balancer",
+      "Independent VMs in multiple zones managed manually behind an internal TCP load balancer",
+      "A single VM with a startup script that scales by cloning itself"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: A regional managed instance group with autoscaling and a global external HTTPS load balancer.</strong></p><p>A regional MIG spreads instances across multiple zones in the region, so a single-zone failure does not take down the service. Pairing it with a global external HTTPS load balancer and CPU-based autoscaling meets all stated requirements.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A zonal MIG keeps all VMs in one zone, so a zone failure brings down the workload.</p><p><strong>Option C:</strong> Manually managed VMs lose the self-healing and autoscaling benefits of a MIG.</p><p><strong>Option D:</strong> A startup script cloning itself is not a real autoscaling mechanism on GCP.</p><p>Reference: <a href=\"https://cloud.google.com/compute/docs/instance-groups/regional-mig-distribution-shape\">Regional MIG distribution</a></p>"
+  },
+  {
+    "id": "gcp-ace-q19",
+    "question_number": "19",
+    "question": "You want to be alerted when the average CPU utilization across a managed instance group exceeds 80% for 5 minutes. Which Cloud Monitoring construct should you create?",
+    "choices": [
+      "A log-based metric on Cloud Logging entries",
+      "An uptime check on the load balancer URL",
+      "An alerting policy with a metric threshold condition on `compute.googleapis.com/instance/cpu/utilization`",
+      "A Cloud Trace span filter"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: An alerting policy with a metric threshold condition on `compute.googleapis.com/instance/cpu/utilization`.</strong></p><p>Cloud Monitoring alerting policies evaluate metric time series against threshold conditions over a duration. The CPU utilization metric for Compute Engine, filtered to the MIG, with a threshold of 0.8 over 5 minutes, exactly expresses the requirement.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Log-based metrics derive values from log entries, not directly from CPU utilization.</p><p><strong>Option B:</strong> An uptime check probes endpoint availability, not CPU load.</p><p><strong>Option D:</strong> Cloud Trace analyzes latency in distributed traces, not host CPU.</p><p>Reference: <a href=\"https://cloud.google.com/monitoring/alerts\">Cloud Monitoring alerting overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q20",
+    "question_number": "20",
+    "question": "A team noticed that exceptions from their Cloud Run service are scattered across many log entries. They want automatic grouping and trending of these exceptions with a notification when a new error type appears. Which service should they use?",
+    "choices": [
+      "Cloud Logging log router",
+      "Error Reporting",
+      "Cloud Trace",
+      "Cloud Profiler"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Error Reporting.</strong></p><p>Error Reporting automatically groups stack traces from logs into distinct error types, tracks their frequency and trend, and can send notifications when new errors appear. It integrates natively with Cloud Run logs.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The log router exports or filters log entries; it does not group exceptions or alert on new error types.</p><p><strong>Option C:</strong> Cloud Trace focuses on request latency and distributed tracing.</p><p><strong>Option D:</strong> Cloud Profiler attributes CPU and memory consumption to source code, not errors.</p><p>Reference: <a href=\"https://cloud.google.com/error-reporting/docs/setup/overview\">Error Reporting overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q21",
+    "question_number": "21",
+    "question": "An engineer wants to capture per-request latency breakdowns for a microservice running on GKE so they can identify slow downstream calls. Which tool is most appropriate?",
+    "choices": [
+      "Cloud Monitoring uptime checks",
+      "Cloud Trace",
+      "Cloud Logging",
+      "Error Reporting"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Cloud Trace.</strong></p><p>Cloud Trace is Google Cloud's distributed tracing service. It captures latency data per request and breaks it down into spans for downstream calls, which is exactly the diagnostic the engineer needs.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Uptime checks tell you whether an endpoint is reachable, not where time is spent within a request.</p><p><strong>Option C:</strong> Logging stores structured log entries but does not natively model spans or latency hierarchies.</p><p><strong>Option D:</strong> Error Reporting focuses on exception aggregation, not latency.</p><p>Reference: <a href=\"https://cloud.google.com/trace/docs/overview\">Cloud Trace overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q22",
+    "question_number": "22",
+    "question": "A managed instance group is configured with autoscaling based on CPU at 70%. During a marketing campaign, traffic spikes occur faster than instances can boot, causing brief latency spikes. Which two changes would help reduce those spikes? (Select TWO)",
+    "choices": [
+      "Increase the autoscaler's initial delay so it ignores new instances longer",
+      "Lower the target CPU utilization, e.g., to 50%, so the autoscaler scales out earlier",
+      "Enable predictive autoscaling so capacity is added before forecast demand",
+      "Switch from a managed instance group to a single large VM",
+      "Disable health checks on the backend service"
+    ],
+    "correct_answer_indices": [1, 2],
+    "explanation_html": "<p><strong>Correct: Lower the target CPU utilization and enable predictive autoscaling.</strong></p><p>Lowering the target threshold causes the MIG to add capacity sooner, reducing the chance of latency spikes during ramp-ups. Predictive autoscaling uses historical patterns to scale ahead of forecast load, smoothing campaign-driven spikes.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A longer initial delay delays counting new instances toward capacity, which generally worsens responsiveness during spikes, not improves it.</p><p><strong>Option D:</strong> A single large VM removes redundancy and still has a fixed ceiling; it does not solve burst capacity.</p><p><strong>Option E:</strong> Disabling health checks does not address scaling speed and harms reliability.</p><p>Reference: <a href=\"https://cloud.google.com/compute/docs/autoscaler/predictive-autoscaling\">Predictive autoscaling for MIGs</a></p>"
+  },
+  {
+    "id": "gcp-ace-q23",
+    "question_number": "23",
+    "question": "You need to retain audit logs from all projects in your organization for 7 years in a tamper-resistant location, separate from production. What is the most appropriate setup?",
+    "choices": [
+      "Configure an aggregated log sink at the Organization level routing logs to a Cloud Storage bucket with a 7-year retention/lock policy",
+      "Configure per-project log sinks that send logs to each project's `_Default` bucket",
+      "Increase the `_Required` bucket retention in each project to 7 years",
+      "Export logs to BigQuery and rely on table-level access controls"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Configure an aggregated log sink at the Organization level routing logs to a Cloud Storage bucket with a 7-year retention/lock policy.</strong></p><p>Aggregated sinks at the org level capture logs from all current and future projects. Sending them to a dedicated Cloud Storage bucket in a separate project, with a retention policy that is locked, provides tamper-resistant long-term retention.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Per-project sinks miss new projects unless explicitly configured and do not produce a separate tamper-resistant store.</p><p><strong>Option C:</strong> The `_Required` bucket retention is fixed at 400 days and cannot be extended to 7 years.</p><p><strong>Option D:</strong> BigQuery exports plus IAM provide queryability but not the tamper-resistance of a locked retention policy on Cloud Storage.</p><p>Reference: <a href=\"https://cloud.google.com/logging/docs/export/aggregated_sinks\">Aggregated log sinks</a></p>"
+  },
+  {
+    "id": "gcp-ace-q24",
+    "question_number": "24",
+    "question": "A finance lead wants to be notified when the current month's spend on a billing account exceeds 80% of a $50,000 forecast budget. Which Google Cloud feature delivers this?",
+    "choices": [
+      "An organization policy on `billing.disableBilling`",
+      "A Cloud Monitoring uptime check on the billing console",
+      "A Cloud Billing budget with email alerts at threshold rules (e.g., 80% of $50,000)",
+      "A Cloud Function triggered by Pub/Sub on every billing event"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: A Cloud Billing budget with email alerts at threshold rules (e.g., 80% of $50,000).</strong></p><p>Cloud Billing budgets let you set an amount and define percentage thresholds (e.g., 50%, 80%, 100%) that trigger email alerts to billing admins or Pub/Sub messages for automation.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The `billing.disableBilling` constraint enforces who can disable billing; it is unrelated to spend alerts.</p><p><strong>Option B:</strong> Uptime checks monitor endpoints, not budget thresholds.</p><p><strong>Option D:</strong> A custom Cloud Function is far more work than the built-in budget alert feature.</p><p>Reference: <a href=\"https://cloud.google.com/billing/docs/how-to/budgets\">Cloud Billing budgets</a></p>"
+  },
+  {
+    "id": "gcp-ace-q25",
+    "question_number": "25",
+    "question": "A developer needs to read objects from the bucket `gs://reports-prod` but should not modify or delete them. Which predefined IAM role follows least privilege?",
+    "choices": [
+      "roles/storage.admin",
+      "roles/storage.objectAdmin",
+      "roles/storage.objectViewer",
+      "roles/owner on the project"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: roles/storage.objectViewer.</strong></p><p>The Storage Object Viewer role grants read-only access to objects in a bucket, which exactly matches the requirement to read without modifying or deleting.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Storage Admin allows full control over buckets and objects, far more than needed.</p><p><strong>Option B:</strong> Storage Object Admin allows create, update, and delete on objects, which violates least privilege.</p><p><strong>Option D:</strong> Project Owner grants administrative access across the entire project and is never appropriate for least privilege.</p><p>Reference: <a href=\"https://cloud.google.com/storage/docs/access-control/iam-roles\">Cloud Storage IAM roles</a></p>"
+  },
+  {
+    "id": "gcp-ace-q26",
+    "question_number": "26",
+    "question": "Which gcloud command grants the role `roles/storage.objectViewer` on the bucket `reports-prod` to the service account `pipeline@my-project.iam.gserviceaccount.com`?",
+    "choices": [
+      "gcloud storage buckets add-iam-policy-binding gs://reports-prod --member=serviceAccount:pipeline@my-project.iam.gserviceaccount.com --role=roles/storage.objectViewer",
+      "gcloud projects add-iam-policy-binding reports-prod --member=user:pipeline@my-project.iam.gserviceaccount.com --role=roles/storage.objectViewer",
+      "gcloud iam roles grant pipeline@my-project.iam.gserviceaccount.com --bucket=reports-prod --role=storage.objectViewer",
+      "gsutil iam grant role:storage.objectViewer pipeline@my-project.iam.gserviceaccount.com gs://reports-prod"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: gcloud storage buckets add-iam-policy-binding gs://reports-prod --member=serviceAccount:pipeline@my-project.iam.gserviceaccount.com --role=roles/storage.objectViewer.</strong></p><p>Granting IAM at the bucket scope uses <code>gcloud storage buckets add-iam-policy-binding</code>. Service account members must be prefixed with <code>serviceAccount:</code> and the role must be fully qualified (<code>roles/storage.objectViewer</code>).</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> This binds at the project, not the bucket, and uses the wrong member prefix (<code>user:</code> instead of <code>serviceAccount:</code>).</p><p><strong>Option C:</strong> <code>gcloud iam roles grant</code> is not a real subcommand.</p><p><strong>Option D:</strong> The legacy <code>gsutil iam</code> verb is <code>ch</code> with a colon-delimited member, not the syntax shown.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/gcloud/reference/storage/buckets/add-iam-policy-binding\">gcloud storage buckets add-iam-policy-binding</a></p>"
+  },
+  {
+    "id": "gcp-ace-q27",
+    "question_number": "27",
+    "question": "A workload running in a GKE cluster needs to access objects in a Cloud Storage bucket without storing service account keys on the cluster. Which approach is recommended?",
+    "choices": [
+      "Mount a service account key file as a Kubernetes Secret on each pod",
+      "Configure Workload Identity, binding a Kubernetes service account to a Google service account",
+      "Use the GKE node's default service account and grant it Owner on the project",
+      "Hardcode the access token from `gcloud auth print-access-token` into the pod environment"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Configure Workload Identity, binding a Kubernetes service account to a Google service account.</strong></p><p>Workload Identity lets pods authenticate to Google Cloud APIs as a Google service account without service account keys. The Kubernetes service account is mapped to a Google service account via IAM bindings; tokens are short-lived and automatically rotated.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Mounting key files violates the \"no keys on the cluster\" requirement and increases blast radius.</p><p><strong>Option C:</strong> Granting Owner on the project massively violates least privilege.</p><p><strong>Option D:</strong> Hardcoding tokens uses short-lived credentials that will quickly expire and is operationally untenable.</p><p>Reference: <a href=\"https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity\">GKE Workload Identity</a></p>"
+  },
+  {
+    "id": "gcp-ace-q28",
+    "question_number": "28",
+    "question": "An application running on Compute Engine needs to read a database password and an API key at startup. The values must be encrypted at rest, rotated, and accessed via IAM without storing plaintext on the VM. Which service should you use?",
+    "choices": [
+      "Cloud KMS keys directly as the secret values",
+      "Cloud Storage with bucket-level ACLs",
+      "Secret Manager",
+      "Compute Engine instance metadata custom attributes"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Secret Manager.</strong></p><p>Secret Manager stores secrets encrypted at rest, supports versioning and rotation, exposes IAM-controlled access, and integrates with Compute Engine via the metadata server's service account credentials.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cloud KMS manages keys for encryption operations; it does not store arbitrary secret payloads for direct retrieval.</p><p><strong>Option B:</strong> Cloud Storage with ACLs lacks first-class versioning, rotation, and access patterns optimized for short secret blobs.</p><p><strong>Option D:</strong> Custom instance metadata is readable from the VM and is not designed as a secret store; values are visible to anyone with metadata access.</p><p>Reference: <a href=\"https://cloud.google.com/secret-manager/docs/overview\">Secret Manager overview</a></p>"
+  },
+  {
+    "id": "gcp-ace-q29",
+    "question_number": "29",
+    "question": "You need a VPC firewall rule that allows TCP traffic on port 443 from the public internet to instances tagged `web-frontend` in the network `prod-vpc`. Which gcloud command creates it?",
+    "choices": [
+      "gcloud compute firewall-rules create allow-https --network=prod-vpc --direction=INGRESS --action=ALLOW --rules=tcp:443 --source-ranges=0.0.0.0/0 --target-tags=web-frontend",
+      "gcloud compute firewall-rules create allow-https --network=prod-vpc --direction=EGRESS --action=ALLOW --rules=tcp:443 --destination-ranges=0.0.0.0/0",
+      "gcloud compute networks create allow-https --rules=tcp:443 --tags=web-frontend",
+      "gcloud compute firewall-rules add allow-https --network=prod-vpc --port=443 --source=internet"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: gcloud compute firewall-rules create allow-https --network=prod-vpc --direction=INGRESS --action=ALLOW --rules=tcp:443 --source-ranges=0.0.0.0/0 --target-tags=web-frontend.</strong></p><p>Ingress rules require <code>--source-ranges</code> (here <code>0.0.0.0/0</code> for the public internet) and apply to target instances by tag via <code>--target-tags</code>. The protocol/port is given as <code>tcp:443</code> under <code>--rules</code>.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> An EGRESS rule with destination-ranges does not allow inbound traffic to the VMs.</p><p><strong>Option C:</strong> <code>gcloud compute networks create</code> creates a VPC, not a firewall rule.</p><p><strong>Option D:</strong> There is no <code>firewall-rules add</code> verb, and the flags shown are not valid.</p><p>Reference: <a href=\"https://cloud.google.com/sdk/gcloud/reference/compute/firewall-rules/create\">gcloud compute firewall-rules create</a></p>"
+  },
+  {
+    "id": "gcp-ace-q30",
+    "question_number": "30",
+    "question": "A team has identified that the predefined IAM role `roles/editor` is too broad for their data engineers, who need only the ability to run BigQuery jobs and read tables, but not modify datasets or other project resources. What should they do? (Select TWO)",
+    "choices": [
+      "Create a custom IAM role containing only the required BigQuery permissions and grant it to the data engineers",
+      "Grant the predefined roles `roles/bigquery.jobUser` and `roles/bigquery.dataViewer` to the data engineers",
+      "Grant `roles/owner` and rely on internal policy to limit their actions",
+      "Use a service account with `roles/editor` and have engineers share its credentials",
+      "Remove all IAM bindings and let engineers escalate as needed"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Create a custom role with the minimum BigQuery permissions, or grant the predefined `roles/bigquery.jobUser` and `roles/bigquery.dataViewer` roles.</strong></p><p>Both options apply least privilege. The predefined combination already gives the ability to run jobs and read tables without dataset modification rights. If even those are too broad, a custom role with the exact required permissions is the next step.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Granting Owner with reliance on policy is the opposite of least privilege.</p><p><strong>Option D:</strong> Sharing service account credentials defeats accountability and audit trails.</p><p><strong>Option E:</strong> Removing all bindings breaks legitimate work and is not a real access-control strategy.</p><p>Reference: <a href=\"https://cloud.google.com/iam/docs/understanding-custom-roles\">Understanding custom IAM roles</a></p>"
+  }
+]

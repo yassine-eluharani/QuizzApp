@@ -1,0 +1,392 @@
+[
+  {
+    "id": "aws-dop-q1",
+    "question_number": "1",
+    "question": "A financial services company runs a Java microservice on Amazon ECS Fargate behind an Application Load Balancer. The platform team must deploy new versions with automatic rollback if the new task definition produces an HTTP 5xx error rate above 1% during a 10-minute bake period. The team currently uses AWS CodePipeline with an ECS rolling deploy action and wants the smallest change to add the safety guardrail. Which approach BEST meets these requirements?",
+    "choices": [
+      "Replace the ECS rolling deploy action with an ECS (Blue/Green) deploy action that uses AWS CodeDeploy, configure a CodeDeployDefault.ECSCanary10Percent5Minutes traffic shift, and attach a CloudWatch alarm on ALB HTTP 5xx that the deployment group monitors for automatic rollback.",
+      "Keep the existing rolling deploy action and add a manual approval action in CodePipeline after deployment so an on-call engineer can review CloudWatch metrics before promoting traffic.",
+      "Use an ECS rolling deploy with the minimum healthy percent set to 100 and the maximum percent set to 200, then create an EventBridge rule that triggers a Lambda function to redeploy the previous task definition if an HTTP 5xx CloudWatch alarm fires.",
+      "Replace the deploy action with a Lambda invoke action that calls the ECS UpdateService API and writes the previous task definition ARN to Parameter Store so a separate pipeline can roll back on alarm."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS CodeDeploy's ECS Blue/Green deployment type is purpose-built for this requirement. It provisions a replacement task set, shifts traffic on the ALB listener using a canary or linear configuration (such as CodeDeployDefault.ECSCanary10Percent5Minutes), and monitors CloudWatch alarms attached to the deployment group. If the alarm enters ALARM state during the bake window, CodeDeploy automatically rolls back to the original task set with no custom code. This is the smallest, native change for the safety guardrail described.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Manual approval is human-paced and does not satisfy automatic rollback. It also leaves traffic on the new version while waiting.</p><p><strong>Option C:</strong> An ECS rolling deploy does not preserve the previous task set, so a Lambda-driven rollback must redeploy from history. This is brittle, racy, and slower than CodeDeploy's built-in two-task-set model.</p><p><strong>Option D:</strong> A custom Lambda invoke action recreates what CodeDeploy already provides and forfeits native alarm-based rollback, weighted traffic shifting, and lifecycle hooks.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html#deployment-configuration-ecs\">CodeDeploy ECS deployment configurations</a></p>"
+  },
+  {
+    "id": "aws-dop-q2",
+    "question_number": "2",
+    "question": "A SaaS company is migrating a monolith from a single AWS account into a multi-account AWS Organizations layout with separate accounts for dev, test, staging, and prod. The DevOps team wants a single CodePipeline pipeline (hosted in a dedicated tooling account) to build once and deploy the same immutable artifact to all four target accounts. Which combination of actions is REQUIRED to make this work? (Select TWO)",
+    "choices": [
+      "Create a customer-managed KMS key in the tooling account, grant each target account's deployment role kms:Decrypt and kms:GenerateDataKey on the key, and configure the pipeline's artifact store to use that key.",
+      "Enable Amazon S3 cross-region replication on the pipeline's artifact bucket to a bucket in each target account so each environment reads its own copy.",
+      "In each target account, create an IAM role that trusts the tooling account and grants the permissions required to deploy (for example, CloudFormation, ECS, S3) and reference that role in the pipeline's deploy action with a roleArn override.",
+      "Use AWS Resource Access Manager to share the CodePipeline pipeline resource with each target account so the local accounts can drive the deployment themselves."
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Options A and C.</strong></p><p>Cross-account CodePipeline requires two things. First, the artifact bucket is encrypted with a customer-managed KMS key (the AWS-managed aws/s3 key cannot be shared cross-account), and each target account's role must be granted kms:Decrypt and kms:GenerateDataKey on that CMK plus s3:GetObject on the artifact bucket. Second, each target account must publish an IAM role that trusts the tooling account; the pipeline's deploy action then specifies that role via roleArn so the action assumes it and runs in the target account.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> CRR replicates between buckets but does not solve cross-account permissions. CodePipeline reads the artifact from the pipeline's bucket, not a replica.</p><p><strong>Option D:</strong> CodePipeline is not a RAM-shareable resource; cross-account access is implemented via assumed IAM roles, not RAM.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines-create-cross-account.html\">Create a pipeline that uses resources from another account</a></p>"
+  },
+  {
+    "id": "aws-dop-q3",
+    "question_number": "3",
+    "question": "A DevOps engineer is designing a CodeBuild project that builds a container image and pushes it to Amazon ECR. The build must complete in under 4 minutes, even on the first run after a long idle period, and the team wants to minimize the cost of Docker layer caching. Which configuration BEST meets these requirements?",
+    "choices": [
+      "Enable CodeBuild local caching with the DOCKER_LAYER_CACHE mode and use a privileged build environment.",
+      "Enable CodeBuild S3 caching with cacheNamespace set to per-branch and store the entire Docker overlay2 directory on S3.",
+      "Run CodeBuild inside a VPC with an EFS mount that persists /var/lib/docker between builds.",
+      "Use a CodeBuild custom image stored in ECR Public that has the previous image layers preloaded into the image itself."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>CodeBuild local caching with the DOCKER_LAYER_CACHE mode keeps Docker layers on the build host's local storage between builds on the same warm host, which avoids the cost of an external cache store (no S3 PUT/GET charges, no EFS throughput billing) and is the fastest option for warm-start Docker builds. The build environment must be privileged for Docker-in-Docker, which option A states.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> S3 caching of /var/lib/docker works but is slow (the whole tree must upload/download) and incurs S3 cost per build. It also does not benefit from Docker's layer-level deduplication.</p><p><strong>Option C:</strong> EFS introduces per-GB-month and throughput costs and adds VPC ENI provisioning overhead to every cold start, which can blow past the 4-minute target.</p><p><strong>Option D:</strong> Baking layers into the build image is brittle (image must be rebuilt every time the source layers change) and does not survive normal application code changes.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/build-caching.html\">AWS CodeBuild caching</a></p>"
+  },
+  {
+    "id": "aws-dop-q4",
+    "question_number": "4",
+    "question": "A retail company runs a customer-facing API on AWS Lambda fronted by Amazon API Gateway. The team must release a new version of the function with a gradual traffic shift: 10% of traffic on the new version for 10 minutes, then 100%. Rollback must be automatic if a CloudWatch alarm on function errors enters ALARM state during the bake window. Which solution is the MOST operationally efficient?",
+    "choices": [
+      "Use AWS CodeDeploy with a Lambda compute platform deployment, set the deployment configuration to CodeDeployDefault.LambdaCanary10Percent10Minutes, and attach the errors alarm to the deployment group.",
+      "Publish two function versions and use API Gateway stage variables and canary release settings with a manual percentage adjustment monitored by a CloudWatch dashboard.",
+      "Create an Amazon Route 53 weighted record set in front of two API Gateway custom domains pointing to two function versions, then adjust weights with EventBridge Scheduler.",
+      "Use AWS AppConfig to deploy a feature flag toggling the new Lambda code path and roll back by updating the flag if the alarm triggers."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS CodeDeploy's Lambda compute platform is designed for exactly this pattern. It shifts traffic between Lambda aliases (which point to versions) using a built-in canary or linear configuration. Attaching the errors CloudWatch alarm to the deployment group makes rollback automatic with zero custom code. The CodeDeployDefault.LambdaCanary10Percent10Minutes setting matches the stated 10%/10-minute requirement exactly.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> API Gateway canary releases require manual percentage adjustments and have no native alarm-driven rollback for Lambda integrations.</p><p><strong>Option C:</strong> Route 53 weighted DNS at the API Gateway layer introduces DNS caching effects, is coarse, and has no automatic rollback wired to CloudWatch.</p><p><strong>Option D:</strong> AppConfig feature flags are a valid pattern but require code changes in the function to honor the flag and do not perform actual traffic shifting at the Lambda alias level. It is a heavier lift for this scenario.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations.html#deployment-configuration-lambda\">CodeDeploy Lambda deployment configurations</a></p>"
+  },
+  {
+    "id": "aws-dop-q5",
+    "question_number": "5",
+    "question": "A media company has a CodePipeline pipeline that fails intermittently in the build stage with throttling errors when pulling base images from Docker Hub. The team needs a long-term fix that does NOT require code changes to existing Dockerfiles in dozens of repositories. Which solution is MOST appropriate?",
+    "choices": [
+      "Create an Amazon ECR pull-through cache rule for docker.io and a registry alias, then configure CodeBuild to use a private registry credential with the cache repository URL through DOCKER_BUILDKIT mirror configuration.",
+      "Add a daily EventBridge schedule that invokes a Lambda function which pulls all base images from Docker Hub and pushes them to ECR, then ask each repo owner to update their FROM lines.",
+      "Use AWS PrivateLink to connect CodeBuild to Docker Hub through a VPC endpoint, which removes the rate limit.",
+      "Switch CodeBuild to a larger compute type so retries succeed quickly when throttling occurs."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>ECR pull-through cache transparently mirrors an upstream public registry (Docker Hub, Quay, GitHub Container Registry, ECR Public, Kubernetes registry) into a private ECR repository on first pull. By combining a pull-through cache with a BuildKit registry mirror configuration (or by using ECR replication and rewriting through the build environment's containerd mirrors), pulls effectively come from ECR without changing any Dockerfile. This removes the Docker Hub rate limit at scale.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Requiring every repo to update FROM lines violates the no-code-change constraint and is operationally expensive to enforce.</p><p><strong>Option C:</strong> PrivateLink does not exist for Docker Hub. Even if it did, Docker Hub's rate limit is per-IP/per-token, not transport-related.</p><p><strong>Option D:</strong> Bigger compute does not change the rate limit; throttling is on the upstream registry, not on CodeBuild capacity.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html\">Amazon ECR pull through cache</a></p>"
+  },
+  {
+    "id": "aws-dop-q6",
+    "question_number": "6",
+    "question": "A company's CodePipeline triggers a CodeBuild project that runs end-to-end integration tests against a temporary stack provisioned with CloudFormation. The tests take 35 minutes and are flaky: about 1 in 10 runs fails on a known timing issue with downstream third-party APIs. The team wants pipeline executions to succeed when these flaky tests pass on retry, without retrying the entire pipeline manually. What is the MOST efficient way to achieve this?",
+    "choices": [
+      "In the CodeBuild buildspec, wrap the test command in a retry loop that re-runs the failed integration tests up to two times before reporting overall failure, and emit per-attempt test reports to CodeBuild Test Reporting.",
+      "Configure the CodePipeline action's retry behavior to ROLLBACK_ON_FAILURE so the entire pipeline replays automatically on failure.",
+      "Split the build into two CodeBuild actions in sequence so that CodePipeline retries only the second action if the first succeeds.",
+      "Use a Step Functions state machine invoked from the pipeline with a Retry block scoped to the entire integration test stack provisioning step."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>CodePipeline does not natively retry an action's interior failures partially; once a CodeBuild action returns non-zero, the action is failed. The correct place to handle a known transient failure is inside the buildspec, by retrying just the flaky portion. CodeBuild Test Reporting accepts multiple report uploads so the per-attempt history is preserved for triage.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> CodePipeline does not have a ROLLBACK_ON_FAILURE retry mode that replays the pipeline. Stage-level retry exists but reruns the whole stage from scratch (including provisioning), which wastes time on a known flake.</p><p><strong>Option C:</strong> Splitting actions does not help unless you can deterministically partition tests by flake probability, which the scenario does not say is possible.</p><p><strong>Option D:</strong> A Step Functions wrapper adds complexity and a Retry on the provisioning step is irrelevant: the failure is in the tests, not the stack creation.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/test-reporting.html\">Working with test reporting in CodeBuild</a></p>"
+  },
+  {
+    "id": "aws-dop-q7",
+    "question_number": "7",
+    "question": "A team uses CodeDeploy in-place deployments on Amazon EC2 Auto Scaling groups. After a deployment, new instances launched by scale-out events occasionally come up running the OLD revision because the deployment finished before the new instance bootstrapped. What is the BEST fix?",
+    "choices": [
+      "Associate the CodeDeploy deployment group with the Auto Scaling group; CodeDeploy will hook into instance launches and deploy the latest successful revision to new instances automatically.",
+      "Configure a lifecycle hook on the Auto Scaling group that invokes a Lambda function to copy the latest revision from S3 to each new instance.",
+      "Increase the deployment timeout in CodeDeploy so the deployment waits for any pending scale-out instances before marking success.",
+      "Switch the Auto Scaling group to a launch template that bakes the application code into a custom AMI and rebuild the AMI on each deploy."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>Associating a CodeDeploy deployment group directly with an Auto Scaling group lets CodeDeploy install hooks on the ASG. When a new instance launches, the hook pauses the instance in Pending:Wait until CodeDeploy has applied the most recently successful revision, then signals the ASG to put the instance in service. This is the documented native fix for the scale-out drift problem.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Writing a custom Lambda lifecycle hook reinvents what CodeDeploy already does and is brittle (you must replicate the AppSpec lifecycle, signal handling, and retries).</p><p><strong>Option C:</strong> Deployment timeout governs the existing batch; it does not block on instances that launch after the deployment is complete.</p><p><strong>Option D:</strong> Rebaking AMIs per deployment is a different deployment strategy entirely (immutable AMIs) and contradicts the question's CodeDeploy in-place choice; it also slows deployments significantly.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html\">Integrating CodeDeploy with Amazon EC2 Auto Scaling</a></p>"
+  },
+  {
+    "id": "aws-dop-q8",
+    "question_number": "8",
+    "question": "A platform team uses AWS CloudFormation to provision a multi-region, multi-account workload. They want to enforce that every account in the Workloads organizational unit has a baseline of guardrail stacks (logging bucket, IAM password policy, GuardDuty enabled). New accounts created in that OU must receive these stacks automatically with no manual step. Which solution meets the requirement with the LEAST operational overhead?",
+    "choices": [
+      "Use CloudFormation StackSets with service-managed permissions, deploy to the Workloads OU with automatic deployments enabled, and select the target regions where the baseline must exist.",
+      "Use CloudFormation StackSets with self-managed permissions and an SCP that denies CreateAccount unless the baseline stack is present.",
+      "Use an EventBridge rule in the management account that matches CreateAccountResult and invokes a Lambda function that creates the stacks via AssumeRole into the new account.",
+      "Use AWS Service Catalog to provision a portfolio shared with the OU and ask account owners to launch the baseline product when they receive their account."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>StackSets with service-managed permissions (via AWS Organizations trusted access) plus automatic deployments is the purpose-built feature for this exact requirement. When you target an OU and enable automatic deployments, any account that joins the OU automatically gets the stack instance, and any account that leaves the OU has its instance removed. There is no glue code to maintain.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Self-managed permissions require pre-provisioned execution roles in every member account, which is exactly the manual step the question forbids. An SCP also cannot \"deny CreateAccount unless a stack exists\"; SCPs cannot inspect downstream resource state.</p><p><strong>Option C:</strong> An EventBridge + Lambda glue layer reinvents what StackSets automatic deployment already provides and is far more code to operate.</p><p><strong>Option D:</strong> Service Catalog requires the account owner to launch the product manually, which fails the \"no manual step\" requirement.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-enable-trusted-access.html\">Enable trusted access with AWS Organizations for StackSets</a></p>"
+  },
+  {
+    "id": "aws-dop-q9",
+    "question_number": "9",
+    "question": "A team manages production CloudFormation stacks for a regulated workload. The compliance team requires that any stack update preview be reviewable and that no resources marked with DeletionPolicy: Retain can be replaced or removed during an update without an explicit approval. Which combination of mechanisms BEST enforces this? (Select TWO)",
+    "choices": [
+      "Use CloudFormation change sets for every stack update so the previewed resource actions can be reviewed before execution.",
+      "Apply a CloudFormation stack policy that denies Update:Replace and Update:Delete on the protected logical IDs.",
+      "Set DeletionPolicy: Retain on all resources; this alone is sufficient because CloudFormation will refuse to delete or replace those resources.",
+      "Enable termination protection on the stack to prevent any updates that would replace resources."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Options A and B.</strong></p><p>Change sets give a previewable diff of resource actions (Add/Modify/Remove and Replacement: True/False) which is the reviewable artifact compliance requires. Stack policies are the IAM-style document that actually blocks specific actions (Update:Replace, Update:Delete) on named resources during an update; without a stack policy, an update can still proceed and cause replacement.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> DeletionPolicy: Retain only governs what happens when a resource is removed from a template or the stack is deleted; CloudFormation will still happily replace the resource during an update if the new template requires replacement. Retain does not block replacement.</p><p><strong>Option D:</strong> Termination protection prevents stack deletion, not resource replacement during update.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html\">Prevent updates to stack resources</a></p>"
+  },
+  {
+    "id": "aws-dop-q10",
+    "question_number": "10",
+    "question": "A company wants to roll out a feature flag-driven release across a fleet of microservices. Operators need to gradually increase the flag value from 0% to 100% over an hour, and the rollout must automatically pause and revert if a CloudWatch alarm on application errors enters ALARM state. The team wants to avoid writing any custom orchestration code. Which AWS service combination is the BEST fit?",
+    "choices": [
+      "AWS AppConfig with a linear deployment strategy (for example, AppConfig.Linear50PercentEvery30Minutes) and a CloudWatch alarm configured on the AppConfig environment as a monitor.",
+      "AWS Systems Manager Parameter Store with a Lambda function that polls and updates a parameter every minute, plus an EventBridge rule that rolls back on alarm.",
+      "Amazon DynamoDB with a feature_flags table and a Step Functions state machine to update items on a schedule.",
+      "AWS Secrets Manager rotation lambdas configured to update the flag value at intervals."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS AppConfig is purpose-built for feature flag and configuration deployments with progressive rollout. Built-in deployment strategies (Linear, Canary) handle the time-based rollout, and CloudWatch alarms attached to the environment automatically pause and roll back the deployment if the alarm fires. No custom code is needed.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Parameter Store has no native rollout strategy or alarm-based rollback; you would have to write all of it yourself.</p><p><strong>Option C:</strong> A DynamoDB table plus Step Functions is custom orchestration, which is exactly what the question wants to avoid.</p><p><strong>Option D:</strong> Secrets Manager rotation is for credential rotation, not for percentage-based flag rollouts, and offers no rollback model tied to alarms.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/appconfig/latest/userguide/appconfig-creating-deployment-strategy.html\">AppConfig deployment strategies</a></p>"
+  },
+  {
+    "id": "aws-dop-q11",
+    "question_number": "11",
+    "question": "A DevOps engineer is asked to enforce that every EC2 instance launched in any account in the organization is tagged with CostCenter and Owner, with non-compliant instances stopped automatically within 15 minutes. Which combination of services BEST achieves this with the LEAST custom code?",
+    "choices": [
+      "Use AWS Config conformance packs deployed via Organizations to the Workloads OU, with a required-tags managed rule and an automatic remediation action that invokes the AWS-StopEC2Instance SSM Automation document.",
+      "Use a daily Lambda function in each account that calls DescribeInstances, filters untagged instances, and calls StopInstances.",
+      "Use a service control policy that denies ec2:RunInstances unless aws:RequestTag/CostCenter and aws:RequestTag/Owner are present, plus a CloudWatch alarm on untagged instances.",
+      "Use AWS Resource Groups Tagging API with EventBridge to filter and stop non-compliant instances."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS Config managed rules include required-tags, which evaluates resources against a set of mandatory tag keys/values. Conformance packs deployed via AWS Organizations apply the rule across every account in an OU consistently. Config natively integrates with Systems Manager Automation documents (such as AWS-StopEC2Instance) for auto-remediation, fulfilling the 15-minute requirement without custom code.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Per-account scheduled Lambdas are custom code that must be replicated and maintained in every account. The question explicitly asks for the least custom code.</p><p><strong>Option C:</strong> An SCP that denies RunInstances without tags is a great preventive control, but the question requires remediation of already-running non-compliant instances within 15 minutes, which an SCP cannot do retroactively.</p><p><strong>Option D:</strong> Resource Groups Tagging API plus EventBridge does not have a built-in scheduled compliance evaluation; you would still need custom Lambda glue.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/config/latest/developerguide/remediation.html\">AWS Config remediation</a></p>"
+  },
+  {
+    "id": "aws-dop-q12",
+    "question_number": "12",
+    "question": "A global SaaS application is hosted in two AWS Regions (us-east-1 active, eu-west-1 warm standby). The team must implement automated failover such that if the application health in us-east-1 degrades, traffic shifts to eu-west-1 in under 60 seconds, and existing TCP connections are preserved as much as possible. Which architecture is MOST appropriate?",
+    "choices": [
+      "Place AWS Global Accelerator in front of regional Network Load Balancers in both regions; configure endpoint groups with health checks and traffic dial values so that an unhealthy endpoint group fails over automatically.",
+      "Use Amazon Route 53 with a failover routing policy and 30-second TTLs pointing to regional ALBs in each region.",
+      "Use Route 53 Application Recovery Controller routing controls and flip them via a CloudWatch alarm action.",
+      "Use Amazon CloudFront with two origins and an origin failover policy configured on the cache behavior."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS Global Accelerator gives clients two anycast IPs that map to healthy regional endpoints. Failover is at the AWS network edge, completing in tens of seconds without depending on DNS TTLs or client DNS caches. Because clients keep connecting to the same anycast IPs and the NLB target preserves TCP, in-flight TCP connections survive failover better than DNS-based approaches. This best meets the sub-60-second requirement.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Route 53 failover depends on DNS TTLs and client/resolver caching; in practice, many clients ignore short TTLs and take many minutes to converge.</p><p><strong>Option C:</strong> ARC routing controls are excellent for coordinated DR but still front-end through DNS, with the same TTL caveat.</p><p><strong>Option D:</strong> CloudFront origin failover is only for HTTP(S) idempotent requests from CloudFront edge, not a regional architecture failover with TCP preservation.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/global-accelerator/latest/dg/about-endpoint-groups.html\">Global Accelerator endpoint groups</a></p>"
+  },
+  {
+    "id": "aws-dop-q13",
+    "question_number": "13",
+    "question": "A team operates an Amazon Aurora PostgreSQL Global Database with the primary in us-east-1 and a read-only secondary in us-west-2. They must be able to promote us-west-2 to a standalone writer in under 2 minutes if us-east-1 becomes unreachable, and they want the runbook to be one button press for the on-call engineer. Which approach BEST meets this requirement?",
+    "choices": [
+      "Use Aurora Global Database managed planned failover and managed unplanned failover (detach-and-promote), and wrap the managed unplanned failover call in an SSM Automation runbook that the on-call engineer launches.",
+      "Take a manual snapshot of the secondary, restore it as a new cluster in us-west-2, and update the application connection string.",
+      "Use AWS DMS to continuously replicate from us-east-1 to a standalone Aurora cluster in us-west-2, and cut over by changing the DNS endpoint.",
+      "Configure RDS read replicas in us-west-2 and use the promote-read-replica API as the cutover step."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>Aurora Global Database supports managed planned failover (used for graceful failover with no data loss) and a managed unplanned failover (detach-and-promote) for true regional outages. The detach-and-promote action removes the secondary from the global cluster and promotes it to a standalone writable cluster, typically in under a minute. Wrapping the API call in an SSM Automation document gives the on-call a single button to push.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Snapshot restore is offline and takes far longer than 2 minutes; it also loses any data after the snapshot.</p><p><strong>Option C:</strong> DMS continuous replication is not a substitute for Aurora Global Database's storage-layer replication; it has higher lag, is harder to operate, and is not the AWS-recommended pattern for Aurora-to-Aurora.</p><p><strong>Option D:</strong> RDS read replicas (non-Aurora) cannot be Global Database secondaries, and an Aurora replica within a single region does not give cross-region DR. Promote-read-replica is for single-region RDS, not global Aurora.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database-disaster-recovery.html\">Aurora Global Database failover</a></p>"
+  },
+  {
+    "id": "aws-dop-q14",
+    "question_number": "14",
+    "question": "An EC2 Auto Scaling group hosts a stateless API behind an Application Load Balancer. During a recent traffic spike, the group could not scale out fast enough because the new instances took 6 minutes to bootstrap (pull dependencies, run config management). The team has been asked to reduce scale-out latency to under 90 seconds without increasing steady-state cost. Which combination of changes BEST meets this requirement? (Select TWO)",
+    "choices": [
+      "Use EC2 Auto Scaling warm pools with instances kept in the Stopped state and a Warmed:Stopped to InService transition triggered by scale-out.",
+      "Bake the application and its dependencies into a custom AMI built nightly with EC2 Image Builder, replacing on-the-fly bootstrap with image-based startup.",
+      "Increase the Auto Scaling group's desired capacity by 50% so spare instances are always running.",
+      "Configure a longer health check grace period so the ALB does not mark slow-bootstrapping instances unhealthy."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Options A and B.</strong></p><p>Warm pools keep pre-initialized instances in Stopped state. Stopped instances cost only EBS, not compute, so steady-state cost is essentially unchanged. When scale-out fires, a Stopped instance starts in seconds. Baking the app into a custom AMI via Image Builder shortens the remaining boot work even further. Combined, these get well under 90 seconds.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Permanently overprovisioning by 50% increases steady-state cost, which the question explicitly forbids.</p><p><strong>Option D:</strong> Lengthening the health check grace period hides the bootstrap problem but does not shorten time-to-serve-traffic; users still wait 6 minutes for capacity.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-warm-pools.html\">EC2 Auto Scaling warm pools</a></p>"
+  },
+  {
+    "id": "aws-dop-q15",
+    "question_number": "15",
+    "question": "A company runs a tier-1 workload across three Availability Zones. They want to be alerted within 1 minute if any individual instance in their fleet experiences elevated 5xx errors, without paying for high-resolution metrics on every instance. Which approach is MOST cost-effective?",
+    "choices": [
+      "Send ALB access logs to CloudWatch Logs, create a CloudWatch Logs metric filter that counts 5xx by target ARN, and use CloudWatch Contributor Insights with a 1-minute period to surface top offenders and alarm on them.",
+      "Enable detailed monitoring on every instance (1-minute metrics) and create a CloudWatch alarm per instance.",
+      "Use CloudWatch agent on every instance with statsd shipping a per-instance 5xx counter as a high-resolution custom metric.",
+      "Use AWS X-Ray sampling at 100% and alarm on segments with HTTP 5xx status."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>CloudWatch Contributor Insights on log-derived data points lets you rank top contributors (here, top target instances by 5xx) and alarm on the leader. ALB access logs already contain target ARN and status, and Contributor Insights rules run at 1-minute resolution without paying per-instance high-resolution metric pricing. This is the standard low-cost pattern for per-target outlier detection at fleet scale.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Detailed monitoring plus an alarm per instance is expensive and unmanageable as the fleet scales.</p><p><strong>Option C:</strong> Per-instance high-resolution custom metrics are the most expensive option (each unique metric is billed) and require agent configuration on every instance.</p><p><strong>Option D:</strong> X-Ray at 100% sampling is costly and is designed for distributed tracing, not per-instance error rate alerting.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContributorInsights.html\">CloudWatch Contributor Insights</a></p>"
+  },
+  {
+    "id": "aws-dop-q16",
+    "question_number": "16",
+    "question": "A DevOps engineer must collect application logs from 200 Amazon EC2 instances across 15 AWS accounts in one organization into a central security account for long-term storage and search. Logs must be searchable for 90 days and archived to S3 for 7 years. Which solution is MOST scalable and operationally efficient?",
+    "choices": [
+      "Configure the CloudWatch agent on each instance to write to a CloudWatch Logs log group in the local account, then create a subscription filter in each log group sending logs to an Amazon Data Firehose delivery stream in the security account that writes to Amazon S3 with a Lambda-based OpenSearch ingestion path.",
+      "Configure each EC2 instance to ship logs directly to a central S3 bucket in the security account using s3 sync in a cron job.",
+      "Run an Amazon FSx for Lustre file system in the security account and mount it on every EC2 instance for log writes.",
+      "Use Amazon Kinesis Data Streams clients embedded in each application to write logs directly to Kinesis in the security account."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>The standard multi-account log aggregation pattern is: CloudWatch agent on the instance writes to a local log group; a subscription filter (cross-account capable) streams to a Kinesis Data Stream or Amazon Data Firehose delivery stream in the security account; Firehose writes to S3 for 7-year archival, and a Lambda transform or OpenSearch Ingestion pipeline indexes a hot copy for 90-day search. This decouples producers from consumers and scales to thousands of instances.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> s3 sync from every instance is bursty, easy to misconfigure, and gives no realtime search; it also pushes IAM credentials into each instance for cross-account writes.</p><p><strong>Option C:</strong> FSx for Lustre is a parallel file system for HPC workloads, not a log aggregation pattern. It does not scale to 200 instances writing arbitrary logs cleanly and has no search or archive features.</p><p><strong>Option D:</strong> Embedding KDS producer SDKs in every app is invasive (requires application changes for every workload) and is not the AWS-recommended pattern when CloudWatch Logs agents already exist.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CrossAccountSubscriptions.html\">Cross-account log subscriptions</a></p>"
+  },
+  {
+    "id": "aws-dop-q17",
+    "question_number": "17",
+    "question": "A team operates a public REST API and wants to detect regressions in availability and latency from the customer's perspective. Probes must run from multiple AWS Regions every minute, validate JSON response content, and alert when failures persist for more than 3 minutes. Which AWS service is the BEST fit?",
+    "choices": [
+      "Amazon CloudWatch Synthetics canaries running an API canary blueprint, deployed in multiple regions, with CloudWatch alarms on the SuccessPercent metric set to 3 consecutive failures.",
+      "AWS Health Dashboard automated alerts for the API Gateway service.",
+      "Amazon Route 53 health checks configured per region with string-matching enabled.",
+      "Amazon EventBridge scheduled rules invoking a Lambda that curls the API and emits a CloudWatch custom metric."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>CloudWatch Synthetics canaries are the purpose-built service for synthetic monitoring. The API canary blueprint can issue HTTP(S) requests, validate response body and status, run on a schedule down to 1 minute, and execute from any region. SuccessPercent is a standard CloudWatch metric you can alarm on with M of N evaluation periods to require persistence (\"3 minutes\").</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> AWS Health alerts on AWS-side service events, not on the availability of your own API endpoint.</p><p><strong>Option C:</strong> Route 53 health checks can string-match but lack the rich scripting model of Synthetics (custom auth, multi-step, screenshots) and are designed primarily for DNS failover, not as a monitoring platform.</p><p><strong>Option D:</strong> A custom EventBridge + Lambda harness duplicates Synthetics and is more code to operate.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Synthetics_Canaries.html\">CloudWatch Synthetics canaries</a></p>"
+  },
+  {
+    "id": "aws-dop-q18",
+    "question_number": "18",
+    "question": "An Amazon ECS service on Fargate is exhibiting increased p99 latency. The team has enabled Container Insights but does not see the per-process CPU and memory data they need to diagnose which container in the task is causing the issue. What is the MOST appropriate next step?",
+    "choices": [
+      "Enable Container Insights enhanced observability for Amazon ECS, which adds per-container CPU, memory, network, and storage metrics in addition to the task-level metrics.",
+      "Switch from Fargate to EC2 launch type so the host metrics become visible.",
+      "Send ECS logs to OpenSearch and graph free memory from kernel logs.",
+      "Enable AWS X-Ray active tracing on the load balancer."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>Container Insights enhanced observability for ECS extends the default task-level metrics with per-container CPU, memory, network, storage, and other resource metrics, which is exactly what is needed to identify the offending container inside a multi-container task. It works on both Fargate and EC2 launch types.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Migrating launch types is invasive and unnecessary; the per-container data is available on Fargate via enhanced observability.</p><p><strong>Option C:</strong> Kernel free-memory in logs does not give you per-container attribution and is fragile.</p><p><strong>Option D:</strong> X-Ray active tracing on the ALB does not produce per-container resource metrics; it traces requests.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-ECS.html\">Container Insights with enhanced observability for ECS</a></p>"
+  },
+  {
+    "id": "aws-dop-q19",
+    "question_number": "19",
+    "question": "A microservices platform on Amazon EKS uses AWS Distro for OpenTelemetry (ADOT) to ship traces to AWS X-Ray. The team wants to identify which downstream HTTP dependency is responsible for spikes in service A's latency without sampling so few requests that intermittent spikes are missed. Which approach is BEST?",
+    "choices": [
+      "Configure ADOT with X-Ray sampling rules that set a reservoir for normal traffic and a high fixed rate (for example, 5%) for requests with high latency or 5xx status, then use the X-Ray service map and analytics to identify the slow downstream.",
+      "Set sampling to 100% across all services so no spikes are missed, and rely on X-Ray service map.",
+      "Disable X-Ray and rely on CloudWatch metrics for downstream HTTP latency.",
+      "Use VPC Flow Logs and Athena to correlate traffic spikes with downstream IPs."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>X-Ray sampling rules let you set a small reservoir (a guaranteed minimum number of traces per second) plus a fixed rate, and you can scope rules to specific HTTP methods, URL patterns, or response codes. The recommended pattern is to keep a low base rate and aggressively up-sample anomalous requests (high latency or 5xx) so you catch the interesting tail without paying for 100% tracing. The X-Ray service map then attributes latency to downstream nodes.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> 100% sampling is expensive at high RPS and is unnecessary given X-Ray's targeted sampling rules.</p><p><strong>Option C:</strong> CloudWatch metrics aggregate; they cannot pinpoint a per-request downstream dependency. You lose the causal chain.</p><p><strong>Option D:</strong> VPC Flow Logs reveal IP-level traffic but no L7 latency or trace context, making them unsuitable for application latency root-causing.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html\">X-Ray sampling rules</a></p>"
+  },
+  {
+    "id": "aws-dop-q20",
+    "question_number": "20",
+    "question": "A DevOps team operates an Amazon RDS for MySQL Multi-AZ database. They must be alerted when the database has performed a failover so they can correlate with application errors. Which combination of services provides the LOWEST-overhead solution?",
+    "choices": [
+      "Create an EventBridge rule matching RDS event source with categories failover and the relevant DB instance, and target an Amazon SNS topic to notify the on-call channel.",
+      "Subscribe to RDS event notifications via Amazon SNS directly from the RDS console using the failover event category.",
+      "Both A and B are valid; either approach works without custom code, with EventBridge providing additional filtering and routing.",
+      "Run a Lambda function every minute that calls DescribeDBInstances and compares the AvailabilityZone field with the previous value, alerting on change."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Option C.</strong></p><p>RDS publishes events to both Amazon SNS (via RDS event subscriptions) and to Amazon EventBridge. Both pathways deliver the failover event category without custom code. EventBridge has richer filtering and routing (multiple targets, content-based filters, cross-account), while RDS event subscriptions via SNS are slightly simpler if you only need SNS. The question asks for the LOWEST-overhead solution, and both options A and B meet that bar; choosing C explicitly acknowledges both as valid.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A and B alone:</strong> Either is correct individually but presenting only one excludes the other valid native pathway. C is the most accurate answer for this stem.</p><p><strong>Option D:</strong> Polling DescribeDBInstances on a 1-minute cadence is custom code and races the actual failover window; failover often completes in under a minute.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html\">Working with Amazon RDS events</a></p>"
+  },
+  {
+    "id": "aws-dop-q21",
+    "question_number": "21",
+    "question": "A regulated company requires that an unauthorized SSH login from an EC2 instance trigger automatic isolation of the instance (security group replaced with a quarantine SG, snapshot of root volume taken, ticket opened in ServiceNow). Which AWS-native architecture is the MOST appropriate?",
+    "choices": [
+      "Configure Amazon GuardDuty to detect anomalous SSH activity, create an EventBridge rule on the GuardDuty finding, and target an AWS Systems Manager Automation runbook that detaches the instance, replaces the security group, snapshots EBS, and posts to ServiceNow via an HTTP step.",
+      "Stream VPC Flow Logs to Lambda, parse for SSH connections, and call StopInstances when an unfamiliar source IP appears.",
+      "Use AWS Config managed rules with the restricted-ssh rule and AWS Config remediation that runs an SSM document.",
+      "Send CloudTrail events to Amazon SNS, subscribe a Lambda function, and inspect the events for SSH activity."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>GuardDuty produces high-fidelity findings such as UnauthorizedAccess:EC2/SSHBruteForce and Recon:EC2/PortProbeUnprotectedPort using VPC Flow Logs, DNS logs, and CloudTrail, with AWS-managed ML and threat intel. EventBridge can route GuardDuty findings directly to SSM Automation runbooks, which natively support multi-step remediation (modify SG, snapshot EBS, call external HTTP for ticketing). This is the AWS-recommended automated response pattern.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Hand-rolling SSH detection from VPC Flow Logs misses encrypted-payload reality (you only see IP/port, not authentication outcome). It also lacks GuardDuty's ML and threat-intel context.</p><p><strong>Option C:</strong> restricted-ssh checks whether security groups allow 0.0.0.0/0 on port 22; it does not detect an actual unauthorized login.</p><p><strong>Option D:</strong> CloudTrail does not log SSH login attempts to the instance (CloudTrail logs AWS API activity, not in-OS auth). This approach cannot detect the event in question.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/guardduty/latest/ug/findings_remediation.html\">Remediating GuardDuty findings</a></p>"
+  },
+  {
+    "id": "aws-dop-q22",
+    "question_number": "22",
+    "question": "A DevOps engineer needs to build a self-service runbook that on-call engineers can launch from a Slack message. The runbook restarts an unhealthy ECS service in a target account, with full audit trail. Which combination of services delivers this with the LEAST custom infrastructure?",
+    "choices": [
+      "AWS Chatbot integrated with Slack and an SNS topic; the on-call engineer invokes an SSM Automation runbook via the @aws Chatbot slash command, which assumes a role in the target account and updates the ECS service.",
+      "A dedicated EC2 instance running a custom Slack bot that calls boto3 to update the ECS service.",
+      "Slack outgoing webhooks pointing at API Gateway with a Lambda backend that talks to ECS in the target account.",
+      "Slack workflows that send an email to a CodePipeline approval action."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS Chatbot is the managed integration between AWS and Slack/Microsoft Teams. It supports the @aws command syntax that lets users invoke a curated set of AWS APIs and SSM Automation runbooks directly from chat, with IAM permissions enforced by a Chatbot channel role and CloudTrail audit logs for every action. SSM Automation can assume roles in target accounts. This is the lowest-infrastructure ChatOps pattern on AWS.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A self-managed EC2 bot is a maintenance burden (patching, scaling, IAM hardening) that AWS Chatbot eliminates.</p><p><strong>Option C:</strong> Outgoing webhook to API Gateway + Lambda is a valid generic pattern but requires substantially more code, auth, and audit plumbing than AWS Chatbot already provides.</p><p><strong>Option D:</strong> Email-based pipeline approval is asynchronous and not a runbook execution; it does not restart a service.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/chatbot/latest/adminguide/chatbot-cli-commands.html\">Running AWS CLI commands from chat channels</a></p>"
+  },
+  {
+    "id": "aws-dop-q23",
+    "question_number": "23",
+    "question": "An operations team must automatically remediate non-compliant S3 buckets that are configured with public access. The remediation must (1) block public access, (2) notify the bucket owner via email, and (3) record the action in an audit log. Multiple AWS accounts are involved. Which design satisfies all three with the LEAST code?",
+    "choices": [
+      "Use AWS Config aggregator with the s3-bucket-public-read-prohibited and s3-bucket-public-write-prohibited managed rules, an Automation document for remediation that calls PutPublicAccessBlock, and an EventBridge rule on Config compliance change events that posts to SNS for owner notification; CloudTrail captures the audit log automatically.",
+      "Run a daily Lambda function that lists all buckets across accounts, applies PutPublicAccessBlock to any public bucket, and sends an SES email to a static distribution list.",
+      "Use S3 access logs streamed to CloudWatch Logs with a metric filter that alarms on public access and triggers a Lambda to fix the bucket.",
+      "Use Amazon Macie to detect public buckets and rely on its built-in remediation."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS Config has the managed rules for public S3 access and supports automated remediation via SSM Automation documents. Config aggregators let you evaluate compliance across the entire organization centrally. EventBridge routes the resulting compliance change to SNS for the owner email, and every API call (PutPublicAccessBlock, etc.) is captured in CloudTrail automatically. This is almost entirely declarative.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Daily Lambda is custom code, has long blast windows between scans (up to 24 hours), and a static distribution list misses the actual bucket owner.</p><p><strong>Option C:</strong> S3 access logs report data plane activity (who accessed the bucket), not whether the bucket configuration is public. The trigger source is wrong.</p><p><strong>Option D:</strong> Macie focuses on data classification (PII discovery), not bucket configuration compliance, and does not perform PutPublicAccessBlock remediation.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/config/latest/developerguide/remediation.html\">AWS Config auto remediation</a></p>"
+  },
+  {
+    "id": "aws-dop-q24",
+    "question_number": "24",
+    "question": "An EventBridge rule routes high-volume CloudTrail data events to a Lambda function for security analysis. During traffic spikes, downstream throttling causes events to be dropped. The team wants durable, ordered processing per source AWS account with at-least-once semantics. Which change is MOST appropriate?",
+    "choices": [
+      "Replace the direct Lambda target with an Amazon SQS FIFO queue (one message group ID per source account) as the EventBridge target, and have Lambda consume from the queue.",
+      "Increase the Lambda function's reserved concurrency to 10,000 and turn on retry attempts at the EventBridge rule.",
+      "Switch the EventBridge target to an Amazon SNS standard topic with a Lambda subscriber.",
+      "Use EventBridge Pipes with the source set to CloudTrail and the target set to Lambda, enabling exactly-once."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>SQS FIFO between EventBridge and the Lambda consumer gives durable buffering (events survive consumer slowness), at-least-once delivery, and per-group ordering via MessageGroupId set to the source account. This is the documented pattern for shock-absorbing bursty event streams to slow consumers.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Even at high reserved concurrency, the function can still throttle on downstream APIs, and EventBridge retries are limited; events can still be dropped to the dead-letter queue. It also does not give ordering.</p><p><strong>Option C:</strong> SNS standard is unordered and best-effort; it does not satisfy the per-account ordering requirement.</p><p><strong>Option D:</strong> EventBridge Pipes do not source from CloudTrail directly; sources are SQS, Kinesis, DynamoDB Streams, MQ, MSK, and self-managed Kafka. CloudTrail still flows through EventBridge rules.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-targets.html\">EventBridge targets</a></p>"
+  },
+  {
+    "id": "aws-dop-q25",
+    "question_number": "25",
+    "question": "A team must rotate an RDS PostgreSQL master credential every 30 days with zero application downtime. Applications retrieve the credential at startup only. Which configuration meets the requirement?",
+    "choices": [
+      "Store the credential in AWS Secrets Manager with managed RDS rotation enabled using the multi-user rotation strategy, and update applications to fetch the secret on each connection attempt (or at minimum on connection failure with a single retry).",
+      "Store the credential in Secrets Manager with single-user rotation and ensure apps fetch the secret once at startup.",
+      "Store the credential in Systems Manager Parameter Store as a SecureString and trigger rotation via a scheduled Lambda.",
+      "Hard-code the password in a Lambda environment variable updated by a scheduled job; restart all applications at the rotation boundary."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>Multi-user (alternating-users) rotation in Secrets Manager keeps two database users; at rotation time, the inactive user's password is updated and tested before the secret flips to point at it. Existing connections using the previous user remain valid through their lifetime, and new connections pick up the new credential. Combined with apps that fetch on connect or refetch on connection failure, this achieves zero-downtime rotation.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Single-user rotation changes the same user's password in place; long-lived applications that cached the credential at startup will see authentication failures until restarted.</p><p><strong>Option C:</strong> Parameter Store SecureString has no built-in RDS rotation; you must write all of it yourself, and the question specifies zero downtime, which depends on the rotation strategy, not on the store.</p><p><strong>Option D:</strong> Restarting applications at rotation is by definition downtime and is operationally unacceptable for a tier-1 service.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html\">Rotating AWS Secrets Manager secrets</a></p>"
+  },
+  {
+    "id": "aws-dop-q26",
+    "question_number": "26",
+    "question": "A security engineer must encrypt all Amazon S3 objects across the organization with a customer-managed KMS key (CMK) for cross-account auditability. Existing buckets contain millions of objects encrypted with SSE-S3. Which approach migrates the data and enforces ongoing compliance MOST efficiently? (Select TWO)",
+    "choices": [
+      "Use S3 Batch Operations with the Copy operation, specifying the CMK as the destination encryption, to re-encrypt all existing objects in-place.",
+      "Enable S3 default bucket encryption with the CMK on each bucket and use an AWS Config rule (s3-default-encryption-kms) to detect non-compliant buckets going forward.",
+      "Run a one-time Lambda function that iterates over every object and re-uploads it with the new encryption.",
+      "Use Amazon Macie to encrypt sensitive data found in the buckets."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Options A and B.</strong></p><p>S3 Batch Operations is purpose-built to apply an action (Copy with new encryption, in this case) to millions or billions of objects, driven by an S3 Inventory manifest, with managed retries and a completion report. After the migration, enabling default bucket encryption with the CMK ensures new uploads go to the CMK, and an AWS Config managed rule (s3-default-encryption-kms) flags any bucket whose default encryption falls out of compliance.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> A hand-rolled Lambda over millions of objects requires managing throttling, retries, and progress; S3 Batch Operations is the AWS-managed solution to exactly this.</p><p><strong>Option D:</strong> Macie classifies sensitive data; it does not perform encryption operations on objects.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops-examples-copy.html\">Encrypt objects with S3 Batch Operations</a></p>"
+  },
+  {
+    "id": "aws-dop-q27",
+    "question_number": "27",
+    "question": "A DevOps engineer must ensure that no IAM user or role in the organization can create publicly accessible RDS snapshots. The control must apply to all accounts, including ones created in the future. Which mechanism is MOST appropriate?",
+    "choices": [
+      "Author a service control policy (SCP) attached to the organization root that denies rds:ModifyDBSnapshotAttribute when the attribute value is all, and ensure the SCP is in effect for all OUs.",
+      "Create an AWS Config rule rds-snapshots-public-prohibited with auto-remediation that flips the snapshot back to private.",
+      "Add an IAM permissions boundary to every role that denies the action.",
+      "Set up a GuardDuty custom finding for public RDS snapshots."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>SCPs are the only preventive control that applies organization-wide, including to all current and future accounts and to all principals (including the root user). A deny on rds:ModifyDBSnapshotAttribute with the AttributeValues condition matching all blocks the action before it happens. This is the correct layer for organization-wide prevention.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A Config rule detects after the fact and may remediate, but the snapshot is briefly public; the question asks to ensure it cannot happen. Detect-and-fix is weaker than prevent.</p><p><strong>Option C:</strong> Permissions boundaries are per-role/user and would have to be applied and maintained on every principal in every account, which is operationally infeasible at organization scale.</p><p><strong>Option D:</strong> GuardDuty does not have a finding type for public RDS snapshot configuration; it detects threats, not configuration drift.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html\">Service control policies</a></p>"
+  },
+  {
+    "id": "aws-dop-q28",
+    "question_number": "28",
+    "question": "A DevOps engineer wants AWS CloudTrail logs to be tamper-evident. Auditors require cryptographic verification that no log file has been deleted or modified between collection and review. Which combination of features satisfies this requirement? (Select TWO)",
+    "choices": [
+      "Enable CloudTrail log file integrity validation; the trail will produce digest files signed with AWS-managed keys that can be used to validate the chain of log files.",
+      "Store CloudTrail logs in an S3 bucket with Object Lock in Compliance mode for the retention period required by the auditors.",
+      "Encrypt the S3 bucket with an AWS-managed KMS key and rely on the encryption for tamper-evidence.",
+      "Replicate CloudTrail logs to a second S3 bucket in a different region to provide a backup copy."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Options A and B.</strong></p><p>CloudTrail log file integrity validation produces hourly digest files (signed) that chain to previous digests, so any deletion or modification of a log file or digest is cryptographically detectable. S3 Object Lock in Compliance mode prevents anyone, including the root user, from deleting or overwriting objects until the retention period expires, providing the WORM property auditors require. Used together, they satisfy tamper-evidence end to end.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Encryption protects confidentiality, not integrity. A principal with delete permission can still delete an encrypted object.</p><p><strong>Option D:</strong> Cross-region replication is a durability and availability feature; it does not prevent or detect tampering of either copy.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-log-file-validation-intro.html\">CloudTrail log file integrity validation</a></p>"
+  },
+  {
+    "id": "aws-dop-q29",
+    "question_number": "29",
+    "question": "A blue/green deployment of a microservice on Amazon ECS via AWS CodeDeploy is producing successful canary metrics, but the team wants to add an additional pre-traffic validation step that runs synthetic API requests against the new task set BEFORE any production traffic shifts. Which feature should they use?",
+    "choices": [
+      "Configure a CodeDeploy lifecycle hook (BeforeAllowTraffic) that invokes a Lambda function which runs synthetic requests against the new task set's test listener; CodeDeploy waits for the hook to report Succeeded before shifting traffic.",
+      "Add a manual approval action in CodePipeline immediately before the deploy action.",
+      "Use AWS Step Functions to orchestrate test invocations between deploy phases.",
+      "Configure the ECS service with a longer health check grace period so the test happens during ALB health checks."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>CodeDeploy ECS blue/green deployments expose lifecycle hooks (BeforeInstall, AfterInstall, BeforeAllowTraffic, AfterAllowTraffic, etc.) that invoke Lambda functions. BeforeAllowTraffic is precisely the slot for pre-traffic synthetic testing against the new task set via the test listener that CodeDeploy provisions during blue/green; CodeDeploy halts the deployment if the hook returns Failed.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A manual approval is human-paced and is not synthetic testing. It also runs before the new task set exists if placed before the deploy action.</p><p><strong>Option C:</strong> A Step Functions wrapper reinvents lifecycle hooks unnecessarily and complicates the deployment graph.</p><p><strong>Option D:</strong> Health check grace period only governs how long the ALB tolerates failing health checks before declaring the target unhealthy; it is not a synthetic test runner.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html\">AppSpec hooks for ECS blue/green</a></p>"
+  },
+  {
+    "id": "aws-dop-q30",
+    "question_number": "30",
+    "question": "A DevOps team is unifying security findings from Amazon GuardDuty, AWS Config, Amazon Inspector, and IAM Access Analyzer across 40 accounts. They need a single pane of glass with cross-account aggregation, standardized severity, and the ability to suppress known false positives automatically. Which solution BEST meets the requirements?",
+    "choices": [
+      "Enable AWS Security Hub with the organization delegated administrator pattern, enable cross-region aggregation in a designated home region, enable the relevant integrations (GuardDuty, Config, Inspector, IAM Access Analyzer), and use Security Hub automation rules to auto-suppress known false positives.",
+      "Stream all findings to an Amazon S3 data lake and run Athena queries to deduplicate and prioritize.",
+      "Forward each service's findings via SNS to a Lambda function that writes to a DynamoDB table and renders an internal dashboard.",
+      "Use Amazon Detective as the central aggregator across the organization."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Option A.</strong></p><p>AWS Security Hub is the AWS-native multi-account, multi-region aggregator. The delegated administrator pattern via AWS Organizations gives a single account central visibility for the whole org. Cross-region aggregation funnels findings into one home region, and built-in integrations with GuardDuty, Config, Inspector, IAM Access Analyzer, and others normalize findings into the AWS Security Finding Format (ASFF) with standardized severity. Security Hub automation rules can match on finding patterns and update workflow status to SUPPRESSED automatically, handling the false-positive requirement without custom code.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> An Athena-on-S3 approach loses the ASFF normalization and requires you to reimplement deduplication, severity scoring, and suppression yourself.</p><p><strong>Option C:</strong> A bespoke Lambda + DynamoDB + dashboard duplicates Security Hub and is significantly more code and operational burden.</p><p><strong>Option D:</strong> Detective is an investigation and analytics tool for incident response, not a multi-source finding aggregator with severity normalization.</p><p>Reference: <a href=\"https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html\">Security Hub automation rules</a></p>"
+  }
+]

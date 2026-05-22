@@ -1,0 +1,397 @@
+[
+  {
+    "id": "devops-docker-q1",
+    "question_number": "1",
+    "question": "You deploy a service to a Docker Swarm cluster with the command `docker service create --name web --replicas 5 --publish published=8080,target=80 nginx:1.25`. A user sends an HTTP request to port 8080 on a worker node that is NOT currently running any replica of the web service. What happens?",
+    "choices": [
+      "The request fails with a connection refused error because no replica is local to that node.",
+      "The routing mesh on the ingress overlay network forwards the request to a node running a replica, which serves the response.",
+      "The request is dropped silently and the Swarm raft log records a routing error.",
+      "The Swarm manager redirects the client via HTTP 302 to a node that hosts a replica."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The routing mesh forwards the request.</strong></p><p>When a service publishes a port in Swarm mode, every node in the cluster listens on that published port via the ingress overlay network. Any node, even one that does not run a task for the service, will accept the connection and load-balance it through IPVS to a node that holds a replica.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Connection refused does not occur because every node binds the published port through the routing mesh.</p><p><strong>Option C:</strong> Requests are not silently dropped; routing-mesh forwarding is the default behaviour.</p><p><strong>Option D:</strong> Swarm does not perform any HTTP-layer redirect; the load balancing happens at L4 via IPVS.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/ingress/\">Use swarm mode routing mesh</a></p>"
+  },
+  {
+    "id": "devops-docker-q2",
+    "question_number": "2",
+    "question": "Which two statements about Docker Swarm rolling updates are correct? (Select TWO)",
+    "choices": [
+      "`--update-parallelism` controls how many tasks the scheduler updates simultaneously.",
+      "`--update-order start-first` starts the new task before stopping the old one, useful for stateful services that should remain reachable.",
+      "Rolling updates are only available for global services, not replicated ones.",
+      "If an update fails, the default `--update-failure-action` is to roll the service back automatically.",
+      "Rolling updates require the service to be created with `--mode rollback`."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: --update-parallelism and --update-order start-first.</strong></p><p>`--update-parallelism N` defines how many tasks Swarm updates in parallel (default 1). `--update-order start-first` instructs the scheduler to start the replacement task before stopping the old one, which is helpful when you want to keep capacity high during the update.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Both replicated and global services support rolling updates.</p><p><strong>Option D:</strong> The default `--update-failure-action` is `pause`, not `rollback`. Auto-rollback must be configured explicitly.</p><p><strong>Option E:</strong> `--mode` accepts `replicated` or `global`; there is no `rollback` mode.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/\">Apply rolling updates to a service</a></p>"
+  },
+  {
+    "id": "devops-docker-q3",
+    "question_number": "3",
+    "question": "Consider the following stack file fragment:\n\n```yaml\nversion: '3.8'\nservices:\n  api:\n    image: myorg/api:1.4\n    deploy:\n      replicas: 4\n      placement:\n        constraints:\n          - node.role == worker\n          - node.labels.env == prod\n```\n\nA cluster has 1 manager and 3 worker nodes, but only 2 of the workers carry the label `env=prod`. After `docker stack deploy -c stack.yml app`, what is the most likely outcome?",
+    "choices": [
+      "All 4 replicas start on the manager because workers are full.",
+      "Swarm distributes 2 replicas to the labelled workers and leaves the other 2 in a pending state.",
+      "Swarm relaxes the constraints and places the remaining replicas on the unlabelled worker.",
+      "The stack deploy fails with an error because the constraints cannot be fully satisfied."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: 2 replicas run, 2 stay pending.</strong></p><p>Placement constraints are strict. Swarm schedules as many tasks as it can on nodes that satisfy every constraint, and leaves the remaining tasks in the `pending` state until a matching node becomes available. The service is created successfully.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The `node.role == worker` constraint explicitly excludes managers.</p><p><strong>Option C:</strong> Swarm never relaxes user-supplied constraints.</p><p><strong>Option D:</strong> `docker stack deploy` does not fail when constraints are partially unsatisfiable; it accepts the spec and waits.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/services/#control-service-placement\">Control service placement</a></p>"
+  },
+  {
+    "id": "devops-docker-q4",
+    "question_number": "4",
+    "question": "You created a Swarm secret named `db_password` and attached it to a service. The application now requires a new password value. Which sequence rotates the secret with no downtime?",
+    "choices": [
+      "Run `docker secret update db_password --value newpass`, then restart the service.",
+      "Run `docker secret rm db_password`, recreate it with the new value, then run `docker service update --secret-rm db_password --secret-add db_password app`.",
+      "Create a new secret `db_password_v2`, run `docker service update --secret-rm db_password --secret-add source=db_password_v2,target=db_password app`, then remove the old secret.",
+      "Edit `/run/secrets/db_password` inside a running container; Swarm replicates the change to all replicas."
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Create a new secret and swap it in via service update.</strong></p><p>Swarm secrets are immutable once created. The supported rotation pattern is to create a second secret (with a new name), update the service to remove the old secret and add the new one mapped to the same target path, then delete the old secret. The service update triggers a rolling redeploy with no downtime.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `docker secret update` only supports modifying labels, not the secret value.</p><p><strong>Option B:</strong> Removing the secret while it is still attached to a service is not permitted.</p><p><strong>Option D:</strong> `/run/secrets/...` is mounted from a tmpfs that Swarm controls; manual edits do not propagate and are reverted on container restart.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/secrets/#example-rotate-a-secret\">Rotate a secret</a></p>"
+  },
+  {
+    "id": "devops-docker-q5",
+    "question_number": "5",
+    "question": "What is the difference between a `replicated` and a `global` service in Docker Swarm?",
+    "choices": [
+      "A replicated service runs on managers only, while a global service runs on workers only.",
+      "A replicated service runs a configurable number of tasks distributed by the scheduler; a global service runs exactly one task on every node that meets its constraints.",
+      "A replicated service has the routing mesh enabled; a global service bypasses ingress.",
+      "A replicated service is restarted on failure; a global service is left in the failed state."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Replicated = N tasks scheduled; Global = one task per eligible node.</strong></p><p>`--mode replicated` (the default) places a user-defined number of tasks where the scheduler chooses. `--mode global` places exactly one task on every node that satisfies the service's constraints and is commonly used for agents such as log forwarders or monitoring exporters.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Both modes can run on managers or workers depending on constraints.</p><p><strong>Option C:</strong> Routing mesh availability is independent of service mode.</p><p><strong>Option D:</strong> Both modes obey the same restart policy.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/services/#replicated-or-global-services\">Replicated or global services</a></p>"
+  },
+  {
+    "id": "devops-docker-q6",
+    "question_number": "6",
+    "question": "Which command correctly promotes the worker node `node-3` to a manager in a Docker Swarm cluster?",
+    "choices": [
+      "`docker swarm join --token <manager-token> node-3`",
+      "`docker node promote node-3`",
+      "`docker service update --role manager node-3`",
+      "`docker swarm update --advertise-addr node-3`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: `docker node promote`.</strong></p><p>Run on a manager, `docker node promote <NODE>` changes the node's role from worker to manager. Demotion is performed with `docker node demote`.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `docker swarm join` is used by a brand-new node to join, not to promote.</p><p><strong>Option C:</strong> `docker service update` configures services, not node roles.</p><p><strong>Option D:</strong> `docker swarm update` adjusts cluster-wide parameters such as autolock; it cannot change node roles.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/commandline/node_promote/\">docker node promote</a></p>"
+  },
+  {
+    "id": "devops-docker-q7",
+    "question_number": "7",
+    "question": "Which two are valid ways to inspect why a Swarm task is in the `Shutdown` state with the error `task: non-zero exit (1)`? (Select TWO)",
+    "choices": [
+      "`docker service ps --no-trunc <service>` to see the full error column for each task.",
+      "`docker service logs <service>` to view the aggregated container logs of the service.",
+      "`docker swarm inspect` to read the per-task crash dump.",
+      "`docker stack rm <stack>` to force a redeploy and re-read the exit code.",
+      "`docker container exec <task-id> tail /proc/1/status` from any node."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: service ps --no-trunc and service logs.</strong></p><p>`docker service ps --no-trunc` exposes the full error message column, which often contains the exit code and the runtime reason. `docker service logs` aggregates stdout/stderr of every task across the cluster, which is the fastest path to seeing the application output that caused the exit.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> `docker swarm inspect` returns cluster-level configuration, not per-task crash data.</p><p><strong>Option D:</strong> Removing the stack discards diagnostic state and does not produce additional output.</p><p><strong>Option E:</strong> A Shutdown task no longer exists as a running container, so `docker container exec` cannot reach it.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/admin_guide/#troubleshoot-a-node\">Troubleshoot a Swarm node</a></p>"
+  },
+  {
+    "id": "devops-docker-q8",
+    "question_number": "8",
+    "question": "A Swarm manager runs `docker node update --availability drain node-5`. What is the effect on tasks currently scheduled on `node-5`?",
+    "choices": [
+      "Existing tasks continue to run, but no new tasks are scheduled on the node.",
+      "Existing tasks are stopped and rescheduled on other eligible nodes; no new tasks are scheduled on node-5.",
+      "Existing tasks are paused (SIGSTOP) until availability is set back to active.",
+      "The node leaves the Swarm immediately, removing it from `docker node ls`."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Tasks are stopped and rescheduled.</strong></p><p>The `drain` availability state tells the scheduler to stop all running tasks on the node, reschedule them elsewhere, and accept no new tasks. This is the standard pre-maintenance pattern. To merely prevent new placements while keeping current tasks, use `pause` instead.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes `pause` availability, not `drain`.</p><p><strong>Option C:</strong> Swarm does not SIGSTOP containers as part of availability changes.</p><p><strong>Option D:</strong> Drained nodes stay in the cluster and remain visible in `docker node ls`.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/swarm-tutorial/drain-node/\">Drain a node on the swarm</a></p>"
+  },
+  {
+    "id": "devops-docker-q9",
+    "question_number": "9",
+    "question": "Examine the Dockerfile:\n\n```dockerfile\nFROM golang:1.21 AS build\nWORKDIR /src\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN CGO_ENABLED=0 go build -o /out/app ./cmd/app\n\nFROM gcr.io/distroless/static\nCOPY --from=build /out/app /app\nENTRYPOINT [\"/app\"]\n```\n\nWhy is `COPY go.mod go.sum ./` placed before `COPY . .`?",
+    "choices": [
+      "To force Docker to use BuildKit, which only triggers when go.mod is copied first.",
+      "To maximize layer-cache reuse: the heavy `go mod download` step is invalidated only when dependency files change, not when source code changes.",
+      "Because the final stage cannot read files copied in any order other than this.",
+      "It is purely stylistic; Docker recomputes every layer on every build."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: To preserve layer cache for `go mod download`.</strong></p><p>Docker's build cache invalidates a layer whenever the inputs of a COPY change. By copying only `go.mod`/`go.sum` first and running `go mod download` in its own layer, that expensive step is cached and reused across source-code edits. The full `COPY . .` happens later, so changing application source does not invalidate the dependency layer.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> BuildKit selection is independent of COPY ordering.</p><p><strong>Option C:</strong> COPY order does not constrain the final stage's ability to read files.</p><p><strong>Option D:</strong> The cache is real and persistent; ordering matters significantly.</p><p>Reference: <a href=\"https://docs.docker.com/build/cache/\">Optimizing builds with cache</a></p>"
+  },
+  {
+    "id": "devops-docker-q10",
+    "question_number": "10",
+    "question": "What is the practical difference between `ENTRYPOINT [\"python\", \"app.py\"]` and `ENTRYPOINT python app.py` in a Dockerfile?",
+    "choices": [
+      "There is no difference; both forms invoke the binary identically.",
+      "The exec form runs the binary as PID 1 directly, while the shell form runs `/bin/sh -c \"python app.py\"`, which becomes PID 1 and forwards signals poorly.",
+      "The exec form runs the command as a non-root user; the shell form runs as root.",
+      "The shell form supports CMD arguments while the exec form does not."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Exec form runs PID 1 directly; shell form wraps with /bin/sh -c.</strong></p><p>The JSON-array (exec) form invokes the executable directly so it becomes PID 1, which is required for proper signal delivery (SIGTERM on `docker stop`). The shell form executes `/bin/sh -c \"...\"`, making the shell PID 1 instead, and the shell typically does not forward signals to its child, leading to slow shutdowns.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The two forms behave very differently for signals and process tree.</p><p><strong>Option C:</strong> Neither form affects the running user; that is controlled by USER.</p><p><strong>Option D:</strong> The exec form is in fact the one that combines naturally with CMD arguments.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/builder/#entrypoint\">Dockerfile ENTRYPOINT</a></p>"
+  },
+  {
+    "id": "devops-docker-q11",
+    "question_number": "11",
+    "question": "Which two statements about `COPY` and `ADD` in a Dockerfile are correct? (Select TWO)",
+    "choices": [
+      "`ADD` can automatically extract a local tar archive into the destination, while `COPY` cannot.",
+      "`ADD` can fetch a remote URL into the image, while `COPY` cannot.",
+      "`COPY` supports preserving file modes via `--chmod` while `ADD` does not.",
+      "`COPY` is deprecated in favour of `ADD` in recent BuildKit versions.",
+      "`ADD` is required to copy multi-stage build artefacts; `COPY --from` only works when `ADD` was used in the source stage."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: ADD extracts local tarballs and fetches URLs.</strong></p><p>The `ADD` instruction has two extra behaviours over `COPY`: it can extract recognized local tar archives into the destination, and it can download a remote URL. Best practice is still to prefer `COPY` for clarity and use `RUN curl` or BuildKit's `ADD --checksum` when you need to fetch remote files.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Both `COPY` and `ADD` support `--chmod` and `--chown`.</p><p><strong>Option D:</strong> `COPY` is the recommended, non-deprecated instruction.</p><p><strong>Option E:</strong> `COPY --from=stage` works regardless of which copy-like instruction created the file in the earlier stage.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/builder/#add\">Dockerfile ADD</a></p>"
+  },
+  {
+    "id": "devops-docker-q12",
+    "question_number": "12",
+    "question": "You want to publish an image to Docker Hub under the namespace `myorg`. The image currently has the ID `sha256:abc123...`. Which sequence of commands publishes it as `myorg/api:v1.2.0`?",
+    "choices": [
+      "`docker push sha256:abc123 myorg/api:v1.2.0`",
+      "`docker tag abc123 myorg/api:v1.2.0` then `docker push myorg/api:v1.2.0`",
+      "`docker image promote abc123 --to myorg/api:v1.2.0`",
+      "`docker save abc123 | docker load --tag myorg/api:v1.2.0`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Tag, then push.</strong></p><p>An image must carry a name in the form `<registry>/<namespace>/<repo>:<tag>` before it can be pushed. `docker tag` creates that reference (it does not copy data), and `docker push` then uploads the layers and manifest to the registry.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `docker push` accepts a single image reference, not an ID followed by a tag.</p><p><strong>Option C:</strong> There is no `docker image promote` command.</p><p><strong>Option D:</strong> `docker load` does not accept a `--tag` flag; the tag is preserved from the saved archive.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/commandline/tag/\">docker tag</a></p>"
+  },
+  {
+    "id": "devops-docker-q13",
+    "question_number": "13",
+    "question": "A team's Docker image is 1.4 GB and takes 9 minutes to build. The Dockerfile uses a single `FROM ubuntu:22.04` stage that installs build tools, compiles the application, then leaves the build tools in the final image. Which refactor reduces image size the most while keeping the build reproducible?",
+    "choices": [
+      "Add `RUN apt-get clean` at the end of the existing single stage.",
+      "Convert to a multi-stage build: compile in a `builder` stage with build tools, then `COPY --from=builder` only the runtime artefacts into a minimal final stage (e.g., `ubuntu:22.04` or `distroless`).",
+      "Add `.dockerignore` entries for build tools so they are excluded from the final image.",
+      "Switch to `docker commit` after manual cleanup of `/usr/bin` inside a running container."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Use a multi-stage build.</strong></p><p>Multi-stage builds let you keep heavy compilers, headers and toolchains in an intermediate stage that never ships. The final image only contains the runtime files copied across with `COPY --from=builder`, which typically shrinks images by an order of magnitude and produces deterministic results.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `apt-get clean` removes some caches but cannot remove already-installed build tools without much more work.</p><p><strong>Option C:</strong> `.dockerignore` only affects build context sent to the daemon, not what is installed by RUN instructions.</p><p><strong>Option D:</strong> `docker commit` produces a brittle, unrepeatable image and is discouraged.</p><p>Reference: <a href=\"https://docs.docker.com/build/building/multi-stage/\">Multi-stage builds</a></p>"
+  },
+  {
+    "id": "devops-docker-q14",
+    "question_number": "14",
+    "question": "Which file or mechanism prevents large directories like `node_modules` and `.git` from being uploaded to the Docker daemon as part of the build context?",
+    "choices": [
+      "A `.gitignore` file at the project root.",
+      "A `.dockerignore` file at the root of the build context.",
+      "A `docker.exclude` entry in `daemon.json`.",
+      "Setting `DOCKER_BUILD_EXCLUDE=node_modules` in the environment."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: .dockerignore.</strong></p><p>Before running a build, the Docker CLI sends the build context (the directory passed as the last argument) to the daemon. A `.dockerignore` file at the root of that context uses gitignore-like patterns to exclude files and directories, dramatically speeding up builds and shrinking what COPY can pull in.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `.gitignore` is interpreted by Git only; Docker ignores it.</p><p><strong>Option C:</strong> `daemon.json` has no such directive.</p><p><strong>Option D:</strong> No such environment variable exists.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/builder/#dockerignore-file\">.dockerignore file</a></p>"
+  },
+  {
+    "id": "devops-docker-q15",
+    "question_number": "15",
+    "question": "What is the function of the Dockerfile `HEALTHCHECK` instruction?",
+    "choices": [
+      "It causes Docker to restart the container immediately if any process inside exits non-zero.",
+      "It declares a command Docker periodically runs inside the container; the container's health status (`starting`, `healthy`, `unhealthy`) updates based on the exit code.",
+      "It validates the image at build time and aborts the build if the command fails.",
+      "It is deprecated and has no effect in Docker Engine 24."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Periodic in-container probe that updates health status.</strong></p><p>`HEALTHCHECK [OPTIONS] CMD <command>` makes Docker run the command at the configured interval. Exit code 0 means healthy, 1 means unhealthy. The state surfaces in `docker ps` and is used by Swarm to decide whether a task is ready to receive traffic.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> HEALTHCHECK does not by itself restart containers; restart policies do.</p><p><strong>Option C:</strong> The instruction runs at runtime, not build time.</p><p><strong>Option D:</strong> HEALTHCHECK is fully supported in current Docker Engine.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/builder/#healthcheck\">Dockerfile HEALTHCHECK</a></p>"
+  },
+  {
+    "id": "devops-docker-q16",
+    "question_number": "16",
+    "question": "Which JSON snippet in `/etc/docker/daemon.json` configures the Docker daemon to use the `json-file` log driver with size-based rotation, keeping at most 5 files of 10 MB each?",
+    "choices": [
+      "`{\"log-driver\":\"json-file\",\"log-opts\":{\"max-size\":\"10m\",\"max-file\":\"5\"}}`",
+      "`{\"log\":{\"driver\":\"json-file\",\"rotate\":\"10m:5\"}}`",
+      "`{\"logger\":\"json\",\"rotate\":{\"size\":10485760,\"keep\":5}}`",
+      "`{\"log-driver\":\"json-file\",\"options\":[\"max-size=10m\",\"max-file=5\"]}`"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: `log-driver` + `log-opts` map.</strong></p><p>The daemon reads `log-driver` for the default driver and `log-opts` as a string map for driver options. `max-size` (with suffixes k/m/g) and `max-file` are the two rotation options for `json-file`.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B/C:</strong> Those keys are not recognised by dockerd.</p><p><strong>Option D:</strong> `log-opts` must be a JSON object, not an array of strings.</p><p>Reference: <a href=\"https://docs.docker.com/config/containers/logging/json-file/\">Configure the JSON file logging driver</a></p>"
+  },
+  {
+    "id": "devops-docker-q17",
+    "question_number": "17",
+    "question": "An engineer is installing Docker Engine on an Ubuntu 22.04 server in production. Which storage driver does Docker recommend for this configuration?",
+    "choices": [
+      "`aufs`",
+      "`devicemapper` in loopback mode",
+      "`overlay2`",
+      "`vfs`"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: overlay2.</strong></p><p>`overlay2` is the recommended driver on all currently supported Linux distributions when running on a kernel that supports it (which Ubuntu 22.04 does). It offers good performance, supports page-cache sharing, and is the default for fresh installations.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `aufs` is deprecated and has been removed from upstream kernels.</p><p><strong>Option B:</strong> `devicemapper` (especially loopback) was acceptable on older RHEL/CentOS but is deprecated.</p><p><strong>Option D:</strong> `vfs` is a fallback driver with no copy-on-write; it is slow and disk-heavy, intended for testing only.</p><p>Reference: <a href=\"https://docs.docker.com/storage/storagedriver/select-storage-driver/\">Select a storage driver</a></p>"
+  },
+  {
+    "id": "devops-docker-q18",
+    "question_number": "18",
+    "question": "Which command shows the current daemon configuration, including storage driver, logging driver, cgroup driver, and registry mirrors?",
+    "choices": [
+      "`docker info`",
+      "`docker version`",
+      "`docker inspect daemon`",
+      "`docker system status`"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: docker info.</strong></p><p>`docker info` queries the daemon and prints its runtime configuration: storage driver, logging driver, cgroup driver, plugins, swarm status, registry mirrors and so on. Use `--format` to extract individual fields for automation.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> `docker version` reports client/server version strings only.</p><p><strong>Option C:</strong> There is no `docker inspect daemon` target.</p><p><strong>Option D:</strong> `docker system status` does not exist; closest commands are `docker system df` and `docker system info`.</p><p>Reference: <a href=\"https://docs.docker.com/engine/reference/commandline/info/\">docker info</a></p>"
+  },
+  {
+    "id": "devops-docker-q19",
+    "question_number": "19",
+    "question": "After installing Docker Engine via the official repository on Ubuntu, an operator wants the daemon to start automatically on every boot. Which command achieves this?",
+    "choices": [
+      "`docker daemon --autostart on`",
+      "`systemctl enable docker`",
+      "`update-rc.d docker defaults` (only)",
+      "`docker system enable --boot`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: systemctl enable docker.</strong></p><p>The official Ubuntu packages install a `docker.service` systemd unit. `systemctl enable docker` creates the symlinks that cause systemd to start the service at boot; pair it with `systemctl start docker` to start immediately.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `docker daemon` is not a CLI verb of `docker`; the daemon is `dockerd`, and there is no `--autostart` flag.</p><p><strong>Option C:</strong> `update-rc.d` is for SysV init; modern Ubuntu uses systemd.</p><p><strong>Option D:</strong> No such command.</p><p>Reference: <a href=\"https://docs.docker.com/engine/install/linux-postinstall/#configure-docker-to-start-on-boot-with-systemd\">Configure Docker to start on boot</a></p>"
+  },
+  {
+    "id": "devops-docker-q20",
+    "question_number": "20",
+    "question": "Which two statements correctly describe the default Docker `bridge` network on a single host? (Select TWO)",
+    "choices": [
+      "Containers attached to it can resolve each other by container name via Docker's embedded DNS.",
+      "Containers attached to it can communicate by IP address but not by container name.",
+      "Containers must be connected via `--link` or a user-defined bridge network to be resolved by name.",
+      "Port publishing (`-p`) is required to reach a container from outside the host.",
+      "It uses VXLAN encapsulation to span multiple hosts automatically."
+    ],
+    "correct_answer_indices": [2, 3],
+    "explanation_html": "<p><strong>Correct: Default bridge has no DNS by name; publishing is needed for external access.</strong></p><p>The legacy `bridge` network does NOT provide automatic DNS resolution between containers by name; you either use the deprecated `--link` flag or, much better, create a user-defined bridge where embedded DNS is automatic. To reach a container from outside the host, you must publish its ports with `-p host:container`.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> True for user-defined bridges, not for the default bridge.</p><p><strong>Option B:</strong> Containers on the default bridge can communicate by IP, but the statement is incomplete and is not one of the most correct picks.</p><p><strong>Option E:</strong> VXLAN encapsulation is characteristic of the `overlay` driver in Swarm mode, not bridge.</p><p>Reference: <a href=\"https://docs.docker.com/network/drivers/bridge/\">Bridge network driver</a></p>"
+  },
+  {
+    "id": "devops-docker-q21",
+    "question_number": "21",
+    "question": "A container is started with `docker run --network host nginx`. Which statement is true about its networking?",
+    "choices": [
+      "The container has its own network namespace and is reachable only through `-p` published ports.",
+      "The container shares the host's network namespace; nginx listens directly on the host's interfaces, and `-p` is ignored.",
+      "The container is attached to the ingress overlay network and is reachable from any Swarm node.",
+      "The container can only communicate with other containers in the same Docker Compose project."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Host network shares the host's network namespace.</strong></p><p>`--network host` skips network-namespace isolation. The container's processes bind directly to host interfaces, so port-publishing flags are ignored. It is useful for high-throughput or latency-sensitive workloads but removes container-level network isolation. It is not available on Docker Desktop in the same way.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes the default bridge mode, not host.</p><p><strong>Option C:</strong> Ingress is created only in Swarm mode and is unrelated to `--network host`.</p><p><strong>Option D:</strong> Compose project scoping does not apply.</p><p>Reference: <a href=\"https://docs.docker.com/network/drivers/host/\">Host network driver</a></p>"
+  },
+  {
+    "id": "devops-docker-q22",
+    "question_number": "22",
+    "question": "Examine the service publish flags:\n\n```\ndocker service create --name app \\\n  --publish published=8080,target=80,mode=host \\\n  --replicas 3 nginx\n```\n\nWhat is the effect of `mode=host` here, compared to the default `mode=ingress`?",
+    "choices": [
+      "Each task binds port 8080 directly on the node where it runs; the routing mesh and load balancing across nodes are not used.",
+      "All traffic to port 8080 is encrypted with TLS automatically.",
+      "It restricts publishing to manager nodes only.",
+      "It is an alias for `--network host` and disables overlay networking for the task."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: mode=host bypasses the routing mesh.</strong></p><p>With `mode=host` publishing, each task binds the port on the host interface of the node where it runs, and traffic does not enter the ingress mesh. This is useful when you need the source IP preserved or when you are running an external load balancer. The trade-off is that you must direct traffic only to nodes actually running tasks.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> No automatic TLS is added.</p><p><strong>Option C:</strong> The flag does not constrain placement by role.</p><p><strong>Option D:</strong> It is not equivalent to `--network host`; the task still runs in its own network namespace.</p><p>Reference: <a href=\"https://docs.docker.com/engine/swarm/services/#publish-ports\">Publish ports for swarm services</a></p>"
+  },
+  {
+    "id": "devops-docker-q23",
+    "question_number": "23",
+    "question": "Which command creates an attachable overlay network named `app-net` that standalone containers can also join, not just Swarm services?",
+    "choices": [
+      "`docker network create -d overlay app-net`",
+      "`docker network create -d overlay --attachable app-net`",
+      "`docker network create -d bridge --scope swarm app-net`",
+      "`docker swarm network add app-net --overlay`"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: --attachable flag on an overlay network.</strong></p><p>By default, overlay networks are scoped so that only Swarm services can connect. Adding `--attachable` lets standalone containers (`docker run`) connect to the same overlay, which is useful for ad-hoc tasks and debugging.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Without `--attachable`, only services can use it.</p><p><strong>Option C:</strong> Bridge networks cannot be Swarm-scoped.</p><p><strong>Option D:</strong> There is no `docker swarm network` subcommand.</p><p>Reference: <a href=\"https://docs.docker.com/network/drivers/overlay/#attach-a-standalone-container-to-an-overlay-network\">Attach a standalone container to an overlay network</a></p>"
+  },
+  {
+    "id": "devops-docker-q24",
+    "question_number": "24",
+    "question": "Which two practices materially improve the security posture of containers in production? (Select TWO)",
+    "choices": [
+      "Run containers with `--user` set to a non-root UID and drop unneeded Linux capabilities with `--cap-drop`.",
+      "Enable Docker Content Trust (`DOCKER_CONTENT_TRUST=1`) so the client only pulls signed images.",
+      "Bind-mount `/var/run/docker.sock` into every application container for easier debugging.",
+      "Add `--privileged` to all containers so they can perform any operation they need.",
+      "Always pull images by the `:latest` tag to ensure the newest patches."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Non-root + drop capabilities, and enable content trust.</strong></p><p>Running as a non-root user with the minimum required Linux capabilities limits the blast radius of a container compromise. Docker Content Trust enforces signature verification on `docker pull`/`docker run`, ensuring images come from trusted publishers.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Mounting the Docker socket inside a container is effectively root on the host.</p><p><strong>Option D:</strong> `--privileged` disables most isolation and is a major risk.</p><p><strong>Option E:</strong> `:latest` is a mutable tag and works against reproducibility and supply-chain assurance.</p><p>Reference: <a href=\"https://docs.docker.com/engine/security/trust/\">Content trust in Docker</a></p>"
+  },
+  {
+    "id": "devops-docker-q25",
+    "question_number": "25",
+    "question": "What does the Docker Bench for Security tool primarily do?",
+    "choices": [
+      "It scans container images for CVEs against an offline vulnerability database.",
+      "It runs a series of automated checks based on the CIS Docker Benchmark against the host, daemon configuration, and running containers, reporting WARN/INFO/PASS results.",
+      "It generates seccomp profiles for individual applications by tracing syscalls at runtime.",
+      "It hardens AppArmor profiles in place on the host filesystem."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Automated CIS Docker Benchmark checks.</strong></p><p>Docker Bench for Security is a shell script (often run as a container) that checks dozens of items from the CIS Docker Benchmark: host configuration, daemon flags, daemon files, container runtime options, and security operations. It produces pass/warn/info lines that a team can act on.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Image CVE scanning is done by separate tools (Docker Scout, Trivy, etc.).</p><p><strong>Option C:</strong> Generating custom seccomp profiles is a different workflow (e.g., podman-bolt, oci-seccomp-bpf-hook).</p><p><strong>Option D:</strong> Docker Bench reports on AppArmor usage but does not edit profiles.</p><p>Reference: <a href=\"https://github.com/docker/docker-bench-security\">docker/docker-bench-security</a></p>"
+  },
+  {
+    "id": "devops-docker-q26",
+    "question_number": "26",
+    "question": "A container should be allowed to bind TCP port 80 but otherwise should not have elevated privileges. Which start command best applies the principle of least privilege?",
+    "choices": [
+      "`docker run --privileged nginx`",
+      "`docker run --cap-add ALL nginx`",
+      "`docker run --cap-drop ALL --cap-add NET_BIND_SERVICE nginx`",
+      "`docker run --security-opt seccomp=unconfined nginx`"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Drop ALL capabilities, then add only NET_BIND_SERVICE.</strong></p><p>This pattern strips every Linux capability the default Docker profile grants and re-adds only the one needed to bind privileged ports (&lt;1024). The container can serve on port 80 yet cannot, for example, load kernel modules or change file ownership across users.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> `--privileged` grants nearly all capabilities and full device access; the opposite of least privilege.</p><p><strong>Option B:</strong> `--cap-add ALL` is functionally similar to privileged for capabilities.</p><p><strong>Option D:</strong> Disabling the default seccomp profile broadens the attack surface and does not address the port-binding goal.</p><p>Reference: <a href=\"https://docs.docker.com/engine/security/#linux-kernel-capabilities\">Linux kernel capabilities</a></p>"
+  },
+  {
+    "id": "devops-docker-q27",
+    "question_number": "27",
+    "question": "What happens when `DOCKER_CONTENT_TRUST=1` is exported in the shell and the user runs `docker pull myorg/api:latest` for an image whose `latest` tag has never been signed?",
+    "choices": [
+      "The pull succeeds and a warning is printed.",
+      "The pull is refused; the client errors out because no trust data exists for the tag.",
+      "Docker silently pulls an unsigned image and stores it as `untrusted/myorg/api:latest`.",
+      "Docker signs the tag on the fly using the local notary key."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The pull is refused.</strong></p><p>With content trust enabled, the Docker client requires a valid Notary signature for the requested tag. If no signed data is published for that tag, the client refuses to pull and prints an error referring to missing trust data.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A warning-only flow would defeat the purpose of trust enforcement.</p><p><strong>Option C:</strong> Docker does not silently fall back to untrusted images.</p><p><strong>Option D:</strong> Clients cannot sign tags for content they did not push, and pull does not create signatures anyway.</p><p>Reference: <a href=\"https://docs.docker.com/engine/security/trust/#enable-and-disable-content-trust-per-shell-or-per-invocation\">Enable content trust</a></p>"
+  },
+  {
+    "id": "devops-docker-q28",
+    "question_number": "28",
+    "question": "What is the most accurate description of a Docker named volume created via `docker volume create data`?",
+    "choices": [
+      "A directory on the host that the user picks at runtime via `-v /abs/path:/data`.",
+      "A storage object whose lifecycle, location, and driver are managed by Docker (typically under `/var/lib/docker/volumes/`) and which survives container removal.",
+      "An in-memory tmpfs mount destroyed when the container exits.",
+      "A read-only layer baked into the image at build time."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Docker-managed storage that outlives containers.</strong></p><p>Named volumes are managed by Docker, decoupled from any particular container's filesystem, and stored under the daemon's data root (commonly `/var/lib/docker/volumes/<name>`). They survive `docker rm`, can be backed by volume drivers, and are the recommended option for persistent application state.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes a bind mount.</p><p><strong>Option C:</strong> That describes a tmpfs mount.</p><p><strong>Option D:</strong> Image layers are immutable and unrelated to volumes.</p><p>Reference: <a href=\"https://docs.docker.com/storage/volumes/\">Manage data in Docker volumes</a></p>"
+  },
+  {
+    "id": "devops-docker-q29",
+    "question_number": "29",
+    "question": "Compare these two mount flags on `docker run`:\n\n```\n-v /opt/data:/var/lib/postgresql/data\n--mount type=volume,source=pgdata,target=/var/lib/postgresql/data\n```\n\nWhich statement is correct?",
+    "choices": [
+      "Both create named volumes; only the syntax differs.",
+      "The first is a bind mount of `/opt/data` from the host; the second is a Docker-managed named volume `pgdata`.",
+      "Both create bind mounts; the second form is just more verbose.",
+      "The first is a tmpfs mount; the second is a bind mount."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: First is bind mount, second is named volume.</strong></p><p>With `-v`, when the source begins with `/` it is a bind mount; when it is a bare identifier it is a named volume. The `--mount` flag is explicit (`type=volume|bind|tmpfs`), which removes ambiguity and is the recommended form.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The two examples are different mount types.</p><p><strong>Option C:</strong> The `--mount` example specifies `type=volume`, not bind.</p><p><strong>Option D:</strong> Neither line is a tmpfs mount.</p><p>Reference: <a href=\"https://docs.docker.com/storage/bind-mounts/#choose-the--v-or---mount-flag\">Choose -v or --mount</a></p>"
+  },
+  {
+    "id": "devops-docker-q30",
+    "question_number": "30",
+    "question": "When a container writes a file to a path that is not backed by a volume or bind mount, where is the data stored, and what is the property of that storage?",
+    "choices": [
+      "In a tmpfs RAM-backed mount, lost on container stop.",
+      "In the container's writable layer using copy-on-write on top of the image's read-only layers; data is removed when the container is deleted.",
+      "In the original image layer, which is mutated in place.",
+      "On the manager node's raft log, replicated to other nodes."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Writable layer with copy-on-write.</strong></p><p>Each container has a thin writable layer placed on top of the read-only image layers by the storage driver (overlay2, etc.). Modifications use copy-on-write semantics: changed files are copied up into the writable layer. When the container is removed, this layer is discarded along with its data, which is why volumes or bind mounts are required for persistent state.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> tmpfs is only used when explicitly requested via `--tmpfs` or `--mount type=tmpfs`.</p><p><strong>Option C:</strong> Image layers are immutable; they are never mutated by container writes.</p><p><strong>Option D:</strong> Raft logs store cluster state, not container filesystem writes.</p><p>Reference: <a href=\"https://docs.docker.com/storage/storagedriver/#the-copy-on-write-cow-strategy\">Copy-on-write (CoW) strategy</a></p>"
+  }
+]
