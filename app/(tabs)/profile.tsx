@@ -27,7 +27,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.nameRow}>
             <ThemedText variant="heading" style={styles.title}>
-              CloudPrep
+              Bubbled
             </ThemedText>
             {isPro && <ProBadge size="md" />}
           </View>
@@ -134,7 +134,7 @@ export default function ProfileScreen() {
         )}
 
         <ThemedText variant="caption" style={styles.version}>
-          CloudPrep v1.0.0
+          Bubbled v1.0.0
         </ThemedText>
       </ScrollView>
     </SafeAreaView>

@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   text: {
-    color: '#FFFFFF',
+    color: Colors.onPrimary,
     fontSize: Theme.fontSize.xs,
     fontWeight: Theme.fontWeight.bold,
   },

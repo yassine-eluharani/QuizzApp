@@ -1,11 +1,11 @@
 ---
 layout: page
-title: CloudPrep Quiz
+title: Bubbled
 ---
 
-# CloudPrep Quiz
+# Bubbled
 
-Mobile cloud-certification exam preparation for AWS, Azure, GCP and DevOps tools — built with React Native and Expo.
+Mobile cloud and DevOps certification and interview preparation for AWS, Azure, GCP and DevOps tools — built with React Native and Expo.
 
 ## Public documents
 

@@ -134,7 +134,7 @@ export function useQuizSession(quizId: string, isPro: boolean = false) {
     confirm,
     next,
     finish,
-    platformColor: meta?.platform.color || '#6C63FF',
+    platformColor: meta?.platform.color || '#FF5A1F',
     certName: meta?.certification.name || '',
     quizName: meta?.quiz.name || '',
   };

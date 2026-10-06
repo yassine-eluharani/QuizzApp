@@ -14,7 +14,7 @@ interface ExplanationSheetProps {
 export default function ExplanationSheet({ explanation, onClose }: ExplanationSheetProps) {
   const { width } = useWindowDimensions();
   const source = {
-    html: `<div style="padding: 8px; color: #A0A0B8; font-size: 15px; line-height: 1.6;">${explanation}</div>`,
+    html: `<div style="padding: 8px; color: #B5AD9F; font-size: 15px; line-height: 1.6;">${explanation}</div>`,
   };
 
   return (

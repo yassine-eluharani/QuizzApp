@@ -148,7 +148,7 @@ export function useExamSession(certId: string, isPro: boolean = false) {
     next,
     finish,
     timer,
-    platformColor: platform?.color || '#6C63FF',
+    platformColor: platform?.color || '#FF5A1F',
     certName: cert?.name || '',
   };
 }

@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: Theme.fontSize.md,
     fontWeight: Theme.fontWeight.semibold,
-    color: Colors.textPrimary,
+    color: Colors.onPrimary,
   },
   skipButton: {
     marginTop: Theme.spacing.md,

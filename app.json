@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "CloudPrep Quiz",
+    "name": "Bubbled",
     "slug": "Quiz",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -75,10 +75,9 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/android-icon.png",
-        "backgroundImage": "./assets/android-icon.png",
-        "monochromeImage": "./assets/android-icon.png",
-        "backgroundColor": "#0F0F14"
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "backgroundColor": "#14110F"
       },
       "package": "com.levisine.CloudPrep",
       "permissions": ["android.permission.INTERNET"]
@@ -96,11 +95,11 @@
         {
           "image": "./assets/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#0F0F14",
+          "backgroundColor": "#14110F",
           "dark": {
             "image": "./assets/splash.png",
             "resizeMode": "contain",
-            "backgroundColor": "#0F0F14"
+            "backgroundColor": "#14110F"
           }
         }
       ],

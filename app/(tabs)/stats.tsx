@@ -126,7 +126,7 @@ export default function StatsScreen() {
                   backgroundGradientFrom: Colors.surface,
                   backgroundGradientTo: Colors.surface,
                   decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(108, 99, 255, ${opacity})`,
+                  color: (opacity = 1) => `rgba(255, 90, 31, ${opacity})`,
                   labelColor: () => Colors.textMuted,
                   propsForDots: {
                     r: '4',

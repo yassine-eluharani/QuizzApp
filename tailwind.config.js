@@ -10,26 +10,26 @@ module.exports = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#0F0F14',
-          surface: '#1A1A24',
-          light: '#252535',
+          DEFAULT: '#14110F',
+          surface: '#1E1A17',
+          light: '#2A2520',
         },
         border: {
-          DEFAULT: '#2A2A3A',
+          DEFAULT: '#332D27',
           light: '#3A3A4A',
         },
         text: {
           primary: '#FFFFFF',
-          secondary: '#A0A0B8',
-          muted: '#6B6B80',
+          secondary: '#B5AD9F',
+          muted: '#8A8277',
         },
         accent: {
-          DEFAULT: '#6C63FF',
-          light: '#8B83FF',
+          DEFAULT: '#FF5A1F',
+          light: '#FF7A4A',
           aws: '#FF9900',
           azure: '#0078D4',
           gcp: '#4285F4',
-          devops: '#8B5CF6',
+          devops: '#3DDBB0',
         },
         success: '#22C55E',
         error: '#EF4444',

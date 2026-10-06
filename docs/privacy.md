@@ -4,21 +4,21 @@ title: Privacy Policy
 permalink: /privacy/
 ---
 
-# Privacy Policy — CloudPrep Quiz
+# Privacy Policy — Bubbled
 
 **Effective date:** 2026-04-28
 **Last updated:** 2026-04-28
 
 ## Who we are
 
-CloudPrep Quiz ("the App") is a mobile application for cloud-certification exam preparation, published by **Yassine Eluharani** ("we", "us", "our").
+Bubbled ("the App") is a mobile application for cloud and DevOps certification and interview preparation, published by **Yassine Eluharani** ("we", "us", "our").
 
 If you have any questions about this policy, contact us at **eluharaniyassine@gmail.com**.
 
 ## TL;DR
 
 - The App stores your quiz history, bookmarks, streaks and settings **only on your device**. We never see them.
-- If you buy CloudPrep Pro, **RevenueCat** and **Google Play** process the transaction. They receive purchase information; we do not receive your name, email, or payment details.
+- If you buy Bubbled Pro, **RevenueCat** and **Google Play** process the transaction. They receive purchase information; we do not receive your name, email, or payment details.
 - We do **not** use third-party analytics, ad networks, or tracking SDKs.
 - We do **not** sell or share your data.
 
@@ -64,7 +64,7 @@ When you complete a Pro purchase on Android, **Google Play** processes the trans
 
 When the iOS version is published, **Apple** processes purchases on iOS. Apple receives transaction information; we do not receive your payment details. See https://www.apple.com/legal/privacy/.
 
-#### CloudPrep API (our backend)
+#### Bubbled API (our backend)
 
 For Pro users, the App fetches premium quiz questions from our backend API hosted at our servers. Each request includes:
 
@@ -114,7 +114,7 @@ We respond to verifiable requests within **30 days**.
 | ----------------------------------------- | ------------------------------------------------------------------------- |
 | On-device data (history, bookmarks, etc.) | Until you uninstall or clear app data                                     |
 | RevenueCat purchase records               | For the lifetime of the purchase, as required by app-store auditing rules |
-| CloudPrep API request logs                | 30 days, then deleted automatically                                       |
+| Bubbled API request logs                  | 30 days, then deleted automatically                                       |
 
 ## Security
 

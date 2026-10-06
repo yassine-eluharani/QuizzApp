@@ -34,7 +34,7 @@ const FAILURE_COPY: Record<
   },
   product_unavailable: {
     title: 'Product Unavailable',
-    body: "CloudPrep Pro isn't available right now. Please try again later.",
+    body: "Bubbled Pro isn't available right now. Please try again later.",
   },
   integrity: {
     title: 'Device Check Failed',
@@ -115,7 +115,7 @@ export default function Paywall() {
           </View>
 
           <ThemedText variant="heading" style={styles.title}>
-            {isPurchasesConfigured ? 'CloudPrep Pro' : 'Pro — Coming Soon'}
+            {isPurchasesConfigured ? 'Bubbled Pro' : 'Pro — Coming Soon'}
           </ThemedText>
           <ThemedText variant="body" style={styles.subtitle}>
             {isPurchasesConfigured
@@ -140,7 +140,7 @@ export default function Paywall() {
             {isPurchasesConfigured ? (
               <>
                 <Button
-                  title="Unlock CloudPrep Pro"
+                  title="Unlock Bubbled Pro"
                   onPress={handlePurchase}
                   loading={loading}
                   size="lg"
