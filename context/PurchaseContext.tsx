@@ -19,13 +19,18 @@ interface PurchaseContextType {
   paywallVisible: boolean;
 }
 
+// Test switch: set EXPO_PUBLIC_UNLOCK_ALL=true in .env.local to bypass all Pro gating.
+// Unset (the default) in release builds, so gating stays strict. EAS builds don't read .env.local.
+const UNLOCK_ALL = process.env.EXPO_PUBLIC_UNLOCK_ALL === 'true';
+
 const PurchaseContext = createContext<PurchaseContextType | undefined>(undefined);
 
 // Integrity check interval (5 minutes)
 const INTEGRITY_CHECK_INTERVAL = 5 * 60 * 1000;
 
 export function PurchaseProvider({ children }: { children: React.ReactNode }) {
-  const [isPro, setIsPro] = useState(false);
+  const [proEntitled, setIsPro] = useState(false);
+  const isPro = UNLOCK_ALL || proEntitled;
   const [isLoading, setIsLoading] = useState(true);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const appState = useRef(AppState.currentState);
