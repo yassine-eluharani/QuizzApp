@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, ViewProps, StyleSheet } from 'react-native';
+import { View, ViewProps, StyleSheet } from 'react-native';
+import PressableScale from '@/components/ui/PressableScale';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
 
@@ -26,15 +27,14 @@ export default function Card({
 
   if (onPress) {
     return (
-      <TouchableOpacity
+      <PressableScale
         onPress={onPress}
-        activeOpacity={0.7}
         style={cardStyle}
         accessibilityRole="button"
         {...(props as object)}
       >
         {children}
-      </TouchableOpacity>
+      </PressableScale>
     );
   }
 

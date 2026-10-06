@@ -1,3 +1,5 @@
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
+import { EASE_OUT } from '@/lib/motion';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +26,7 @@ export default function ScoreSummary({
   onReview,
   onExit,
 }: ScoreSummaryProps) {
+  const reduced = useReducedMotion();
   const passed = attempt.percentage >= passingScore;
   const correctCount = attempt.answers.filter((a) => a.correct).length;
   const incorrectCount = attempt.answers.filter((a) => !a.correct).length;
@@ -47,7 +50,16 @@ export default function ScoreSummary({
       </ThemedText>
 
       {/* Score Circle */}
-      <View style={[styles.scoreCircle, { borderColor: passed ? Colors.success : Colors.error }]}>
+      <Animated.View
+        entering={
+          reduced
+            ? FadeIn.duration(150)
+            : FadeIn.duration(350)
+                .easing(EASE_OUT)
+                .withInitialValues({ opacity: 0, transform: [{ scale: 0.9 }] })
+        }
+        style={[styles.scoreCircle, { borderColor: passed ? Colors.success : Colors.error }]}
+      >
         <ThemedText
           variant="heading"
           color={passed ? Colors.success : Colors.error}
@@ -58,7 +70,7 @@ export default function ScoreSummary({
         <ThemedText variant="caption">
           {attempt.score} / {attempt.totalQuestions}
         </ThemedText>
-      </View>
+      </Animated.View>
 
       {/* Stats */}
       <View style={styles.statsRow}>

@@ -3,13 +3,14 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as NativeSplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { AppProvider, useAppContext } from '@/context/AppContext';
 import { PurchaseProvider } from '@/context/PurchaseContext';
 import Paywall from '@/components/paywall/Paywall';
 import { Colors } from '@/constants/Colors';
 import { SplashScreen } from '@/components/ui/SplashScreen';
+import { LOGO_LOADER_MS } from '@/components/ui/LogoLoader';
 import { OnboardingScreen } from '@/components/ui/OnboardingScreen';
 import AppErrorBoundary from '@/components/ui/ErrorBoundary';
 import OfflineBanner from '@/components/ui/OfflineBanner';
@@ -58,8 +59,14 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { isLoaded, hasCompletedOnboarding, completeOnboarding } = useAppContext();
+  // Hold the loader until the logo has finished forming (cold start only).
+  const [logoDone, setLogoDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setLogoDone(true), LOGO_LOADER_MS + 600);
+    return () => clearTimeout(t);
+  }, []);
 
-  if (!isLoaded) {
+  if (!isLoaded || !logoDone) {
     return <SplashScreen />;
   }
 

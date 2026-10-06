@@ -1,12 +1,6 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
+import { Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import PressableScale from '@/components/ui/PressableScale';
 import { Colors } from '@/constants/Colors';
 import { Theme } from '@/constants/Theme';
 
@@ -27,7 +21,7 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, { bg: string; text: string; border?: string }> = {
-  primary: { bg: Colors.primary, text: '#FFFFFF' },
+  primary: { bg: Colors.primary, text: Colors.onPrimary },
   secondary: { bg: Colors.surfaceLight, text: Colors.textPrimary, border: Colors.border },
   ghost: { bg: 'transparent', text: Colors.primary },
   success: { bg: Colors.success, text: '#FFFFFF' },
@@ -53,10 +47,9 @@ export default function Button({
   const fontSize = size === 'sm' ? 13 : size === 'lg' ? 17 : 15;
 
   return (
-    <TouchableOpacity
+    <PressableScale
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
       accessibilityHint={accessibilityHint}
@@ -88,7 +81,7 @@ export default function Button({
           {title}
         </Text>
       )}
-    </TouchableOpacity>
+    </PressableScale>
   );
 }
 

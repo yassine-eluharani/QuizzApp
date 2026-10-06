@@ -1,3 +1,4 @@
+import Reveal from '@/components/ui/Reveal';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, Href } from 'expo-router';
@@ -268,20 +269,21 @@ export default function CertificationScreen() {
             )}
 
             {/* Rest of quizzes */}
-            {cert.quizzes.slice(1).map((quiz) => {
+            {cert.quizzes.slice(1).map((quiz, i) => {
               const locked = !isQuizAccessible(quiz.id, isPro);
               return (
-                <QuizListItem
-                  key={quiz.id}
-                  quiz={quiz}
-                  platformColor={platform.color}
-                  bestScore={locked ? null : getBestScore(quiz.id)}
-                  isLocked={locked}
-                  onPress={() => {
-                    if (locked) showComingSoonAlert();
-                    else router.push(`/quiz/${quiz.id}` as Href);
-                  }}
-                />
+                <Reveal key={quiz.id} index={i}>
+                  <QuizListItem
+                    quiz={quiz}
+                    platformColor={platform.color}
+                    bestScore={locked ? null : getBestScore(quiz.id)}
+                    isLocked={locked}
+                    onPress={() => {
+                      if (locked) showComingSoonAlert();
+                      else router.push(`/quiz/${quiz.id}` as Href);
+                    }}
+                  />
+                </Reveal>
               );
             })}
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Reveal from '@/components/ui/Reveal';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useRouter, Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,7 +21,7 @@ export default function BrowseScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <ThemedText variant="heading">CloudPrep</ThemedText>
+          <ThemedText variant="heading">Bubbled</ThemedText>
           <ThemedText variant="body" style={styles.subtitle}>
             Master your cloud certifications
           </ThemedText>
@@ -62,12 +63,13 @@ export default function BrowseScreen() {
             <ThemedText variant="label" style={styles.sectionLabel}>
               Platforms
             </ThemedText>
-            {platforms.map((platform) => (
-              <PlatformCard
-                key={platform.id}
-                platform={platform}
-                onPress={() => router.push(`/platform/${platform.id}` as Href)}
-              />
+            {platforms.map((platform, i) => (
+              <Reveal key={platform.id} index={i}>
+                <PlatformCard
+                  platform={platform}
+                  onPress={() => router.push(`/platform/${platform.id}` as Href)}
+                />
+              </Reveal>
             ))}
           </>
         ) : (
@@ -79,16 +81,17 @@ export default function BrowseScreen() {
               Real interview questions per tool, ordered from foundational to advanced — plus a
               matching quiz with explanations.
             </ThemedText>
-            {interviewTopics.map((topic) => (
-              <InterviewTopicCard
-                key={topic.id}
-                name={topic.name}
-                icon={topic.icon as React.ComponentProps<typeof InterviewTopicCard>['icon']}
-                color={Colors.interviewTopics[topic.id] || Colors.primary}
-                qaCount={loadInterviewQA(topic.id).length}
-                quizQuestionCount={15}
-                onPress={() => router.push(`/interview/${topic.id}` as Href)}
-              />
+            {interviewTopics.map((topic, i) => (
+              <Reveal key={topic.id} index={i}>
+                <InterviewTopicCard
+                  name={topic.name}
+                  icon={topic.icon as React.ComponentProps<typeof InterviewTopicCard>['icon']}
+                  color={Colors.interviewTopics[topic.id] || Colors.primary}
+                  qaCount={loadInterviewQA(topic.id).length}
+                  quizQuestionCount={15}
+                  onPress={() => router.push(`/interview/${topic.id}` as Href)}
+                />
+              </Reveal>
             ))}
           </>
         )}

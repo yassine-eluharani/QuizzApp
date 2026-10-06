@@ -1,5 +1,13 @@
-import React from 'react';
-import { TouchableOpacity, StyleSheet, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import PressableScale from '@/components/ui/PressableScale';
 import { Ionicons } from '@expo/vector-icons';
 import ThemedText from '@/components/ui/ThemedText';
 import { Colors } from '@/constants/Colors';
@@ -45,6 +53,30 @@ export default function ChoiceButton({
   onPress,
 }: ChoiceButtonProps) {
   const s = statusStyles[status];
+  const reduced = useReducedMotion();
+  const fx = useSharedValue(0);
+  const fxStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: fx.value }],
+  }));
+  const pop = useSharedValue(1);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+
+  useEffect(() => {
+    if (reduced) return;
+    if (status === 'incorrect') {
+      fx.value = withSequence(
+        withTiming(-6, { duration: 50 }),
+        withTiming(6, { duration: 80 }),
+        withTiming(-4, { duration: 70 }),
+        withTiming(0, { duration: 60 })
+      );
+    } else if (status === 'correct') {
+      pop.value = withSequence(
+        withTiming(1.03, { duration: 110 }),
+        withTiming(1, { duration: 180 })
+      );
+    }
+  }, [status, reduced, fx, pop]);
 
   const labelLetter = labels[index] || String(index + 1);
   const stateHint =
@@ -57,31 +89,32 @@ export default function ChoiceButton({
           : undefined;
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      activeOpacity={0.7}
-      accessibilityRole="button"
-      accessibilityLabel={`Option ${labelLetter}: ${text}`}
-      accessibilityHint={stateHint}
-      accessibilityState={{ disabled, selected: status === 'selected' }}
-      style={[styles.container, { borderColor: s.border, backgroundColor: s.bg }]}
-    >
-      <View style={[styles.label, { borderColor: s.border }]}>
-        <ThemedText
-          variant="caption"
-          color={s.border === Colors.border ? Colors.textMuted : s.border}
-        >
-          {labels[index] || String(index + 1)}
+    <Animated.View style={[fxStyle, popStyle]}>
+      <PressableScale
+        onPress={onPress}
+        disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={`Option ${labelLetter}: ${text}`}
+        accessibilityHint={stateHint}
+        accessibilityState={{ disabled, selected: status === 'selected' }}
+        style={[styles.container, { borderColor: s.border, backgroundColor: s.bg }]}
+      >
+        <View style={[styles.label, { borderColor: s.border }]}>
+          <ThemedText
+            variant="caption"
+            color={s.border === Colors.border ? Colors.textMuted : s.border}
+          >
+            {labels[index] || String(index + 1)}
+          </ThemedText>
+        </View>
+        <ThemedText variant="body" color={Colors.textPrimary} style={styles.text}>
+          {text}
         </ThemedText>
-      </View>
-      <ThemedText variant="body" color={Colors.textPrimary} style={styles.text}>
-        {text}
-      </ThemedText>
-      {s.icon && (
-        <Ionicons name={s.icon as any} size={22} color={s.iconColor} style={styles.icon} />
-      )}
-    </TouchableOpacity>
+        {s.icon && (
+          <Ionicons name={s.icon as any} size={22} color={s.iconColor} style={styles.icon} />
+        )}
+      </PressableScale>
+    </Animated.View>
   );
 }
 
