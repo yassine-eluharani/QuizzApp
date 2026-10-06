@@ -1,4 +1,5 @@
 import { Platform } from '@/types/quiz';
+import { Colors } from '@/constants/Colors';
 
 export const platforms: Platform[] = [
   {
@@ -386,12 +387,71 @@ export const platforms: Platform[] = [
   },
 ];
 
+// Interview Prep — one topic per real-world tool named in the EPG job description.
+// Kept out of `platforms` (the Browse tab lists only certification platforms);
+// surfaced instead by the Interview tab. Each topic reuses the same
+// Certification/QuizMeta shape purely so it can flow through the existing
+// getCertification/getQuizMeta lookups and the existing quiz-taking screen.
+function interviewCert(id: string, name: string, questionCount: number) {
+  return {
+    id: `interview-${id}`,
+    name,
+    code: 'INTERVIEW',
+    platformId: 'interview',
+    examInfo: {
+      questionCount,
+      duration: Math.round(questionCount * 1.5),
+      passingScore: 70,
+      questionTypes: ['Multiple Choice'],
+      delivery: ['Self-Paced'],
+      domains: [{ name: 'Core Concepts', percentage: 100 }],
+    },
+    quizzes: [
+      {
+        id: `interview-${id}-quiz-1`,
+        name: 'Interview Quiz',
+        certificationId: `interview-${id}`,
+        questionCount,
+      },
+    ],
+  };
+}
+
+export const interviewPlatform: Platform = {
+  id: 'interview',
+  name: 'Interview Prep',
+  shortName: 'Interview',
+  color: Colors.primary,
+  icon: 'chatbubbles',
+  certifications: [
+    interviewCert('ceph', 'Ceph', 15),
+    interviewCert('k8s', 'Kubernetes', 15),
+    interviewCert('docker', 'Docker', 15),
+    interviewCert('linux', 'Linux', 15),
+    interviewCert('ansible', 'Ansible', 15),
+    interviewCert('azure-networking', 'Azure Infrastructure & Networking', 15),
+  ],
+};
+
+// Display metadata for the Interview tab's topic list. `id` matches both the
+// `interview-${id}` certification id and the `${id}` key in lib/interviewQA.ts.
+export const interviewTopics: { id: string; name: string; icon: string }[] = [
+  { id: 'ceph', name: 'Ceph', icon: 'layers-outline' },
+  { id: 'k8s', name: 'Kubernetes', icon: 'git-network-outline' },
+  { id: 'docker', name: 'Docker', icon: 'cube-outline' },
+  { id: 'linux', name: 'Linux', icon: 'terminal-outline' },
+  { id: 'ansible', name: 'Ansible', icon: 'infinite-outline' },
+  { id: 'azure-networking', name: 'Azure Infrastructure & Networking', icon: 'globe-outline' },
+];
+
+const allPlatforms: Platform[] = [...platforms, interviewPlatform];
+
 export function getPlatform(platformId: string): Platform | undefined {
-  return platforms.find((p) => p.id === platformId);
+  return allPlatforms.find((p) => p.id === platformId);
 }
 
 export function getCertification(certId: string) {
-  for (const platform of platforms) {
+  for (const platform of allPlatforms) {
     const cert = platform.certifications.find((c) => c.id === certId);
     if (cert) return { certification: cert, platform };
   }
@@ -399,7 +459,7 @@ export function getCertification(certId: string) {
 }
 
 export function getQuizMeta(quizId: string) {
-  for (const platform of platforms) {
+  for (const platform of allPlatforms) {
     for (const cert of platform.certifications) {
       if (cert.freeSample && cert.freeSample.quizId === quizId) {
         return {

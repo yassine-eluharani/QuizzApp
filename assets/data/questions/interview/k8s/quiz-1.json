@@ -1,0 +1,199 @@
+[
+  {
+    "id": "interview-k8s-q1",
+    "question_number": "1",
+    "question": "What is the smallest deployable unit in Kubernetes, capable of hosting one or more tightly-coupled containers that share networking and storage?",
+    "choices": [
+      "Pod",
+      "Container",
+      "Deployment",
+      "Node"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Pod</strong></p><p>A Pod wraps one or more containers that are always scheduled together on the same node, share a network namespace (so they can talk over localhost), and can share volumes. It's the atomic unit Kubernetes schedules and manages.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A container is what runs inside a Pod; Kubernetes doesn't schedule bare containers directly.</p><p><strong>Option C:</strong> A Deployment is a higher-level object that manages Pods (via a ReplicaSet); it isn't itself the deployable unit.</p><p><strong>Option D:</strong> A Node is a machine (VM or physical) that runs Pods; it's infrastructure, not the workload unit.</p>"
+  },
+  {
+    "id": "interview-k8s-q2",
+    "question_number": "2",
+    "question": "Which object is directly responsible for maintaining a desired number of identical Pod replicas and creating replacements when Pods fail?",
+    "choices": [
+      "Service",
+      "ReplicaSet",
+      "ConfigMap",
+      "Ingress"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: ReplicaSet</strong></p><p>A ReplicaSet's whole job is to ensure a specified number of Pod replicas matching a label selector are running at all times, creating new Pods when the count drops below the desired number. A Deployment sits above a ReplicaSet and manages rollouts, but the replica-count reconciliation itself is the ReplicaSet's job.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A Service provides stable networking to a set of Pods; it doesn't create or replace Pods.</p><p><strong>Option C:</strong> A ConfigMap only stores configuration data; it has no control-loop behavior.</p><p><strong>Option D:</strong> An Ingress defines HTTP routing rules; it has nothing to do with Pod replica counts.</p>"
+  },
+  {
+    "id": "interview-k8s-q3",
+    "question_number": "3",
+    "question": "Which component stores all persistent cluster state -- every object you've ever created -- as the cluster's single source of truth?",
+    "choices": [
+      "kube-apiserver",
+      "etcd",
+      "kube-scheduler",
+      "kubelet"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: etcd</strong></p><p>etcd is the distributed key-value store that persists every Kubernetes object. The API server is the only component that talks to etcd directly; every other component reads and writes cluster state through the API server, which in turn persists it to etcd.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The API server is the front door and enforcement point, but it doesn't itself persist data -- it delegates storage to etcd.</p><p><strong>Option C:</strong> The scheduler makes placement decisions; it holds no persistent state of its own.</p><p><strong>Option D:</strong> The kubelet manages containers on one node and reports status; it isn't a cluster-wide state store.</p>"
+  },
+  {
+    "id": "interview-k8s-q4",
+    "question_number": "4",
+    "question": "What is the primary role of the kubelet running on each worker node?",
+    "choices": [
+      "It schedules Pods onto nodes across the whole cluster",
+      "It communicates with the API server and manages containers on its node via the container runtime",
+      "It stores all cluster state persistently",
+      "It provides internal DNS resolution for Services"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: It communicates with the API server and manages containers on its node via the container runtime</strong></p><p>The kubelet is the node agent: it watches the API server for Pods assigned to its node, then instructs the container runtime (e.g. containerd) to start, stop, and monitor those containers, reporting node and Pod status back up.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Cluster-wide Pod placement is the kube-scheduler's job, not the kubelet's.</p><p><strong>Option C:</strong> Cluster state is stored in etcd, accessed via the API server, not on individual kubelets.</p><p><strong>Option D:</strong> DNS resolution inside the cluster is provided by CoreDNS, a separate workload, not the kubelet.</p>"
+  },
+  {
+    "id": "interview-k8s-q5",
+    "question_number": "5",
+    "question": "Which control-plane component decides which specific node a newly created Pod should run on?",
+    "choices": [
+      "kube-controller-manager",
+      "kube-scheduler",
+      "kube-proxy",
+      "kubelet"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: kube-scheduler</strong></p><p>The scheduler watches for Pods that have no node assigned, evaluates each candidate node against resource requests and constraints, scores the options, and writes the chosen node back through the API server.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The controller manager runs reconciliation loops (like maintaining ReplicaSet counts) but doesn't place Pods on nodes.</p><p><strong>Option C:</strong> kube-proxy programs node-level networking rules for Services; it plays no role in scheduling.</p><p><strong>Option D:</strong> The kubelet runs Pods after they've already been scheduled to its node -- it doesn't do the scheduling itself.</p>"
+  },
+  {
+    "id": "interview-k8s-q6",
+    "question_number": "6",
+    "question": "You need a Service that's reachable only from inside the cluster -- never exposed externally. Which Service type is the right (and default) choice?",
+    "choices": [
+      "ClusterIP",
+      "NodePort",
+      "LoadBalancer",
+      "ExternalName"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: ClusterIP</strong></p><p>ClusterIP is the default Service type and assigns a stable virtual IP reachable only from within the cluster. It's the right choice for internal traffic, like a backend calling another internal API or a database.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> NodePort opens a port on every node's IP, exposing the Service beyond the cluster network -- more exposure than needed here.</p><p><strong>Option C:</strong> LoadBalancer provisions an external cloud load balancer, explicitly for external exposure.</p><p><strong>Option D:</strong> ExternalName just returns a DNS CNAME to an external name; it doesn't proxy internal cluster traffic at all.</p>"
+  },
+  {
+    "id": "interview-k8s-q7",
+    "question_number": "7",
+    "question": "You create an Ingress resource, but requests to it never reach any backend -- nothing seems to happen. Which two of the following are plausible root causes? (Select TWO)",
+    "choices": [
+      "No Ingress controller is installed or watching that Ingress's ingressClassName",
+      "The Service referenced by the Ingress has an empty Endpoints list because its selector doesn't match any Pod labels",
+      "The cluster's CNI plugin doesn't support NetworkPolicy objects",
+      "The kube-scheduler is not currently running",
+      "The cluster has no StorageClass defined"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: No Ingress controller is installed or watching that Ingress's ingressClassName; The Service referenced has an empty Endpoints list</strong></p><p>An Ingress object is only a set of routing rules -- it does nothing unless an Ingress controller is actually running and watching that ingressClassName to program a real proxy or load balancer. Separately, even with a working controller, if the target Service's selector doesn't match any Pod's labels, there are no Endpoints to route traffic to, so requests still fail.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> NetworkPolicy support is unrelated to whether Ingress routing works at all.</p><p><strong>Option D:</strong> A down scheduler affects new Pod placement, not existing traffic routing through an Ingress.</p><p><strong>Option E:</strong> A missing StorageClass affects PersistentVolumeClaims, not HTTP routing.</p>"
+  },
+  {
+    "id": "interview-k8s-q8",
+    "question_number": "8",
+    "question": "Which statement correctly describes the role of a CNI plugin (e.g. Calico, Cilium, the AWS VPC CNI) in a Kubernetes cluster?",
+    "choices": [
+      "It assigns Pod IP addresses and implements pod-to-pod networking across nodes",
+      "It stores all cluster state persistently",
+      "It terminates TLS certificates for Ingress traffic",
+      "It decides which node a Pod should be scheduled onto"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: It assigns Pod IP addresses and implements pod-to-pod networking across nodes</strong></p><p>When the kubelet starts a Pod, it calls the CNI plugin to give that Pod an IP and wire up its network interface so it can reach other Pods cluster-wide without NAT, fulfilling the networking model Kubernetes requires but doesn't implement itself.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Cluster state lives in etcd; the CNI plugin has nothing to do with object storage.</p><p><strong>Option C:</strong> TLS termination is typically handled by an Ingress controller, not the CNI plugin.</p><p><strong>Option D:</strong> Scheduling decisions are made by kube-scheduler; the CNI plugin only wires up networking after a Pod is placed.</p>"
+  },
+  {
+    "id": "interview-k8s-q9",
+    "question_number": "9",
+    "question": "A Pod calls http://payments-api and the name resolves successfully to a ClusterIP. Which component answered that DNS query?",
+    "choices": [
+      "kube-proxy",
+      "CoreDNS",
+      "etcd",
+      "The container runtime"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: CoreDNS</strong></p><p>CoreDNS runs as Pods in kube-system, fronted by its own Service. Every Pod's resolv.conf is configured by the kubelet to use that Service's ClusterIP as its nameserver, so in-cluster name lookups like payments-api resolve against CoreDNS, which returns the matching Service's ClusterIP.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> kube-proxy handles routing traffic to a ClusterIP once it's known, not resolving the name in the first place.</p><p><strong>Option C:</strong> etcd stores cluster state but isn't queried directly for DNS lookups.</p><p><strong>Option D:</strong> The container runtime runs containers; it has no role in DNS resolution.</p>"
+  },
+  {
+    "id": "interview-k8s-q10",
+    "question_number": "10",
+    "question": "A Pod shows as Running but 0/1 Ready, and its Service never sends it any traffic. What's the most likely explanation?",
+    "choices": [
+      "The container's readiness probe is currently failing",
+      "The container's liveness probe is failing, causing repeated restarts",
+      "The Service object has no selector defined at all",
+      "The node the Pod is on is NotReady"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: The container's readiness probe is currently failing</strong></p><p>Readiness probes control whether a Pod is included in a Service's Endpoints. A Pod can be Running (the container process is alive) while still being excluded from traffic because it hasn't passed its readiness check -- for example during a slow startup or a temporary downstream dependency issue.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A failing liveness probe causes the container to be killed and restarted, which would show up as restarts, not a stable Running/0/1 Ready state.</p><p><strong>Option C:</strong> A Service with no selector wouldn't have automatically-managed Endpoints at all, which is a different (and rarer) misconfiguration than this symptom.</p><p><strong>Option D:</strong> A NotReady node would typically have its Pods evicted or marked unschedulable, not simply show as Running with a failed readiness gate.</p>"
+  },
+  {
+    "id": "interview-k8s-q11",
+    "question_number": "11",
+    "question": "Pods behind a Service are Running and Ready, but clients calling the Service get connection refused. What should you check first, before assuming a cluster-wide network problem?",
+    "choices": [
+      "Whether the Service's Endpoints actually list the Pods -- i.e. whether the selector matches the Pods' labels",
+      "Whether etcd currently has quorum",
+      "Whether the cluster is due for a control-plane version upgrade",
+      "Whether the CNI plugin's container image needs to be rebuilt"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Whether the Service's Endpoints actually list the Pods -- i.e. whether the selector matches the Pods' labels</strong></p><p>This is the single most common cause of exactly this symptom: a Service whose selector doesn't match any Pod's labels has an empty Endpoints/EndpointSlice list, so there's nothing for kube-proxy to route to, producing connection refused even though the Pods themselves are perfectly healthy. It's a fast, cheap check (kubectl get endpoints) and should come before deeper network-layer investigation.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A lost etcd quorum would affect the ability to read/write cluster objects broadly, not present as an isolated single-Service connection issue with healthy Pods.</p><p><strong>Option C:</strong> A pending version upgrade isn't a live symptom-producing condition; it wouldn't explain an active connectivity failure.</p><p><strong>Option D:</strong> Rebuilding the CNI image is a drastic, unlikely first step -- Pod-to-Pod networking working (implied by Pods being Ready) suggests the CNI layer itself is functioning.</p>"
+  },
+  {
+    "id": "interview-k8s-q12",
+    "question_number": "12",
+    "question": "A Deployment's Pods are stuck cycling through CrashLoopBackOff. Which two of the following are plausible root causes worth investigating? (Select TWO)",
+    "choices": [
+      "The application itself crashes on startup, e.g. due to a missing required environment variable or bad config",
+      "The liveness probe is too aggressive and kills the container before it finishes a slow startup",
+      "The Service in front of the Deployment has no Endpoints",
+      "The Ingress controller is misconfigured",
+      "The Pod's PersistentVolumeClaim is bound to the wrong StorageClass"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: The application crashes on startup due to bad config; The liveness probe is too aggressive</strong></p><p>CrashLoopBackOff means the container keeps exiting and the kubelet keeps restarting it with increasing backoff. The two most common causes are the application process itself exiting (bad config, missing env var, unhandled startup error -- check kubectl logs and the container's exit code) and a liveness probe configured with too short an initial delay or timeout, which kills a legitimately slow-starting app before it's ready, creating a self-inflicted crash loop.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Missing Endpoints affects traffic routing to already-running Pods; it doesn't cause a container to crash and restart.</p><p><strong>Option D:</strong> Ingress misconfiguration affects external HTTP routing, not whether a container process itself stays alive.</p><p><strong>Option E:</strong> A PVC/StorageClass mismatch would typically leave a Pod stuck Pending (unable to mount), not cycling through CrashLoopBackOff.</p>"
+  },
+  {
+    "id": "interview-k8s-q13",
+    "question_number": "13",
+    "question": "A node shows status NotReady. What's the most useful first-line troubleshooting step?",
+    "choices": [
+      "kubectl describe node <name>, to inspect its Conditions and recent kubelet heartbeat status",
+      "Delete and recreate every Deployment scheduled on that node",
+      "Scale all Deployments in the cluster to zero replicas",
+      "Restart the kube-apiserver"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: kubectl describe node &lt;name&gt;, to inspect its Conditions and recent kubelet heartbeat status</strong></p><p>describe node surfaces the node's Conditions (MemoryPressure, DiskPressure, Ready, etc.) and recent Events, which usually point directly at the cause -- a kubelet that's stopped reporting, a resource pressure condition, or a networking problem preventing the node from reaching the API server. It's the cheapest, most direct diagnostic step.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Recreating Deployments doesn't address the underlying node problem and just churns unrelated workloads.</p><p><strong>Option C:</strong> Scaling the entire cluster to zero is a drastic, unrelated overreaction to a single node's status.</p><p><strong>Option D:</strong> The API server being restarted has nothing to do with one node's kubelet failing to report Ready -- that's a node-local or network issue.</p>"
+  },
+  {
+    "id": "interview-k8s-q14",
+    "question_number": "14",
+    "question": "A team applies a NetworkPolicy with an egress rule that allows a Pod to reach only the database Pod's labels, intending to lock down a sensitive workload. Shortly after, the Pod can no longer resolve any hostnames at all, including the database's own Service name. What's the most likely cause?",
+    "choices": [
+      "The egress rule doesn't include an allow entry for DNS traffic to CoreDNS (typically port 53 in kube-system), so DNS lookups are now blocked",
+      "NetworkPolicy objects can only restrict ingress traffic, never egress, so this couldn't be the policy's fault",
+      "The Pod's readiness probe started failing at the same time by coincidence",
+      "etcd lost quorum at the same time by coincidence"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: The egress rule doesn't include an allow entry for DNS traffic to CoreDNS</strong></p><p>As soon as any NetworkPolicy selects a Pod for the egress direction, that Pod becomes default-deny on egress except for what the policy explicitly allows. A policy written to allow only \"traffic to the database\" easily forgets that DNS resolution is itself outbound traffic to CoreDNS -- so without an explicit allow rule for egress to kube-system on port 53, every name lookup from that Pod, including the database's own name, now fails.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> NetworkPolicy explicitly supports both ingress and egress rules; egress restriction is exactly what's described here.</p><p><strong>Option C:</strong> A readiness probe failure would affect whether the Pod receives traffic, not its own ability to resolve DNS -- unrelated to this symptom.</p><p><strong>Option D:</strong> A cluster-wide etcd quorum loss would cause broad API failures, not an isolated DNS resolution failure scoped to one Pod right after a policy change.</p>"
+  },
+  {
+    "id": "interview-k8s-q15",
+    "question_number": "15",
+    "question": "During a rolling upgrade of worker nodes in a self-managed, on-prem cluster, what is the correct order of operations for a single node?",
+    "choices": [
+      "Cordon the node, drain it, upgrade the kubelet/OS packages, then uncordon it",
+      "Drain the node, cordon it, uncordon it, then upgrade",
+      "Upgrade the node first, then cordon it, drain it, and uncordon it",
+      "Uncordon the node, cordon it, drain it, then upgrade"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Cordon, drain, upgrade, then uncordon</strong></p><p>Cordoning marks the node unschedulable so the scheduler stops placing new Pods on it. Draining then evicts the Pods already there so they get rescheduled elsewhere (respecting any PodDisruptionBudgets). Only once the node is empty is it safe to upgrade its kubelet/kube-proxy/OS packages. Uncordoning last makes the node schedulable again so it can rejoin normal capacity.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Draining before cordoning risks the scheduler immediately placing new Pods back onto the node you're trying to empty.</p><p><strong>Option C:</strong> Upgrading before draining risks disrupting workloads still running on the node during the upgrade.</p><p><strong>Option D:</strong> Uncordoning before cordoning and draining defeats the purpose entirely -- the node would still be schedulable while being upgraded.</p>"
+  }
+]

@@ -85,6 +85,7 @@ function RootNavigator() {
         name="certification/[certId]"
         options={{ title: '', headerBackTitle: 'Back' }}
       />
+      <Stack.Screen name="interview/[topicId]" options={{ title: '', headerBackTitle: 'Back' }} />
       <Stack.Screen
         name="quiz/[quizId]"
         options={{ headerShown: false, presentation: 'fullScreenModal' }}

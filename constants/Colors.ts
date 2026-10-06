@@ -28,6 +28,16 @@ export const Colors = {
     devops: '#8B5CF6',
   } as Record<string, string>,
 
+  // Interview topic brand colors
+  interviewTopics: {
+    ceph: '#EF4444',
+    k8s: '#326CE5',
+    docker: '#2496ED',
+    linux: '#FCC624',
+    ansible: '#EE0000',
+    'azure-networking': '#0078D4',
+  } as Record<string, string>,
+
   // Tab bar
   tabBar: '#0F0F14',
   tabBarBorder: '#1A1A24',

@@ -37,6 +37,13 @@ const questionFiles: Record<string, Question[]> = {
   'devops-cka-quiz-1': require('@/assets/data/questions/devops/cka-ckad/quiz-1.json'),
   // Docker Certified Associate
   'devops-docker-quiz-1': require('@/assets/data/questions/devops/docker-dca/quiz-1.json'),
+  // Interview Prep — tool-focused, ordered easy-to-hard, not shuffled (see useQuizSession)
+  'interview-ceph-quiz-1': require('@/assets/data/questions/interview/ceph/quiz-1.json'),
+  'interview-k8s-quiz-1': require('@/assets/data/questions/interview/k8s/quiz-1.json'),
+  'interview-docker-quiz-1': require('@/assets/data/questions/interview/docker/quiz-1.json'),
+  'interview-linux-quiz-1': require('@/assets/data/questions/interview/linux/quiz-1.json'),
+  'interview-ansible-quiz-1': require('@/assets/data/questions/interview/ansible/quiz-1.json'),
+  'interview-azure-networking-quiz-1': require('@/assets/data/questions/interview/azure-networking/quiz-1.json'),
 };
 
 // Validate quiz ID format before processing

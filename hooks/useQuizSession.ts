@@ -23,7 +23,9 @@ export function useQuizSession(quizId: string, isPro: boolean = false) {
 
   const [state, setState] = useState<QuizSessionState>(() => {
     const raw = loadQuizQuestions(quizId, isPro);
-    const questions = shuffleArray(raw);
+    // Interview quizzes are authored in a deliberate easy-to-hard progression;
+    // shuffling would defeat the point.
+    const questions = quizId.startsWith('interview-') ? raw : shuffleArray(raw);
     startTime.current = Date.now();
     return {
       questions,

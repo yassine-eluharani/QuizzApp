@@ -1,0 +1,197 @@
+[
+  {
+    "id": "interview-ansible-q1",
+    "question_number": "1",
+    "question": "What is Ansible primarily used for?",
+    "choices": [
+      "Provisioning new cloud infrastructure such as VPCs and load balancers",
+      "Configuring and managing state on servers that already exist",
+      "Replacing container orchestration platforms like Kubernetes",
+      "Compiling application source code for deployment"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Configuring and managing state on servers that already exist.</strong></p><p>Ansible is a configuration management tool. It assumes the target machines already exist and focuses on enforcing a desired state on them — installing packages, templating config files, managing services and users.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Creating cloud resources like VPCs and load balancers is provisioning, the role Terraform typically plays.</p><p><strong>Option C:</strong> Ansible is not a container orchestrator; it can deploy to containers but does not schedule or orchestrate them like Kubernetes.</p><p><strong>Option D:</strong> Ansible has no role in compiling source code.</p>"
+  },
+  {
+    "id": "interview-ansible-q2",
+    "question_number": "2",
+    "question": "Which statement correctly describes Ansible's agentless architecture?",
+    "choices": [
+      "Ansible requires a persistent daemon installed on every managed node before it can run any tasks",
+      "Ansible connects to managed nodes over SSH (or WinRM) and executes modules without requiring pre-installed agent software",
+      "Ansible requires managed nodes to expose a REST API that Ansible polls periodically",
+      "Ansible requires a message queue between the control node and every managed host"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Ansible connects over SSH (or WinRM) without requiring pre-installed agent software.</strong></p><p>The control node pushes small modules over an existing SSH connection, executes them remotely, and collects results. Nothing needs to be running on the target host in advance beyond SSH and a Python interpreter.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes an agent-based tool, the opposite of Ansible's model.</p><p><strong>Option C:</strong> Ansible does not require managed nodes to run any API server.</p><p><strong>Option D:</strong> No message broker is involved; Ansible connects directly over SSH.</p>"
+  },
+  {
+    "id": "interview-ansible-q3",
+    "question_number": "3",
+    "question": "What is the correct term for a group of hosts Ansible manages, typically defined in an ini or YAML file?",
+    "choices": [
+      "Playbook",
+      "Module",
+      "Inventory",
+      "Role"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Inventory.</strong></p><p>The inventory is the list of managed hosts, usually organized into logical groups such as webservers or dbservers, and can be static or generated dynamically.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A playbook is the YAML file describing what tasks to run against hosts, not the host list itself.</p><p><strong>Option B:</strong> A module is a unit of work executed by a task, unrelated to host grouping.</p><p><strong>Option D:</strong> A role is a reusable bundle of tasks, variables, and handlers, not a host list.</p>"
+  },
+  {
+    "id": "interview-ansible-q4",
+    "question_number": "4",
+    "question": "What does a module represent in Ansible?",
+    "choices": [
+      "A YAML file containing an ordered list of plays",
+      "A small unit of code that performs one specific, idempotent action on a host, such as installing a package",
+      "A group of hosts sharing the same variables",
+      "A persistent agent process running on the control node"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: A small unit of code that performs one specific, idempotent action on a host.</strong></p><p>Modules like <code>apt</code>, <code>copy</code>, <code>service</code>, and <code>user</code> are the actual workers Ansible ships to a target host to check and enforce one piece of state.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes a playbook, not a module.</p><p><strong>Option C:</strong> That describes an inventory group.</p><p><strong>Option D:</strong> Ansible does not run persistent agent processes at all, on the control node or elsewhere.</p>"
+  },
+  {
+    "id": "interview-ansible-q5",
+    "question_number": "5",
+    "question": "Which best describes the relationship between Terraform and Ansible?",
+    "choices": [
+      "They are direct competitors that solve the exact same problem",
+      "Terraform provisions infrastructure; Ansible configures state on infrastructure that already exists",
+      "Ansible replaces the need for any cloud provider",
+      "Terraform is used only for on-prem servers, Ansible only for cloud servers"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Terraform provisions infrastructure; Ansible configures state on infrastructure that already exists.</strong></p><p>This is the core provisioning versus configuration management split. They are frequently used together in the same pipeline, with Terraform creating hosts and Ansible configuring them afterward.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> They solve related but distinct problems and are commonly used together, not as competitors.</p><p><strong>Option C:</strong> Ansible has no relationship to whether you need a cloud provider at all.</p><p><strong>Option D:</strong> Neither tool is restricted to on-prem or cloud only; both work in either context.</p>"
+  },
+  {
+    "id": "interview-ansible-q6",
+    "question_number": "6",
+    "question": "A task uses the apt module with state: present to install nginx. You run the same playbook five times in a row. What should happen on runs 2 through 5?",
+    "choices": [
+      "Each run reinstalls nginx and reports changed",
+      "The task reports ok, meaning no change, because nginx is already installed",
+      "The playbook fails because nginx is already present",
+      "Ansible skips the entire play automatically after the first successful run"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The task reports ok because nginx is already installed.</strong></p><p>This is idempotency in action — the apt module checks current package state before acting, so subsequent runs recognize nothing needs to change and report ok instead of changed.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Reinstalling every run would not be idempotent; well-written modules avoid this.</p><p><strong>Option C:</strong> Idempotent modules do not fail when the desired state already holds.</p><p><strong>Option D:</strong> Ansible has no mechanism that auto-skips an entire play after a successful run; each task is still evaluated every time.</p>"
+  },
+  {
+    "id": "interview-ansible-q7",
+    "question_number": "7",
+    "question": "You set a variable in group_vars/webservers.yml and also pass the same variable with -e on the command line. Which value does the play actually use?",
+    "choices": [
+      "The group_vars value, because inventory variables always win",
+      "The -e (extra vars) value, since command-line extra vars have the highest precedence",
+      "Ansible throws an error for duplicate variable definitions",
+      "Whichever file was edited most recently on disk"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The -e (extra vars) value.</strong></p><p>Command-line extra vars sit at the top of Ansible's variable precedence order and override every other source, including group_vars, host_vars, and role vars.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Inventory variables are overridden by extra vars, not the other way around.</p><p><strong>Option C:</strong> Ansible resolves precedence silently; it does not error on duplicate variable names.</p><p><strong>Option D:</strong> File modification time on disk has no bearing on variable precedence.</p>"
+  },
+  {
+    "id": "interview-ansible-q8",
+    "question_number": "8",
+    "question": "In a standard Ansible role directory structure, where would you place variables intended to be easily overridden by whoever consumes the role?",
+    "choices": [
+      "vars/main.yml",
+      "defaults/main.yml",
+      "handlers/main.yml",
+      "templates/main.yml"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: defaults/main.yml.</strong></p><p>Role defaults sit at the lowest precedence level specifically so that consumers of the role can easily override them from a playbook, group_vars, or extra vars without editing the role itself.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> vars/main.yml holds higher-precedence variables that are not meant to be casually overridden.</p><p><strong>Option C:</strong> handlers/main.yml holds handler definitions, not variables.</p><p><strong>Option D:</strong> templates/main.yml is not a standard file; templates/ holds Jinja2 template files, not variables.</p>"
+  },
+  {
+    "id": "interview-ansible-q9",
+    "question_number": "9",
+    "question": "Which scenario is the better fit for an ad-hoc command rather than a playbook?",
+    "choices": [
+      "Deploying a versioned application configuration to 200 servers that must be repeatable",
+      "Quickly checking whether a specific service is running on all hosts right now",
+      "Installing and configuring a database cluster with multiple ordered steps",
+      "Rolling out a change that other engineers need to review before it runs"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Quickly checking whether a specific service is running on all hosts right now.</strong></p><p>Ad-hoc commands are meant for immediate, one-off diagnostics or actions that don't need to be saved, reviewed, or repeated in exactly the same form.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A repeatable, versioned rollout across many servers belongs in a playbook.</p><p><strong>Option C:</strong> Multi-step ordered configuration is exactly what playbooks and roles are designed for.</p><p><strong>Option D:</strong> Anything needing peer review should be a version-controlled playbook, not a one-off command.</p>"
+  },
+  {
+    "id": "interview-ansible-q10",
+    "question_number": "10",
+    "question": "Which TWO of the following are true about Ansible facts? (Select TWO)",
+    "choices": [
+      "Facts are gathered automatically at the start of a play by the setup module, unless disabled",
+      "Facts must be manually defined by the playbook author for every host",
+      "Facts include host-specific information like OS family, IP addresses, and memory",
+      "Facts always take lower precedence than role defaults"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Facts are auto-gathered by the setup module, and they include host details like OS family, IPs, and memory.</strong></p><p>Facts are discovered automatically at the start of a play unless <code>gather_facts: false</code> is set, and they describe real properties of each host rather than values the author has to type out.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Facts are discovered automatically, not manually authored per host.</p><p><strong>Option D:</strong> Facts actually sit above role defaults in Ansible's precedence order, not below.</p>"
+  },
+  {
+    "id": "interview-ansible-q11",
+    "question_number": "11",
+    "question": "A playbook contains a task that runs the shell module with the command mkdir /opt/data. What's wrong with this task from an idempotency standpoint?",
+    "choices": [
+      "Nothing is wrong; shell commands are always idempotent in Ansible",
+      "Running the playbook a second time will error out, since mkdir fails if the directory already exists and Ansible has no built-in awareness that the directory now exists",
+      "The shell module cannot create directories at all",
+      "Ansible will automatically convert this into a file module call"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Running it a second time will error out, since mkdir fails on an existing directory and shell has no built-in state check.</strong></p><p>The shell and command modules just execute raw commands; they don't know or care whether the desired end state already exists. The idiomatic fix is to use the file module with state: directory, which checks first and reports ok if the directory is already there.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Shell commands are not idempotent by default — idempotency has to be designed in, either via guards like creates: or by using a proper module.</p><p><strong>Option C:</strong> The shell module can run any command, including mkdir; it works, it's just not idempotent.</p><p><strong>Option D:</strong> Ansible performs no automatic conversion between modules; you must choose the right module yourself.</p>"
+  },
+  {
+    "id": "interview-ansible-q12",
+    "question_number": "12",
+    "question": "A task templates /etc/app/config.yml and has notify: restart app. On a run where config.yml was already correct and no other task made changes, does the restart app handler fire?",
+    "choices": [
+      "Yes, handlers always run once at the end of every play regardless of whether anything changed",
+      "No — the handler only fires when the task that notified it reports changed; since nothing changed, the handler is never triggered",
+      "Yes, but only if the play has more than one task",
+      "No, handlers never run unless called with a special force-handlers flag on every invocation"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The handler only fires when the notifying task reports changed; here it does not fire.</strong></p><p>Handlers are triggered by a change event, not by the mere presence of a notify: line. If the template task finds the file already matches, it reports ok, and the notification never fires — which is the intended behavior, since restarting an unaffected service would be unnecessary disruption.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Handlers only run when notified by an actual changed task, not unconditionally on every play.</p><p><strong>Option C:</strong> The number of other tasks in the play has no bearing on whether this particular handler fires.</p><p><strong>Option D:</strong> A force-handlers flag exists to run pending handlers even after a failure, but it is not required for normal notify-triggered execution.</p>"
+  },
+  {
+    "id": "interview-ansible-q13",
+    "question_number": "13",
+    "question": "You're deciding between Terraform and Ansible for a project involving standing up a new AWS environment (VPC, subnets, an RDS instance) and then installing and configuring an application on new EC2 instances. Which TWO statements correctly describe the right tool split? (Select TWO)",
+    "choices": [
+      "Terraform should provision the VPC, subnets, and RDS instance since it owns infrastructure lifecycle and state tracking",
+      "Ansible should provision the VPC and RDS instance since it has no state file to conflict with",
+      "Ansible is well suited to installing packages and deploying application configuration onto the EC2 instances once they exist",
+      "Terraform should be used to install and configure the application because it runs faster than SSH"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Terraform provisions the VPC, subnets, and RDS instance; Ansible configures the application on the resulting EC2 instances.</strong></p><p>This is the standard split — Terraform tracks and manages the lifecycle of cloud resources via state, while Ansible handles what runs on top of compute that already exists, typically fed by a dynamic inventory built from Terraform's output.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> The absence of a state file is not a reason to prefer Ansible for provisioning; Terraform's state tracking is precisely what makes it well suited to managing resource lifecycle.</p><p><strong>Option D:</strong> Terraform does not install or configure application software, and speed is not the deciding factor here — it's a difference in what each tool is designed to manage.</p>"
+  },
+  {
+    "id": "interview-ansible-q14",
+    "question_number": "14",
+    "question": "A colleague claiming Ansible experience says: 'I always use command and shell modules for everything because they're the most flexible.' What's the strongest technical criticism of that approach for production playbooks?",
+    "choices": [
+      "The command and shell modules are deprecated and no longer function in current Ansible versions",
+      "command and shell provide no built-in idempotency checks, so tasks written this way tend to error out or produce unintended changes on repeated runs unless manually guarded",
+      "command and shell modules cannot connect over SSH",
+      "command and shell modules require Ansible Vault to run"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: command and shell lack built-in idempotency checks, making repeated runs unsafe unless explicitly guarded.</strong></p><p>Relying on them for everything throws away the safety that purpose-built modules provide — checking state before acting. It also makes playbooks harder to read and reason about, since a raw shell command doesn't declare intent the way a module name like apt or service does.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Both modules are fully supported and commonly used; they are not deprecated.</p><p><strong>Option C:</strong> Both modules execute over the same SSH connection as every other module; connectivity is not the issue.</p><p><strong>Option D:</strong> Ansible Vault is unrelated to which execution module a task uses; it's for encrypting secrets, not a prerequisite for running commands.</p>"
+  },
+  {
+    "id": "interview-ansible-q15",
+    "question_number": "15",
+    "question": "A playbook task using the apt module succeeds on 9 of your 10 target hosts but fails on the 10th with a permissions or connectivity-style error, even though the task and inventory group definition are identical for all 10. What's the most likely category of root cause to investigate first?",
+    "choices": [
+      "The playbook YAML syntax must be different for that one host",
+      "Something host-specific is different — such as that host's SSH or sudo permissions, Python interpreter path, existing package state, or network reachability — since the same task ran fine elsewhere",
+      "Ansible modules randomly fail approximately 10% of the time by design",
+      "The inventory file itself is invalid, since group definitions apply per-file and not per-host"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Something host-specific differs on that one machine.</strong></p><p>Since the exact same task and group definition ran successfully everywhere else, the YAML and playbook logic are proven fine; the failure points to a difference in the target itself — missing sudo rights, a different Python path, a stale package cache, a firewall rule blocking SSH, or similar. Ansible surfaces per-host errors independently, which is exactly what's being described here.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A single YAML file is parsed once for the whole play; it cannot silently differ per host.</p><p><strong>Option C:</strong> Ansible has no randomized failure behavior; every failure has a specific, discoverable cause.</p><p><strong>Option D:</strong> An invalid inventory file would typically prevent the play from targeting the host at all, not produce a permissions or connectivity error mid-task after nine other hosts succeeded.</p>"
+  }
+]

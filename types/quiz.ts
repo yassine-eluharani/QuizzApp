@@ -80,6 +80,13 @@ export interface AnswerRecord {
   correct: boolean;
 }
 
+export interface InterviewQA {
+  id: string;
+  level: 'foundational' | 'core' | 'advanced';
+  question: string;
+  answer_html: string;
+}
+
 export interface BookmarkMeta {
   certId: string;
   quizId: string;

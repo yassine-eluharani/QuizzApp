@@ -1,0 +1,197 @@
+[
+  {
+    "id": "interview-azure-networking-q1",
+    "question_number": "1",
+    "question": "What is the best description of an Azure Virtual Network (VNet)?",
+    "choices": [
+      "A managed load balancer that distributes traffic across regions",
+      "An isolated, private network within Azure where you define your own IP address range and place resources",
+      "A DNS zone that resolves names for Azure resources",
+      "A physical network appliance deployed in an Azure datacenter"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: An isolated, private network within Azure where you define your own IP address range and place resources</strong></p><p>A VNet is the logical equivalent of a private network in a traditional datacenter. You assign it a CIDR address range (e.g. <code>10.0.0.0/16</code>), and every resource placed inside can communicate over private IP addresses. It's the foundational container that subnets, NSGs, and routing all live inside.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Load balancing across regions describes Azure Front Door or Traffic Manager, not a VNet, which is a networking container, not a traffic-distribution service.</p><p><strong>Option C:</strong> DNS resolution is handled by Azure DNS (public or private zones), a separate resource that can be linked to a VNet, not the VNet itself.</p><p><strong>Option D:</strong> A VNet is a software-defined, logical construct, not a physical appliance; Microsoft manages the underlying physical infrastructure.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q2",
+    "question_number": "2",
+    "question": "What is a subnet's role within a VNet?",
+    "choices": [
+      "It's a separate VNet peered to the main one",
+      "It's a subdivision of the VNet's address space that resources are deployed into, often used as a security and routing boundary",
+      "It's a DNS record type",
+      "It's a load-balancing rule"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: It's a subdivision of the VNet's address space that resources are deployed into, often used as a security and routing boundary</strong></p><p>A subnet carves a smaller range out of the VNet's overall CIDR block. Every resource you deploy into the VNet lives in exactly one subnet, and both NSGs and route tables are commonly attached at the subnet level, making the subnet the practical unit of network segmentation.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A subnet is part of one VNet, not a separate VNet; VNets are connected to each other via peering, which is a different concept entirely.</p><p><strong>Option C:</strong> DNS records (A, CNAME, etc.) belong to DNS zones, unrelated to subnetting an address space.</p><p><strong>Option D:</strong> Load-balancing rules are configured on Load Balancer or Application Gateway resources, not on subnets.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q3",
+    "question_number": "3",
+    "question": "How many IP addresses does Azure reserve for its own use in every subnet, regardless of size?",
+    "choices": [
+      "2",
+      "5",
+      "10",
+      "0 - none are reserved"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: 5</strong></p><p>Azure always reserves 5 addresses per subnet: the network address, two for DNS, the default gateway, and the broadcast address. This means a <code>/24</code> subnet (256 addresses) actually gives you 251 usable addresses, which matters when sizing subnets for a predictable number of resources.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> 2 undercounts the reservation; Azure's reservation is fixed at 5 regardless of subnet size.</p><p><strong>Option C:</strong> 10 overcounts the reservation; this isn't the actual figure Azure uses.</p><p><strong>Option D:</strong> Azure does reserve addresses in every subnet; assuming zero reservation leads to under-provisioning subnets that run out of usable addresses.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q4",
+    "question_number": "4",
+    "question": "At what layer does a Network Security Group (NSG) primarily operate, and what does it filter?",
+    "choices": [
+      "Layer 7 (application layer), filtering based on HTTP headers and URL paths",
+      "Layer 3/4 (network/transport), filtering based on source/destination IP, port, and protocol",
+      "Layer 2 (data link), filtering based on MAC address",
+      "Layer 7, filtering based on TLS certificate validity"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Layer 3/4 (network/transport), filtering based on source/destination IP, port, and protocol</strong></p><p>NSGs are a stateful layer 3/4 firewall. Rules match on source and destination IP ranges, port ranges, and protocol (TCP/UDP/*); they have no visibility into HTTP content, URL paths, or headers. Application-layer inspection is the job of Application Gateway's WAF, not the NSG.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Layer 7 filtering by HTTP headers/paths is what Application Gateway (with routing rules) or a WAF does, not an NSG.</p><p><strong>Option C:</strong> NSGs don't filter on MAC address; that's a layer 2 concept unrelated to how NSG rules are defined.</p><p><strong>Option D:</strong> TLS certificate validation happens during TLS termination on a service like Application Gateway, not within an NSG rule.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q5",
+    "question_number": "5",
+    "question": "NSGs are described as 'stateful.' What does that mean in practice?",
+    "choices": [
+      "Each NSG rule must be manually duplicated for both inbound and outbound directions",
+      "NSGs store historical traffic logs by default with no configuration needed",
+      "If inbound traffic is allowed by a rule, the corresponding response traffic is automatically allowed outbound without a matching rule",
+      "NSG rules persist even after the NSG is deleted"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: If inbound traffic is allowed by a rule, the corresponding response traffic is automatically allowed outbound without a matching rule</strong></p><p>Being stateful means the NSG tracks the connection, not just individual packets. Once an inbound request is allowed, its response is automatically permitted back out, and vice versa for outbound-initiated connections. You only need one rule per direction of the initiating traffic, not a mirrored rule for the response.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Statefulness is precisely what removes the need to duplicate rules for response traffic; this option describes the opposite (stateless) behavior.</p><p><strong>Option B:</strong> NSGs don't log traffic by default; NSG flow logs are a separate, explicitly enabled feature via Network Watcher.</p><p><strong>Option D:</strong> Deleting an NSG removes its rules entirely; nothing persists after deletion.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q6",
+    "question_number": "6",
+    "question": "VNet A is peered with VNet B, and VNet B is peered with VNet C. Can a VM in VNet A directly reach a VM in VNet C using this peering setup alone?",
+    "choices": [
+      "Yes, peering is transitive by default",
+      "No, peering is not transitive; A and C would need their own direct peering or routing through a hub",
+      "Yes, but only if both peerings use the same VNet name",
+      "No, peering only works within a single Azure region"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: No, peering is not transitive; A and C would need their own direct peering or routing through a hub</strong></p><p>VNet peering only establishes connectivity between the two directly peered VNets. A being peered to B and B being peered to C does not give A a path to C. To connect A and C, you'd either peer them directly or route through a shared hub VNet using UDRs and an NVA/firewall, which is exactly the problem hub-and-spoke topology solves.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> This is the single most common misconception about peering; Azure explicitly does not propagate reachability transitively across peering links.</p><p><strong>Option C:</strong> VNet names have no bearing on peering behavior; peering is based on resource IDs and explicit peering links, not naming.</p><p><strong>Option D:</strong> VNet peering supports both same-region (regional) and cross-region (global) peering; region is not the limiting factor for transitivity.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q7",
+    "question_number": "7",
+    "question": "Which TWO statements accurately distinguish a Private Endpoint from a Service Endpoint for accessing a PaaS service like Azure Key Vault? (Select TWO)",
+    "choices": [
+      "A Private Endpoint assigns a private IP address inside your subnet that maps to the specific PaaS resource",
+      "A Service Endpoint removes the PaaS resource's public IP address entirely",
+      "A Service Endpoint optimizes routing over the Azure backbone while the PaaS resource keeps a public endpoint",
+      "A Private Endpoint requires the PaaS resource to be deployed inside your VNet's subnet as a VM"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: A Private Endpoint assigns a private IP address inside your subnet that maps to the specific PaaS resource; A Service Endpoint optimizes routing over the Azure backbone while the PaaS resource keeps a public endpoint</strong></p><p>A Private Endpoint uses Azure Private Link to give the PaaS resource an actual network interface with a private IP inside your subnet, letting you fully disable its public endpoint. A Service Endpoint is lighter-weight: it just changes the route so traffic to the service takes the Azure backbone instead of the public internet path, and lets the service's firewall recognize traffic as coming from your VNet, but the service keeps its public IP.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> It's the Private Endpoint, not the Service Endpoint, that enables fully removing the public endpoint; a Service Endpoint leaves the public IP in place.</p><p><strong>Option D:</strong> Private Endpoint doesn't require redeploying the PaaS service as a VM; the PaaS service stays fully managed, and Private Link simply projects a private IP for it into your subnet.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q8",
+    "question_number": "8",
+    "question": "Your application has backend instances in three Azure regions and you need global routing to the closest healthy region plus edge caching. Which service is the best fit?",
+    "choices": [
+      "Azure Load Balancer",
+      "Application Gateway",
+      "Azure Front Door",
+      "Network Security Group"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: Azure Front Door</strong></p><p>Front Door is a global, layer-7 edge service. It terminates connections at Microsoft's worldwide edge points-of-presence close to users, routes to the closest/healthiest backend region, and supports caching and WAF at the edge. This exactly matches a requirement for global routing across multiple regions plus edge caching.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Azure Load Balancer is a regional, layer-4 service; it load-balances within a region and has no concept of global, latency-based routing or caching.</p><p><strong>Option B:</strong> Application Gateway is also regional and layer-7; it can do path-based routing and WAF within one region, but not global routing across regions.</p><p><strong>Option D:</strong> An NSG is a traffic filter, not a load-balancing or routing service; it plays no role in distributing traffic across regions.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q9",
+    "question_number": "9",
+    "question": "You need all outbound internet traffic from a subnet to first pass through a centralized Azure Firewall for inspection. What Azure networking feature enables this?",
+    "choices": [
+      "A Service Endpoint pointed at the firewall",
+      "A User-Defined Route (UDR) with a 0.0.0.0/0 prefix and a next hop type of Virtual Appliance pointing to the firewall's private IP",
+      "An NSG rule with priority 4096",
+      "VNet peering with gateway transit enabled"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: A User-Defined Route (UDR) with a 0.0.0.0/0 prefix and a next hop type of Virtual Appliance pointing to the firewall's private IP</strong></p><p>This pattern, often called forced tunneling, overrides the subnet's default internet route. Instead of traffic leaving directly to the internet, the UDR sends anything matching <code>0.0.0.0/0</code> to the firewall's private IP as a Virtual Appliance next hop, so the firewall inspects it before it's allowed to leave.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Service Endpoints optimize routing to specific PaaS services over the Azure backbone; they have no mechanism to redirect general internet-bound traffic to a firewall.</p><p><strong>Option C:</strong> NSG rules only allow or deny traffic; they cannot redirect traffic through a different path or appliance, which requires routing, not filtering.</p><p><strong>Option D:</strong> Gateway transit lets a spoke use a hub's VPN/ExpressRoute gateway for on-premises connectivity; it doesn't route internet-bound traffic through a firewall.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q10",
+    "question_number": "10",
+    "question": "Two VNets are peered but a VM in one VNet cannot resolve the private DNS name of a resource in the other VNet, even though IP connectivity works fine. What's the most likely missing configuration?",
+    "choices": [
+      "The VNets need to be re-peered with a higher address space",
+      "The private DNS zone needs to be linked to both VNets, since peering alone doesn't share DNS resolution",
+      "NSG rules must allow port 3389",
+      "A Service Endpoint must be added for Azure DNS"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The private DNS zone needs to be linked to both VNets, since peering alone doesn't share DNS resolution</strong></p><p>VNet peering only establishes IP-level connectivity. Name resolution against an Azure Private DNS zone requires the zone to be explicitly linked to each VNet that needs to resolve records in it. Connectivity working while resolution fails is the classic symptom of a missing virtual network link on the private DNS zone.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Address space size has no bearing on DNS resolution; this would only matter for overlapping ranges preventing peering entirely.</p><p><strong>Option C:</strong> Port 3389 is used for RDP; it's unrelated to DNS resolution (which uses port 53).</p><p><strong>Option D:</strong> Service Endpoints route traffic to specific PaaS services over the backbone; they don't control private DNS zone linkage or resolution.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q11",
+    "question_number": "11",
+    "question": "Two VNets show a peering status of 'Connected' in the portal, but VMs on each side still cannot reach each other. Which TWO of the following should you check first? (Select TWO)",
+    "choices": [
+      "Whether an NSG rule (subnet or NIC level) is denying the traffic, checked via Network Watcher's IP flow verify",
+      "Whether the VNets are in different Azure subscriptions",
+      "Whether effective routes on the VM's NIC show a UDR that reroutes or black-holes the traffic instead of sending it back through the peering",
+      "Whether the VMs are using the same VM size (SKU)"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Whether an NSG rule (subnet or NIC level) is denying the traffic, checked via Network Watcher's IP flow verify; Whether effective routes on the VM's NIC show a UDR that reroutes or black-holes the traffic instead of sending it back through the peering</strong></p><p>A 'Connected' peering status only confirms the control-plane link exists; it says nothing about whether an NSG or a UDR is interfering with the data path. IP flow verify tells you exactly which rule is allowing or denying a specific flow, and effective routes reveal the actual merged routing table in effect, including any UDR that might be silently rerouting or dropping traffic meant for the peered VNet. These are the two highest-value checks after confirming peering status itself.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> VNet peering explicitly supports peering across different subscriptions (and even different Microsoft Entra tenants); this alone isn't a cause of the described failure.</p><p><strong>Option D:</strong> VM size/SKU is unrelated to network connectivity between peered VNets; it affects compute capacity, not routing or filtering.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q12",
+    "question_number": "12",
+    "question": "A workload requires guaranteed low latency, high sustained throughput, and a contractual SLA on the connection itself, and compliance requires the traffic never cross the public internet. Which connectivity option fits, and why?",
+    "choices": [
+      "VPN Gateway, because it's cheaper and quicker to provision",
+      "ExpressRoute, because it's a private dedicated circuit with predictable latency/throughput and an SLA, never touching the public internet",
+      "VNet peering, because it connects on-premises networks to Azure",
+      "Azure Front Door, because it provides global edge routing"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: ExpressRoute, because it's a private dedicated circuit with predictable latency/throughput and an SLA, never touching the public internet</strong></p><p>ExpressRoute provisions a dedicated, private circuit through a connectivity provider directly into Microsoft's network, bypassing the public internet entirely. This gives it predictable latency, high throughput (up to 100 Gbps with ExpressRoute Direct), and an SLA on the connection, which is exactly what's required when compliance mandates traffic never traverse the public internet.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> VPN Gateway is cheaper and faster to provision, but it tunnels over the public internet, so it cannot guarantee latency/throughput or satisfy a 'never touch the public internet' compliance requirement.</p><p><strong>Option C:</strong> VNet peering connects two Azure VNets to each other; it has no role in connecting to an on-premises network.</p><p><strong>Option D:</strong> Front Door is a global HTTP(S) edge and CDN service for routing client traffic to Azure-hosted backends; it doesn't provide a private on-premises-to-Azure circuit.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q13",
+    "question_number": "13",
+    "question": "An engineer adds an NSG rule at priority 200 to allow inbound TCP 443 from a specific IP, but traffic is still being blocked. Investigation shows an existing rule at priority 100 that denies all inbound traffic. Why does the new rule fail to take effect?",
+    "choices": [
+      "Priority 200 rules are always outbound-only",
+      "NSGs evaluate rules in ascending priority order and stop at the first match; the deny-all rule at 100 matches first and blocks the traffic before rule 200 is ever evaluated",
+      "The rule needs to be duplicated on the outbound side to take effect",
+      "NSG rules require a restart of the VM to take effect"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: NSGs evaluate rules in ascending priority order and stop at the first match; the deny-all rule at 100 matches first and blocks the traffic before rule 200 is ever evaluated</strong></p><p>NSG rules are evaluated lowest-priority-number first, and evaluation stops at the first rule that matches the traffic, regardless of how specific a later rule is. Since the deny-all rule at 100 matches everything and is evaluated before the allow rule at 200, it wins every time. The fix is to give the allow rule a lower priority number than the deny-all rule (or narrow/remove the deny-all rule).</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Priority values apply to both inbound and outbound rule sets equally; the priority number itself doesn't determine direction, the rule's configured direction does.</p><p><strong>Option C:</strong> NSGs are stateful, so an allowed inbound request's response is automatically permitted outbound; duplicating the rule outbound is unnecessary and unrelated to this failure.</p><p><strong>Option D:</strong> NSG rule changes take effect immediately on the associated subnet/NIC; no VM restart is required.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q14",
+    "question_number": "14",
+    "question": "You suspect a specific NSG rule is silently blocking traffic between two VMs, but manually tracing rule priority across multiple NSGs is error-prone. What Network Watcher capability directly tells you whether traffic between a source and destination is allowed or denied, and by which rule?",
+    "choices": [
+      "Effective routes",
+      "IP flow verify",
+      "Connection monitor topology view",
+      "NSG flow logs export to Power BI"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: IP flow verify</strong></p><p>IP flow verify takes a source IP/port, destination IP/port, protocol, and direction, and tells you directly whether that specific flow is allowed or denied, and which exact rule (and which NSG, if multiple apply) produced that result. It replaces manually merging and re-deriving effective NSG rules by hand.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Effective routes shows the merged routing table (system routes plus UDRs) for a NIC; it answers routing questions, not NSG allow/deny questions.</p><p><strong>Option C:</strong> Connection monitor's topology view visualizes the network path and hop-by-hop connectivity over time, but it isn't the tool that names the specific rule responsible for an allow or deny decision.</p><p><strong>Option D:</strong> NSG flow logs record historical accepted/denied flow data over time for analysis (optionally in tools like Power BI or Traffic Analytics), which is useful for trend/audit analysis but is slower for a single, immediate allow/deny check than IP flow verify.</p>"
+  },
+  {
+    "id": "interview-azure-networking-q15",
+    "question_number": "15",
+    "question": "You're designing a hub-and-spoke topology with a central firewall in the hub VNet. Spoke VNets are peered to the hub but not to each other. What must you configure so that traffic from one spoke can reach another spoke via the hub firewall?",
+    "choices": [
+      "Nothing extra; peering to a common hub automatically enables spoke-to-spoke routing",
+      "A User-Defined Route on each spoke subnet sending the other spoke's address prefix (or 0.0.0.0/0) to the firewall's private IP as the next hop",
+      "A Service Endpoint on each spoke pointing to the firewall",
+      "Enable 'gateway transit' on each spoke-to-spoke peering"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: A User-Defined Route on each spoke subnet sending the other spoke's address prefix (or 0.0.0.0/0) to the firewall's private IP as the next hop</strong></p><p>Because VNet peering isn't transitive, a spoke peered to the hub has no automatic path to another spoke peered to the same hub. A UDR on each spoke subnet is required to explicitly send traffic destined for other spokes (or all outbound traffic) to the hub firewall/NVA's private IP, which then forwards it on to the destination spoke over its own peering to the hub. This is the core mechanic that makes hub-and-spoke inspection actually work.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> This is precisely the non-transitivity trap; peering to a shared hub does not by itself create spoke-to-spoke reachability.</p><p><strong>Option C:</strong> Service Endpoints optimize routing to Azure PaaS services; they have no role in routing traffic between VNets or through a firewall.</p><p><strong>Option D:</strong> Gateway transit lets a spoke use the hub's VPN Gateway/ExpressRoute connection for on-premises reachability; it doesn't establish spoke-to-spoke routing through a firewall, which requires UDRs instead.</p>"
+  }
+]

@@ -1,0 +1,197 @@
+[
+  {
+    "id": "interview-linux-q1",
+    "question_number": "1",
+    "question": "Which command would you use to make a script executable by its owner, and readable/executable (but not writable) by group and everyone else — permission string rwxr-xr-x?",
+    "choices": [
+      "chmod 755 script.sh",
+      "chmod 777 script.sh",
+      "chmod 644 script.sh",
+      "chown 755 script.sh"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: chmod 755 script.sh</strong></p><p>Each octal digit encodes one permission triplet as read=4, write=2, execute=1. 7 = rwx (owner), 5 = r-x (group), 5 = r-x (other), giving exactly rwxr-xr-x.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> chmod 777 grants write access to group and others too (rwxrwxrwx), which is broader than requested and a common security mistake.</p><p><strong>Option C:</strong> chmod 644 removes execute permission entirely (rw-r--r--), so the script couldn't be run directly.</p><p><strong>Option D:</strong> chown changes file ownership (user/group), not permission bits — it has no effect on rwx flags.</p>"
+  },
+  {
+    "id": "interview-linux-q2",
+    "question_number": "2",
+    "question": "What is the primary purpose of the /var directory in the Linux filesystem hierarchy?",
+    "choices": [
+      "Storing variable runtime data such as logs, caches, and spool files",
+      "Storing system-wide configuration files",
+      "Storing the kernel and bootloader files",
+      "Storing installed user application binaries"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Storing variable runtime data such as logs, caches, and spool files</strong></p><p><code>/var</code> is where data that changes frequently at runtime lives — most notably <code>/var/log</code> for system and service logs, plus mail spools and application caches. This is one of the first places to check when troubleshooting a running service.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> System-wide configuration lives in <code>/etc</code>, not <code>/var</code>.</p><p><strong>Option C:</strong> The kernel and bootloader files live in <code>/boot</code>.</p><p><strong>Option D:</strong> The bulk of installed application binaries and libraries live under <code>/usr</code>.</p>"
+  },
+  {
+    "id": "interview-linux-q3",
+    "question_number": "3",
+    "question": "A file has permission mode 640. What can users who belong to the file's group do with it?",
+    "choices": [
+      "Read the file only",
+      "Read and write the file",
+      "Execute the file only",
+      "Nothing — the group has no access"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Read the file only</strong></p><p>640 in octal breaks down as owner=6 (rw-), group=4 (r--), other=0 (---). The group digit, 4, corresponds to read-only access — no write, no execute.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Write would require the group digit to include 2 (e.g. 6 = rw-), which isn't the case here.</p><p><strong>Option C:</strong> Execute would require the group digit to include 1 (e.g. 5 = r-x), which isn't set in mode 640.</p><p><strong>Option D:</strong> A group digit of 4 does grant read access — it's not zero.</p>"
+  },
+  {
+    "id": "interview-linux-q4",
+    "question_number": "4",
+    "question": "Which command gives a real-time, continuously updating view of running processes along with their CPU and memory usage?",
+    "choices": [
+      "top",
+      "cat /proc/cpuinfo",
+      "history",
+      "chmod"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: top</strong></p><p><code>top</code> refreshes on an interval and shows a live, sorted table of processes with CPU%, memory%, PID, and more, making it the standard first tool for a quick live snapshot of system activity (<code>htop</code> is a popular, more interactive alternative).</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> <code>/proc/cpuinfo</code> is a static description of the CPU hardware, not a live process view.</p><p><strong>Option C:</strong> <code>history</code> shows previously run shell commands, unrelated to process monitoring.</p><p><strong>Option D:</strong> <code>chmod</code> changes file permissions and has nothing to do with process monitoring.</p>"
+  },
+  {
+    "id": "interview-linux-q5",
+    "question_number": "5",
+    "question": "You run `ls -l` on a binary and see `-rwsr-xr-x`. What does the lowercase 's' in the owner's execute position indicate?",
+    "choices": [
+      "The SUID bit is set — the program runs with the privileges of the file's owner",
+      "The sticky bit is set on this file",
+      "The file is a symbolic link",
+      "The SGID bit is set — the program runs with the privileges of the file's group"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: The SUID bit is set — the program runs with the privileges of the file's owner</strong></p><p>An 's' replacing the 'x' in the owner's execute position marks the SUID bit. When the binary is run, it executes with the permissions of the file's owner rather than the invoking user — the mechanism behind tools like <code>passwd</code> needing to write to root-owned files on a regular user's behalf.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> The sticky bit appears as a 't' in the <em>other</em> execute position, not the owner position.</p><p><strong>Option C:</strong> Symbolic links are indicated by an 'l' as the very first character of the permission string, not by an 's' in the execute field.</p><p><strong>Option D:</strong> SGID appears as an 's' in the <em>group</em> execute position, not the owner position shown here.</p>"
+  },
+  {
+    "id": "interview-linux-q6",
+    "question_number": "6",
+    "question": "What is the difference between `systemctl enable myapp` and `systemctl start myapp`?",
+    "choices": [
+      "enable configures the service to start automatically at boot but does not start it now; start runs it immediately without persisting across reboots",
+      "They are equivalent aliases for the same operation",
+      "enable starts the service immediately; start only configures it for boot",
+      "enable restarts the service; start stops it"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: enable configures the service to start automatically at boot but does not start it now; start runs it immediately without persisting across reboots</strong></p><p>These two commands control independent things: current runtime state versus boot-time behavior. Running only <code>enable</code> won't make the service active right now, and running only <code>start</code> won't survive a reboot — that's why <code>systemctl enable --now myapp</code> is a common shortcut to do both at once.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> They control different things (boot persistence vs. immediate runtime state) and are not interchangeable.</p><p><strong>Option C:</strong> This reverses their actual behavior.</p><p><strong>Option D:</strong> Neither command restarts or stops a service; those are <code>systemctl restart</code> and <code>systemctl stop</code>.</p>"
+  },
+  {
+    "id": "interview-linux-q7",
+    "question_number": "7",
+    "question": "In `ps` output, a process is shown in state Z. What does this mean?",
+    "choices": [
+      "It has finished executing but its parent hasn't called wait() to reap its exit status yet",
+      "It is currently running on the CPU",
+      "It is waiting on disk I/O",
+      "It has been suspended by SIGSTOP"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: It has finished executing but its parent hasn't called wait() to reap its exit status yet</strong></p><p>State Z stands for \"zombie.\" The process has already exited and released its resources, but the kernel keeps a small entry in the process table until the parent reads its exit status. A few transient zombies are normal; a growing pile points to a parent process that isn't reaping its children.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> A process actively running on the CPU is shown as state R (running/runnable), not Z.</p><p><strong>Option C:</strong> A process blocked on I/O is shown as state D (uninterruptible sleep), not Z.</p><p><strong>Option D:</strong> A process stopped by a signal like SIGSTOP is shown as state T, not Z.</p>"
+  },
+  {
+    "id": "interview-linux-q8",
+    "question_number": "8",
+    "question": "Which command shows all TCP and UDP sockets currently in a listening state, along with the PID of the process that owns each one?",
+    "choices": [
+      "ss -tulpn",
+      "ip addr show",
+      "tcpdump -i any",
+      "cat /etc/resolv.conf"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: ss -tulpn</strong></p><p><code>-t</code> and <code>-u</code> select TCP and UDP sockets, <code>-l</code> restricts to listening sockets, <code>-p</code> shows the owning process, and <code>-n</code> keeps addresses/ports numeric instead of resolving them. This is the direct, modern replacement for the older <code>netstat</code>.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> <code>ip addr show</code> lists interface IP addresses, not socket/listening port information.</p><p><strong>Option C:</strong> <code>tcpdump -i any</code> captures live packet traffic; it doesn't enumerate which processes are listening on which ports.</p><p><strong>Option D:</strong> <code>/etc/resolv.conf</code> lists DNS nameservers used for resolution, unrelated to open sockets.</p>"
+  },
+  {
+    "id": "interview-linux-q9",
+    "question_number": "9",
+    "question": "(Select TWO) Which of the following statements about SIGTERM and SIGKILL are correct?",
+    "choices": [
+      "SIGTERM can be caught by a process to perform a graceful shutdown",
+      "SIGKILL can be caught and delayed by a well-written signal handler",
+      "SIGKILL cannot be blocked, caught, or ignored by the target process",
+      "SIGTERM and SIGKILL both guarantee the process releases open file handles before exiting"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: SIGTERM can be caught by a process to perform a graceful shutdown; SIGKILL cannot be blocked, caught, or ignored by the target process</strong></p><p>SIGTERM is the polite, catchable request to terminate — processes commonly install a handler for it to flush buffers and close connections cleanly before exiting. SIGKILL, by contrast, is handled directly by the kernel and delivered unconditionally; the target process gets no chance to run any code in response, which is exactly why it's used as a last resort.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> This is the opposite of how SIGKILL works — it explicitly cannot be caught, blocked, or delayed by any signal handler.</p><p><strong>Option D:</strong> SIGKILL provides no such guarantee — because the process can't run any cleanup code, resources like open file handles are released by the kernel afterward, not by the process itself, and any in-flight work is simply lost.</p>"
+  },
+  {
+    "id": "interview-linux-q10",
+    "question_number": "10",
+    "question": "You want to see the most recent 50 log lines for a specific systemd-managed service, including messages from the current boot. Which command does this?",
+    "choices": [
+      "journalctl -u myservice -n 50",
+      "cat /var/log/myservice.log | tail -50",
+      "systemctl status myservice --json",
+      "dmesg | grep myservice"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: journalctl -u myservice -n 50</strong></p><p><code>journalctl -u &lt;unit&gt;</code> filters the systemd journal to logs from a specific unit, and <code>-n 50</code> limits output to the last 50 entries. Since systemd-managed services typically log to the journal rather than a flat file, this is the reliable way to see their output regardless of whether a separate log file even exists.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> This assumes the service writes to a specific flat log file at that path, which many systemd services simply don't do — their output goes to the journal instead.</p><p><strong>Option C:</strong> <code>systemctl status</code> doesn't support a <code>--json</code> flag and only shows a handful of recent log lines by default, not a configurable count.</p><p><strong>Option D:</strong> <code>dmesg</code> shows the kernel ring buffer, not application/service logs — it wouldn't reliably contain a user service's log output.</p>"
+  },
+  {
+    "id": "interview-linux-q11",
+    "question_number": "11",
+    "question": "`df -h` shows one filesystem at 100% capacity, but running `du -sh` against every top-level directory on that filesystem adds up to far less than the reported disk size. What is the most likely explanation?",
+    "choices": [
+      "A process still holds a file descriptor open to a file that has been deleted; df counts its blocks but du can no longer see it in any directory",
+      "du always underreports disk usage and cannot be trusted",
+      "The filesystem has run out of inodes, which always presents this way",
+      "df is actually measuring RAM usage, not disk usage"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: A process still holds a file descriptor open to a file that has been deleted; df counts its blocks but du can no longer see it in any directory</strong></p><p><code>df</code> reports space actually allocated at the block level, while <code>du</code> walks the visible directory tree. If a file is deleted while a process still has it open, its directory entry disappears — so <code>du</code> can't find it — but the kernel won't actually free its blocks until every open file descriptor to it is closed, so <code>df</code> still counts that space as used. <code>lsof +L1</code> (or <code>lsof | grep deleted</code>) finds the offending process; restarting or otherwise making it close the descriptor reclaims the space.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> <code>du</code> is generally accurate for what it measures (files reachable via directory traversal) — the mismatch comes from what it can't see, not from it being unreliable.</p><p><strong>Option C:</strong> Inode exhaustion causes a different symptom — writes failing with \"No space left on device\" while <code>df -h</code> shows blocks are far from full but <code>df -i</code> shows 100% inode usage. It doesn't explain a block-usage discrepancy between df and du.</p><p><strong>Option D:</strong> <code>df</code> reports disk/filesystem usage, not memory; this option describes a different tool (<code>free</code>) entirely.</p>"
+  },
+  {
+    "id": "interview-linux-q12",
+    "question_number": "12",
+    "question": "A process refuses to terminate even after you send SIGTERM and wait several seconds. What should you check or try next?",
+    "choices": [
+      "Check if it's stuck in an uninterruptible sleep waiting on I/O (state D), and if not, escalate to SIGKILL",
+      "Immediately reboot the server, since a process ignoring SIGTERM means the kernel itself is unresponsive",
+      "Send SIGTERM again in a tight loop until it eventually works",
+      "Delete the process's binary from disk to force it to exit"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Check if it's stuck in an uninterruptible sleep waiting on I/O (state D), and if not, escalate to SIGKILL</strong></p><p>A process can miss or delay handling SIGTERM if it's blocked in state D (uninterruptible sleep, typically waiting on slow or hung I/O) — signals aren't delivered until the process returns from that kernel-level wait, so it may need the underlying I/O issue resolved first. If it's not in state D and simply isn't handling SIGTERM, escalating to <code>kill -KILL &lt;pid&gt;</code> (SIGKILL) forces termination since that signal can't be caught or ignored.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> One unresponsive process doesn't imply the kernel is hung; rebooting is a heavy-handed step that skips diagnosis and loses the chance to understand what happened.</p><p><strong>Option C:</strong> Repeating a signal the process already isn't acting on won't change the outcome — the process either handles it or it doesn't.</p><p><strong>Option D:</strong> Deleting the binary on disk doesn't affect an already-running process, which keeps running from its existing in-memory image and open file descriptor to the (now unlinked) executable.</p>"
+  },
+  {
+    "id": "interview-linux-q13",
+    "question_number": "13",
+    "question": "(Select TWO) A systemd service starts successfully when you run `systemctl start myapp` manually, but fails to come up after a full server reboot. Which of the following are valid things to check?",
+    "choices": [
+      "Whether the unit is actually enabled to start at boot (systemctl is-enabled myapp)",
+      "Whether the unit's After=/Requires= dependencies (e.g. network-online.target) are correctly declared, in case it starts before something it needs is ready",
+      "Whether the server's timezone is configured correctly",
+      "Whether the binary has the SGID bit set"
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Whether the unit is enabled to start at boot; whether its After=/Requires= dependencies are correctly declared</strong></p><p>This is a classic \"works manually, fails on boot\" pattern with two very common root causes. First, the unit may simply not be enabled — a manual <code>start</code> works regardless, but nothing tells systemd to launch it automatically at boot; <code>systemctl is-enabled myapp</code> confirms this quickly. Second, even if enabled, the service might start too early in the boot sequence — for example before networking is actually up — if its unit file doesn't declare the right <code>After=</code>/<code>Requires=</code> ordering, causing it to fail when a dependency (network, a mounted volume, a database) isn't ready yet. <code>journalctl -u myapp -b</code> after a reboot usually shows exactly what it failed on.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> An incorrect timezone can cause confusing timestamps in logs but wouldn't cause a service to fail to start.</p><p><strong>Option D:</strong> The SGID bit affects which group a process runs as or how new files inherit group ownership; it isn't related to whether a systemd unit is scheduled to start at boot.</p>"
+  },
+  {
+    "id": "interview-linux-q14",
+    "question_number": "14",
+    "question": "A 4-core server reports load average as 1-min: 12.0, 5-min: 6.0, 15-min: 2.0. What does this trend suggest?",
+    "choices": [
+      "A load spike started recently and the system is currently under heavy contention relative to its 4 cores",
+      "The system was heavily loaded 15 minutes ago and has been steadily recovering since",
+      "Load average is unrelated to CPU core count, so this data is meaningless on its own",
+      "The system has exactly 12 CPU-bound processes running right now"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: A load spike started recently and the system is currently under heavy contention relative to its 4 cores</strong></p><p>Load average is a running average of the number of processes that are runnable or in uninterruptible I/O wait, sampled over the last 1, 5, and 15 minutes. Here the 1-minute figure (12.0) is much higher than the 5-minute (6.0) and 15-minute (2.0) figures, meaning demand has risen sharply and recently. On a 4-core box, a load average around 4 represents full utilization, so 12.0 means roughly triple the demand the CPUs can currently service — a real, worsening contention problem right now, not a historical one.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> This reverses the trend — the numbers are rising toward the present (1-min highest), not falling from a past peak.</p><p><strong>Option C:</strong> Load average is meaningful precisely in relation to core count — you always need to know how many cores you have to interpret whether a given number represents saturation.</p><p><strong>Option D:</strong> Load average counts runnable <em>and</em> I/O-blocked processes together and is a rolling average, not a live count of exactly how many CPU-bound processes exist at this instant.</p>"
+  },
+  {
+    "id": "interview-linux-q15",
+    "question_number": "15",
+    "question": "The OOM killer just terminated a process on your server with no application-level error logged. Where would you look to confirm this happened and understand why?",
+    "choices": [
+      "dmesg or journalctl -k, which will show a kernel log entry like 'Out of memory: Killed process...'",
+      "The application's own log file, since the OOM killer always logs there first",
+      "/etc/passwd, since OOM events are recorded per-user",
+      "There is no way to confirm an OOM kill occurred after the fact"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: dmesg or journalctl -k, which will show a kernel log entry like 'Out of memory: Killed process...'</strong></p><p>The OOM killer is a kernel-level mechanism, so it logs to the kernel ring buffer rather than to any application log. Since the target process is killed via SIGKILL with no chance to run its own cleanup or logging code, the kernel log is the only reliable place to confirm the event — you'll typically see the triggering memory stats and which process/PID was selected alongside the \"Out of memory\" message.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> The killed process can't write to its own log at the moment it's killed via SIGKILL — it never gets control back to do so.</p><p><strong>Option C:</strong> <code>/etc/passwd</code> stores user account information and has nothing to do with logging kernel or memory events.</p><p><strong>Option D:</strong> OOM kills are reliably logged by the kernel; the dmesg/journalctl -k entry is the standard way to confirm and diagnose them after the fact.</p>"
+  }
+]

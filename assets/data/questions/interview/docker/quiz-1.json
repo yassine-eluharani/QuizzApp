@@ -1,0 +1,199 @@
+[
+  {
+    "id": "interview-docker-q1",
+    "question_number": "1",
+    "question": "Which command builds a Docker image from a Dockerfile in the current directory and tags it as myapp:1.0?",
+    "choices": [
+      "docker build -t myapp:1.0 .",
+      "docker run -t myapp:1.0 .",
+      "docker pull -t myapp:1.0 .",
+      "docker commit -t myapp:1.0 ."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: docker build -t myapp:1.0 .</strong></p><p><code>docker build</code> reads the <code>Dockerfile</code> in the given build context (here, <code>.</code> for the current directory) and produces a new image. The <code>-t</code> flag assigns it a name and tag, <code>myapp:1.0</code>.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> <code>docker run</code> starts a container from an image that already exists; it doesn't build one from a Dockerfile.</p><p><strong>Option C:</strong> <code>docker pull</code> downloads an existing image from a registry; it has no build step.</p><p><strong>Option D:</strong> <code>docker commit</code> creates an image from a running container's current state, not from a Dockerfile.</p>"
+  },
+  {
+    "id": "interview-docker-q2",
+    "question_number": "2",
+    "question": "What is the difference between the RUN and CMD instructions in a Dockerfile?",
+    "choices": [
+      "RUN executes at container startup; CMD executes during image build.",
+      "RUN executes during image build and creates a new layer; CMD specifies the default command that runs when a container starts.",
+      "They are interchangeable; both execute at build time.",
+      "CMD can only be used once per Dockerfile, and the same limit applies to RUN."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: RUN executes during image build and creates a new layer; CMD specifies the default command that runs when a container starts.</strong></p><p><code>RUN</code> is a build-time instruction — it executes a command inside the image being assembled and commits the resulting filesystem changes as a new layer. <code>CMD</code> doesn't run at build time at all; it just records what command should execute when someone later runs a container from the finished image.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> This reverses the actual behavior — RUN is build-time, CMD is container-start-time.</p><p><strong>Option C:</strong> They are not interchangeable, and CMD does not execute during the build.</p><p><strong>Option D:</strong> Only the last <code>CMD</code> in a Dockerfile takes effect, but <code>RUN</code> has no such limit — every <code>RUN</code> instruction executes and contributes a layer.</p>"
+  },
+  {
+    "id": "interview-docker-q3",
+    "question_number": "3",
+    "question": "Which command lists all containers on the host, including ones that are stopped?",
+    "choices": [
+      "docker ps",
+      "docker ps -a",
+      "docker container list --running",
+      "docker images -a"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: docker ps -a</strong></p><p><code>docker ps</code> by default only shows currently running containers. Adding <code>-a</code> (short for <code>--all</code>) includes stopped and exited containers as well.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> <code>docker ps</code> alone only shows running containers, omitting stopped ones.</p><p><strong>Option C:</strong> <code>--running</code> would, if anything, further restrict the list to running containers, the opposite of what's needed.</p><p><strong>Option D:</strong> <code>docker images</code> lists images, not containers.</p>"
+  },
+  {
+    "id": "interview-docker-q4",
+    "question_number": "4",
+    "question": "What does the ':latest' tag on a Docker image actually mean?",
+    "choices": [
+      "It always points to the most recently built version of that image on the registry.",
+      "It is just a conventional default tag name; Docker doesn't automatically keep it in sync with the newest build.",
+      "It's a reserved tag that Docker refreshes automatically every 24 hours.",
+      "It marks the image as the production-ready release."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: It is just a conventional default tag name; Docker doesn't automatically keep it in sync with the newest build.</strong></p><p><code>latest</code> is applied automatically when you build or push an image without specifying a tag, but it carries no special semantics to the Docker engine. Whoever builds and pushes an image controls what <code>latest</code> points to; it's entirely possible for <code>latest</code> to be older than another explicitly tagged version if someone pushes tags out of order.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Nothing in Docker enforces that <code>latest</code> tracks the newest build — that only happens if a human or pipeline consistently re-tags it that way.</p><p><strong>Option C:</strong> There is no automatic refresh mechanism; tags only change when explicitly pushed.</p><p><strong>Option D:</strong> <code>latest</code> has no relationship to release readiness; it's a common mistake to treat it as a stable production tag.</p>"
+  },
+  {
+    "id": "interview-docker-q5",
+    "question_number": "5",
+    "question": "Which command removes a stopped container?",
+    "choices": [
+      "docker rm <container_id>",
+      "docker rmi <container_id>",
+      "docker container prune --all",
+      "docker stop <container_id>"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: docker rm &lt;container_id&gt;</strong></p><p><code>docker rm</code> deletes a stopped container and its writable layer. It fails on a running container unless you also pass <code>-f</code>.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> <code>docker rmi</code> removes an <strong>image</strong>, not a container.</p><p><strong>Option C:</strong> <code>docker container prune</code> removes <strong>all</strong> stopped containers at once; there is no <code>--all</code> flag for targeting a single one by ID in that form.</p><p><strong>Option D:</strong> <code>docker stop</code> stops a running container but does not delete it; the stopped container still exists until removed.</p>"
+  },
+  {
+    "id": "interview-docker-q6",
+    "question_number": "6",
+    "question": "You want to reduce Dockerfile build time by improving cache reuse. Which of the following is a best practice?",
+    "choices": [
+      "Combine related RUN commands with && and place instructions that change frequently, like copying source code, after instructions that change rarely, like installing dependencies.",
+      "Put COPY . . as the very first instruction so the entire build context is available to every later step.",
+      "Always use the :latest tag for the base image to get automatic security patches.",
+      "Avoid multi-stage builds because they slow down CI pipelines."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Combine related RUN commands and order rarely-changing instructions before frequently-changing ones.</strong></p><p>Docker's build cache invalidates a layer, and every layer after it, as soon as an instruction's inputs change. Ordering the Dockerfile so dependency installs come before copying application source means editing source code only invalidates the final copy step, not the expensive install step above it.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Copying the full source first means every code change invalidates every subsequent instruction, including dependency installs — the opposite of good caching.</p><p><strong>Option C:</strong> <code>:latest</code> gives no caching benefit and actively hurts reproducibility since the base image can change silently between builds.</p><p><strong>Option D:</strong> Multi-stage builds address image size and security, not caching, and don't meaningfully slow down CI; skipping them isn't a caching best practice.</p>"
+  },
+  {
+    "id": "interview-docker-q7",
+    "question_number": "7",
+    "question": "Which two of the following help reduce the final size of a production Docker image? (Select TWO)",
+    "choices": [
+      "Using a multi-stage build to discard build tools and intermediate files from the final image.",
+      "Using a minimal base image such as alpine or a distroless image instead of a full OS image.",
+      "Adding more RUN instructions so each install step is cached in its own layer.",
+      "Copying the entire build context, including .git and test fixtures, into the final image for traceability.",
+      "Setting CMD instead of ENTRYPOINT."
+    ],
+    "correct_answer_indices": [0, 1],
+    "explanation_html": "<p><strong>Correct: Using a multi-stage build, and using a minimal base image.</strong></p><p>A multi-stage build lets the final image copy over only the compiled artifact, leaving compilers, source, and build caches behind in a discarded stage. Starting that final stage from a minimal base (alpine, slim, or distroless) further cuts size because there are far fewer OS packages included to begin with.</p><p><strong>Incorrect options:</strong></p><p><strong>Option C:</strong> Splitting installs across more RUN instructions affects caching granularity, not final image size — extra layers don't shrink anything.</p><p><strong>Option D:</strong> Copying more files, including things unrelated to running the app, only grows the image.</p><p><strong>Option E:</strong> CMD vs ENTRYPOINT is a runtime-behavior choice (default command vs fixed executable); it has no effect on image size.</p>"
+  },
+  {
+    "id": "interview-docker-q8",
+    "question_number": "8",
+    "question": "You bind-mount a host directory into a container with -v /home/user/app:/app, then edit a file at /home/user/app/index.js from the host. What happens inside the running container?",
+    "choices": [
+      "Nothing changes in the container until it's restarted, because bind mounts are copy-on-write snapshots.",
+      "The change is immediately visible inside the container at /app/index.js, because both paths reference the same underlying files.",
+      "The container automatically restarts its process to pick up the change.",
+      "Docker rejects the mount because host paths cannot be shared with containers for security reasons."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The change is immediately visible inside the container.</strong></p><p>A bind mount doesn't copy or snapshot anything; it makes the exact host path visible at the given container path. Both point at the same underlying files on disk, so an edit made from either side is immediately visible from the other.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Bind mounts are not snapshots — this describes behavior that doesn't apply here.</p><p><strong>Option C:</strong> Docker doesn't watch mounted files or restart processes on change; that behavior, if present, comes from the application itself (e.g. a dev server with file-watching/hot reload).</p><p><strong>Option D:</strong> Bind-mounting an existing host directory into a container is standard, supported behavior, not something Docker blocks.</p>"
+  },
+  {
+    "id": "interview-docker-q9",
+    "question_number": "9",
+    "question": "Which Docker networking mode gives a container the exact same network namespace as the Docker host, meaning no port mapping or NAT is involved?",
+    "choices": [
+      "bridge",
+      "host",
+      "overlay",
+      "none"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: host</strong></p><p>In <code>host</code> mode, the container shares the host's network namespace directly. A process listening on port 80 inside the container is listening on port 80 of the host itself — no NAT, and no <code>-p</code> mapping is used or needed.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> <code>bridge</code> is the default mode; it gives the container its own private IP behind NAT and requires explicit port publishing to be reachable externally.</p><p><strong>Option C:</strong> <code>overlay</code> networks connect containers across multiple hosts, typically in a Swarm cluster; it doesn't collapse a single container into the host's own namespace.</p><p><strong>Option D:</strong> <code>none</code> gives the container no network interface at all beyond loopback, the opposite of sharing the host's network.</p>"
+  },
+  {
+    "id": "interview-docker-q10",
+    "question_number": "10",
+    "question": "In a docker-compose.yml file with two services, api and db, what lets the api service reach the database using the hostname db, with no manual IP configuration?",
+    "choices": [
+      "Docker Compose automatically edits /etc/hosts on the host machine.",
+      "Compose creates a default network for the project and registers each service's name as a DNS entry on that network.",
+      "The services must share the host's network namespace via network_mode: host.",
+      "You must explicitly assign a static IP to each service using a links field."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Compose creates a default network and registers service names as DNS entries.</strong></p><p>By default, Compose creates one network per project and attaches every service in the file to it. On that network, Docker's embedded DNS server resolves each service's name to its current container IP, so <code>api</code> can simply connect to <code>db</code> as a hostname without any manual IP tracking.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> This DNS resolution happens inside the Compose-created network, not by editing the host machine's <code>/etc/hosts</code>.</p><p><strong>Option C:</strong> <code>network_mode: host</code> is unrelated and, if used, would actually remove the per-service network isolation that makes this DNS resolution possible.</p><p><strong>Option D:</strong> No static IP assignment or <code>links</code> configuration is required; service-name DNS resolution works automatically on the default Compose network.</p>"
+  },
+  {
+    "id": "interview-docker-q11",
+    "question_number": "11",
+    "question": "Your team's Node.js production image is 1.4GB even though the app and its dependencies total under 150MB. The Dockerfile doesn't use a multi-stage build: it runs npm install, then npm run build, then ships the image with node_modules, devDependencies, and the build tooling still in it. What is the most likely root cause of the bloat?",
+    "choices": [
+      "The base image itself is inherently over 1GB regardless of what you install, so nothing in the Dockerfile matters.",
+      "Every artifact from the build process, including devDependencies, build caches, and intermediate files, is baked into the final image because there's no separate stage that starts fresh with only the production output.",
+      "Docker always doubles the size of images that use npm.",
+      "A missing .dockerignore file causes Docker to compress layers less efficiently."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Everything from the build process is baked into the final image because there's no multi-stage boundary.</strong></p><p>Without a multi-stage build, the single build stage's final filesystem state <em>is</em> the shipped image. That means devDependencies (often as large as or larger than production dependencies), compiler/build tool caches, and any intermediate build artifacts all persist into the image that gets deployed. A multi-stage build fixes this by copying only the compiled output into a fresh final stage, leaving all of that behind.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> The base image contributes some fixed overhead, but a full Node image alone doesn't account for the gap between a 150MB app and a 1.4GB image — the described anti-pattern of carrying build artifacts and devDependencies is the dominant, fixable cause here.</p><p><strong>Option C:</strong> There's no such doubling behavior tied to npm specifically; image size is simply the sum of what ends up in the layers.</p><p><strong>Option D:</strong> A missing <code>.dockerignore</code> can bloat the build context sent to the daemon and accidentally copy unwanted files (like a local <code>node_modules</code>) into the image, but it doesn't change how efficiently layers are compressed.</p>"
+  },
+  {
+    "id": "interview-docker-q12",
+    "question_number": "12",
+    "question": "You run docker run myapp and the container exits immediately with exit code 0. docker logs shows no errors. What's the most likely explanation?",
+    "choices": [
+      "The image is corrupted and needs to be rebuilt from scratch.",
+      "The container's main process (PID 1, as defined by CMD/ENTRYPOINT) completed and returned, so Docker considers the container's job done — common when CMD runs a one-shot script instead of a long-running foreground process.",
+      "Exit code 0 always indicates an out-of-memory kill.",
+      "The host's Docker daemon crashed and restarted the container in a stopped state."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The container's main process finished and returned.</strong></p><p>A container's lifecycle is tied directly to its PID 1 process. Exit code 0 means that process ran to completion without error — it's not a crash, it's the process legitimately finishing, most often because the CMD/ENTRYPOINT was written as a short script rather than a server or long-running foreground process that's supposed to keep running.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A clean exit code of 0 with no error logs points away from corruption, not toward it.</p><p><strong>Option C:</strong> An OOM kill produces exit code 137 (128 + SIGKILL's signal number 9), not 0.</p><p><strong>Option D:</strong> A daemon crash wouldn't produce a clean, logged exit code on the container; this scenario is consistent with normal process completion, not an infrastructure failure.</p>"
+  },
+  {
+    "id": "interview-docker-q13",
+    "question_number": "13",
+    "question": "You publish a container's port with -p 8080:80, but curl localhost:8080 on the host times out. docker ps shows the container running and healthy. What should you check first?",
+    "choices": [
+      "Whether the application inside the container is actually listening on 0.0.0.0:80 rather than only on 127.0.0.1:80 inside the container.",
+      "Whether the image was built with a multi-stage Dockerfile.",
+      "Whether the container is using none as its network mode, which is the default for docker run.",
+      "Whether a HEALTHCHECK instruction needs to be added to the Dockerfile for the port to become reachable."
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Check whether the app binds to 0.0.0.0 rather than only 127.0.0.1.</strong></p><p><code>-p 8080:80</code> forwards traffic from the host into the container's network namespace on port 80, but that only helps if something inside the container is actually accepting connections on that port from outside its own loopback interface. An app that binds to <code>127.0.0.1</code> (localhost) only accepts connections originating from inside the same network namespace, so Docker's port forwarding has nothing to hand the connection to, and it times out. Binding to <code>0.0.0.0</code> makes it listen on all interfaces, including the one Docker's forwarding uses.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Multi-stage builds affect image size and contents, not runtime network binding behavior.</p><p><strong>Option C:</strong> <code>bridge</code>, not <code>none</code>, is the default network mode for <code>docker run</code>; if it really were <code>none</code>, <code>-p</code> would have no effect at all, but that's not the default.</p><p><strong>Option D:</strong> A <code>HEALTHCHECK</code> instruction affects the reported health status in <code>docker ps</code>; it has no effect on whether a published port is reachable.</p>"
+  },
+  {
+    "id": "interview-docker-q14",
+    "question_number": "14",
+    "question": "A container with no explicit memory or CPU limits runs fine under normal load, but under heavy traffic it gets abruptly killed with exit code 137. What is the most likely cause, and how would you confirm it?",
+    "choices": [
+      "Exit code 137 indicates a graceful docker stop; check docker inspect for the Restarting field.",
+      "The container's process was killed by the Linux OOM killer after memory usage grew too high; confirm with docker inspect --format='{{.State.OOMKilled}}' or by checking dmesg on the host.",
+      "Exit code 137 means the image's HEALTHCHECK failed three times in a row.",
+      "The container hit a CPU cgroup quota, which always terminates the process with SIGKILL."
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: The OOM killer terminated the process; confirm via docker inspect's OOMKilled field or dmesg.</strong></p><p>Exit code 137 is 128 + 9, where 9 is the signal number for SIGKILL — the signal the kernel's out-of-memory killer sends when a process (or its cgroup) exceeds available memory. Even without an explicit <code>--memory</code> limit on this container, if overall host memory runs low under heavy traffic, the kernel OOM killer can still select and kill the largest or least-favored consumer. <code>docker inspect --format='{{.State.OOMKilled}}'</code> reports whether Docker specifically observed an OOM kill for that container, and the host's <code>dmesg</code> output will show the kernel's OOM killer log entries around the same time.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A graceful <code>docker stop</code> sends SIGTERM (and reports a different exit path); it isn't associated with exit code 137, and there's no indication a stop was issued here.</p><p><strong>Option C:</strong> A failing <code>HEALTHCHECK</code> marks the container unhealthy in <code>docker ps</code>, but Docker doesn't kill a container for failed health checks unless something else (like an orchestrator) is configured to act on that status.</p><p><strong>Option D:</strong> CPU cgroup limits throttle a process's scheduled CPU time; they slow it down, they don't send SIGKILL or terminate it.</p>"
+  },
+  {
+    "id": "interview-docker-q15",
+    "question_number": "15",
+    "question": "Which two of the following are effective ways to keep secrets, like API keys and database passwords, out of a Docker image's build history and layers? (Select TWO)",
+    "choices": [
+      "Pass secrets as build-time ARG values, e.g. ARG API_KEY=xxxx in the Dockerfile.",
+      "Use BuildKit's --mount=type=secret to expose a secret to a single RUN step without it persisting in any layer.",
+      "Inject secrets at container runtime via environment variables or a secrets manager, rather than baking them into the image.",
+      "COPY a .env file containing the secrets into the image during the build so the app can read it at startup.",
+      "Base64-encode the secret before setting it with ENV in the Dockerfile, since encoding prevents it from appearing in docker history."
+    ],
+    "correct_answer_indices": [1, 2],
+    "explanation_html": "<p><strong>Correct: BuildKit's --mount=type=secret, and injecting secrets at runtime.</strong></p><p><code>--mount=type=secret</code> makes a secret value available to exactly one <code>RUN</code> step's process environment or filesystem, and BuildKit ensures it is never written into any committed image layer. Separately, injecting secrets at container runtime, through environment variables, mounted files, or an orchestrator's native secret store, means the secret never needs to exist inside the image at all; it's supplied only when a container actually starts.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> A plain <code>ARG</code> value is recorded in the image's build history and can be extracted later with <code>docker history</code> unless BuildKit's secret mount is used instead.</p><p><strong>Option D:</strong> Copying a file into the image writes it into a layer permanently; even if a later step deletes it, the file still exists in the earlier layer and can be recovered.</p><p><strong>Option E:</strong> Base64 is an encoding, not encryption — it's trivially reversible and does nothing to prevent the value from appearing in image history; it only obscures it from a casual glance.</p>"
+  }
+]

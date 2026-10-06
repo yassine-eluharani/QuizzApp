@@ -1,0 +1,197 @@
+[
+  {
+    "id": "interview-ceph-q1",
+    "question_number": "1",
+    "question": "What is Ceph, at a high level?",
+    "choices": [
+      "A distributed, software-defined storage system that pools commodity hardware into block, file, and object storage",
+      "A single-node caching layer that sits in front of a traditional SAN",
+      "A managed cloud service offered exclusively by AWS",
+      "A container orchestration platform similar to Kubernetes"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: A distributed, software-defined storage system that pools commodity hardware into block, file, and object storage</strong></p><p>Ceph clusters ordinary servers and disks together and uses software (RADOS, CRUSH, and friends) to handle replication, placement, and failure recovery, presenting the result as block (RBD), file (CephFS), and object (RGW) storage from one unified backend.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Ceph is not a caching layer in front of another storage system — it is the storage system itself.</p><p><strong>Option C:</strong> Ceph is open-source and self-hosted (or offered by various vendors); it is not an AWS-exclusive managed product.</p><p><strong>Option D:</strong> Ceph is a storage system, not a container orchestrator; it's commonly consumed by Kubernetes but is a separate project.</p>"
+  },
+  {
+    "id": "interview-ceph-q2",
+    "question_number": "2",
+    "question": "Which Ceph component is the foundational object store that everything else (RBD, CephFS, RGW) is ultimately built on?",
+    "choices": [
+      "MDS",
+      "RADOS",
+      "MGR",
+      "CRUSH map"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: RADOS</strong></p><p>RADOS (Reliable Autonomic Distributed Object Store) is the core layer that stores everything as objects and handles replication, placement, and self-healing. RBD, CephFS, and RGW are all interfaces built on top of RADOS.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> MDS only manages CephFS metadata, and only exists for filesystem workloads — it isn't the foundational store.</p><p><strong>Option C:</strong> MGR handles monitoring and management functions, not data storage.</p><p><strong>Option D:</strong> The CRUSH map is data used by RADOS to determine placement; it's not the storage layer itself.</p>"
+  },
+  {
+    "id": "interview-ceph-q3",
+    "question_number": "3",
+    "question": "In a Ceph cluster, what is an OSD?",
+    "choices": [
+      "The daemon that manages CephFS directory metadata",
+      "The consensus service that stores the master cluster map",
+      "A daemon that stores actual object data, typically one per physical disk",
+      "A dashboard service for monitoring cluster health"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: A daemon that stores actual object data, typically one per physical disk</strong></p><p>OSDs (Object Storage Daemons) are where the data physically lives. A Ceph cluster typically runs many OSDs — one per storage device — and they communicate directly with each other to replicate and recover data.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> That describes the MDS, which is specific to CephFS metadata, not OSDs.</p><p><strong>Option B:</strong> That describes MONs, which hold the cluster map via Paxos-based consensus.</p><p><strong>Option D:</strong> That describes functionality offered by the MGR daemon, not an OSD.</p>"
+  },
+  {
+    "id": "interview-ceph-q4",
+    "question_number": "4",
+    "question": "What is the primary purpose of Ceph's MON (Monitor) daemons?",
+    "choices": [
+      "Storing the master cluster map and maintaining cluster consensus via a quorum",
+      "Storing the bulk object data written by clients",
+      "Translating file paths into RADOS objects for CephFS",
+      "Running the web-based management dashboard"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: Storing the master cluster map and maintaining cluster consensus via a quorum</strong></p><p>MONs keep the authoritative cluster map (OSD membership, CRUSH map, overall state) and use a Paxos-based quorum, usually 3 or 5 MONs, so the cluster keeps a single consistent view of itself even if a MON fails.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Bulk object data is stored by OSDs, not MONs.</p><p><strong>Option C:</strong> That's the MDS's job, specific to CephFS.</p><p><strong>Option D:</strong> The dashboard and most monitoring/management features are provided by the MGR daemon.</p>"
+  },
+  {
+    "id": "interview-ceph-q5",
+    "question_number": "5",
+    "question": "Which Ceph interface would you use to provide a POSIX-compliant shared filesystem that multiple clients can mount concurrently?",
+    "choices": [
+      "RBD",
+      "RGW",
+      "CephFS",
+      "RADOS Gateway"
+    ],
+    "correct_answer_indices": [2],
+    "explanation_html": "<p><strong>Correct: CephFS</strong></p><p>CephFS provides a full POSIX-compliant filesystem that many clients can mount and use concurrently, with an MDS managing metadata while file data is stored as objects across OSDs.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> RBD provides block devices (virtual disks), which are normally attached to and used by one client (or one VM) at a time, not a shared multi-client filesystem.</p><p><strong>Option B:</strong> RGW provides an S3/Swift-compatible object storage interface, not a POSIX filesystem.</p><p><strong>Option D:</strong> RADOS Gateway is another name for RGW — same as option B, it's object storage, not a filesystem.</p>"
+  },
+  {
+    "id": "interview-ceph-q6",
+    "question_number": "6",
+    "question": "When a client writes an object to a Ceph cluster, which of the following correctly describes how the write path works? (Select TWO)",
+    "choices": [
+      "The client hashes the object name to determine its placement group (PG), without asking a central server",
+      "The client sends the write to the MON, which forwards it to all OSDs",
+      "The primary OSD for the PG receives the write and forwards it to replica OSDs before acknowledging the client",
+      "The MDS decides which OSDs will store the object's replicas"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: The client hashes the object name to determine its placement group (PG), without asking a central server; and The primary OSD for the PG receives the write and forwards it to replica OSDs before acknowledging the client</strong></p><p>Clients compute PG placement themselves via hashing plus the CRUSH algorithm, using the cluster map from the MONs, then talk directly to the primary OSD for that PG. The primary replicates the write to secondary OSDs and only acknowledges the client once enough replicas are durably written.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> MONs supply the cluster map but do not sit in the data path — clients and OSDs communicate directly, which is key to Ceph's scalability.</p><p><strong>Option D:</strong> The MDS only handles CephFS metadata; it has no role in deciding OSD placement for objects, which is CRUSH's job.</p>"
+  },
+  {
+    "id": "interview-ceph-q7",
+    "question_number": "7",
+    "question": "Why does Ceph use placement groups (PGs) instead of tracking the location of every individual object centrally?",
+    "choices": [
+      "PGs are required by the CephFS POSIX standard",
+      "PGs reduce the amount of location metadata that must be tracked, letting CRUSH compute placement for a manageable number of groups instead of millions of individual objects",
+      "PGs are only used for erasure-coded pools, not replicated pools",
+      "PGs eliminate the need for OSDs entirely"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: PGs reduce the amount of location metadata that must be tracked, letting CRUSH compute placement for a manageable number of groups instead of millions of individual objects</strong></p><p>By hashing objects into a smaller, fixed number of PGs, Ceph avoids the scalability and bottleneck problems of a centralized per-object lookup table. CRUSH then maps each PG (not each object) to a set of OSDs.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> PGs are a RADOS-level concept used by all Ceph pools, not a CephFS-specific POSIX requirement.</p><p><strong>Option C:</strong> PGs are used by both replicated and erasure-coded pools.</p><p><strong>Option D:</strong> PGs are mapped onto OSDs by CRUSH — OSDs are still where the data physically lives; PGs don't replace them.</p>"
+  },
+  {
+    "id": "interview-ceph-q8",
+    "question_number": "8",
+    "question": "What is the main advantage of erasure coding over 3x replication for a large object storage pool, and what's the main trade-off?",
+    "choices": [
+      "Erasure coding is faster for small random writes, but less durable than replication",
+      "Erasure coding uses far less raw storage overhead for a given durability level, but costs more CPU/network to reconstruct data and typically adds latency",
+      "Erasure coding eliminates the need for a CRUSH map",
+      "Erasure coding requires fewer OSDs than replication for the same pool"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Erasure coding uses far less raw storage overhead for a given durability level, but costs more CPU/network to reconstruct data and typically adds latency</strong></p><p>Erasure coding splits data into data chunks plus parity chunks (e.g. 4+2), achieving strong durability with much less overhead than storing full copies, at the cost of reconstruction overhead and higher latency, which makes it better suited to bulk/capacity-heavy workloads like object storage rather than latency-sensitive block storage.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Erasure coding is generally slower, not faster, for small random I/O due to reconstruction overhead, and it isn't inherently less durable.</p><p><strong>Option C:</strong> Erasure-coded pools still rely on the CRUSH map for placement, just like replicated pools.</p><p><strong>Option D:</strong> Erasure coding typically requires spreading chunks across at least as many, if not more, distinct OSDs/failure domains as replication.</p>"
+  },
+  {
+    "id": "interview-ceph-q9",
+    "question_number": "9",
+    "question": "An OSD stops responding. What is the correct sequence of events that follows in a healthy Ceph cluster?",
+    "choices": [
+      "The cluster immediately deletes all data on that OSD and requires manual restoration from backup",
+      "Other OSDs detect the failure via heartbeats, MONs mark it down and then out, CRUSH recomputes placement for affected PGs, and recovery copies data to restore replica counts automatically",
+      "The MDS reassigns all affected files to a new filesystem",
+      "Client I/O stops entirely until an administrator manually reassigns the failed OSD's data"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Other OSDs detect the failure via heartbeats, MONs mark it down and then out, CRUSH recomputes placement for affected PGs, and recovery copies data to restore replica counts automatically</strong></p><p>This is Ceph's self-healing behavior: OSD heartbeats detect failure, MONs update the cluster map (down, then out after a timeout), CRUSH recalculates where affected PGs should now live, and recovery automatically restores full replica/EC counts on the new OSDs — all without manual intervention.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Ceph does not delete data on failure; it self-heals by using surviving replicas/fragments.</p><p><strong>Option C:</strong> The MDS is only relevant to CephFS metadata and has no role in OSD failure handling for general object placement.</p><p><strong>Option D:</strong> Client I/O generally continues (possibly at reduced performance) during recovery; it doesn't require manual reassignment to keep functioning, as long as min_size is satisfied.</p>"
+  },
+  {
+    "id": "interview-ceph-q10",
+    "question_number": "10",
+    "question": "What is the difference between Ceph's 'recovery' and 'rebalancing' processes? (Select TWO)",
+    "choices": [
+      "Recovery restores the target replica/fragment count for PGs after a failure, using surviving copies",
+      "Rebalancing only happens when erasure coding is used, never with replicated pools",
+      "Rebalancing redistributes data across OSDs after cluster membership changes (e.g. adding or removing capacity) so data stays evenly spread",
+      "Recovery and rebalancing are the same process with two different names"
+    ],
+    "correct_answer_indices": [0, 2],
+    "explanation_html": "<p><strong>Correct: Recovery restores the target replica/fragment count for PGs after a failure, using surviving copies; and Rebalancing redistributes data across OSDs after cluster membership changes so data stays evenly spread</strong></p><p>Recovery is failure-driven — restoring durability after data was lost. Rebalancing is driven by changes in cluster topology (adding/removing OSDs or nodes) and simply redistributes data to keep the cluster evenly utilized, even without any failure occurring.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> Rebalancing applies to both replicated and erasure-coded pools; it's not tied exclusively to erasure coding.</p><p><strong>Option D:</strong> They are related but distinct processes triggered by different events (failure vs. membership/topology change), even though both involve CRUSH recomputing placement and data movement.</p>"
+  },
+  {
+    "id": "interview-ceph-q11",
+    "question_number": "11",
+    "question": "A pool's failure domain is set to 'host' with 3x replication, but your cluster has only two physical racks with power that fails independently. During a rack-wide power outage, what is the most accurate assessment?",
+    "choices": [
+      "The cluster is fully protected against rack failure because 3x replication guarantees rack-level fault tolerance regardless of CRUSH configuration",
+      "Since the failure domain is host-level, multiple replicas of the same PG could reside on hosts within the same rack, so a rack-wide outage could take out more than one replica of some objects simultaneously",
+      "Erasure coding must be used instead of replication to survive any rack failure",
+      "This scenario has no impact because MONs automatically relocate replicas to a third rack during an outage"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Since the failure domain is host-level, multiple replicas of the same PG could reside on hosts within the same rack, so a rack-wide outage could take out more than one replica of some objects simultaneously</strong></p><p>A host-level failure domain only guarantees replicas don't share a host — it says nothing about racks. If the CRUSH map and placement rules aren't configured with rack as the failure domain (and there are enough racks to satisfy it), a rack outage can plausibly take out two or more replicas of some PGs at once, which is a real design gap, not something replication alone fixes.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Replication count alone doesn't determine fault domain boundaries — that's controlled by the CRUSH failure domain setting and physical topology.</p><p><strong>Option C:</strong> Erasure coding has the same failure-domain dependency as replication; switching to EC doesn't fix a misconfigured or insufficient failure domain.</p><p><strong>Option D:</strong> There is no third rack in this scenario (only two racks exist), and MONs don't spontaneously relocate data to nonexistent infrastructure.</p>"
+  },
+  {
+    "id": "interview-ceph-q12",
+    "question_number": "12",
+    "question": "Cluster health shows PGs stuck 'undersized' after a node failure, and client writes have completely stopped for the affected pool. What is the most likely explanation?",
+    "choices": [
+      "The pool's min_size threshold is no longer satisfied, and Ceph is blocking writes to protect consistency until enough replicas are available",
+      "CephFS has crashed and needs to be manually remounted",
+      "The MGR daemon is down, which always halts all client I/O cluster-wide",
+      "This is normal steady-state behavior and requires no investigation"
+    ],
+    "correct_answer_indices": [0],
+    "explanation_html": "<p><strong>Correct: The pool's min_size threshold is no longer satisfied, and Ceph is blocking writes to protect consistency until enough replicas are available</strong></p><p>Ceph refuses to serve writes to a PG once available replicas drop below the pool's configured min_size, precisely to avoid writing data that can't be safely made durable. Stuck-undersized PGs combined with halted writes is the classic symptom of hitting min_size during a cascading failure, and the fix is usually restoring OSD/host capacity (or reviewing min_size/failure domain design), not something CephFS or the MGR are responsible for.</p><p><strong>Incorrect options:</strong></p><p><strong>Option B:</strong> This describes RADOS-level pool behavior, not a CephFS-specific crash; remounting a filesystem wouldn't address an underlying min_size block.</p><p><strong>Option C:</strong> The MGR handles monitoring/management functions; its failure doesn't halt client I/O, which flows directly between clients and OSDs.</p><p><strong>Option D:</strong> Stuck-undersized PGs with halted writes is an unhealthy state requiring investigation, not expected steady-state behavior.</p>"
+  },
+  {
+    "id": "interview-ceph-q13",
+    "question_number": "13",
+    "question": "Recovery after a node failure is proceeding, but client-facing read/write latency has degraded significantly. Which of the following is the most appropriate first response?",
+    "choices": [
+      "Immediately shut down the remaining OSDs on the affected pool to force recovery to stop",
+      "Assess whether the cluster is dangerously under-replicated (closer to min_size) versus merely degraded but safe, then tune recovery/backfill priority accordingly — favoring faster recovery if at real risk, or throttling recovery to protect client latency if replica counts are still safely above minimum",
+      "Delete the affected pool and recreate it to reset PG state",
+      "Ignore it, since recovery speed cannot be adjusted in Ceph"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Assess whether the cluster is dangerously under-replicated versus merely degraded but safe, then tune recovery/backfill priority accordingly</strong></p><p>Recovery/backfill operations compete with client I/O for disk and network bandwidth, and Ceph exposes tunables to bias that trade-off. The right call depends on risk: if a further failure could cause actual data loss (getting close to min_size), prioritize recovery speed even at a latency cost; if replica counts are still comfortably above minimum, throttle recovery to protect client performance instead.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Shutting down more OSDs would reduce available replicas further and risk making the situation worse, potentially pushing PGs toward or below min_size.</p><p><strong>Option C:</strong> Deleting and recreating the pool destroys data and does not address a recovery/latency trade-off; it's a destructive, unrelated action.</p><p><strong>Option D:</strong> Recovery and backfill concurrency/priority are configurable in Ceph; this is a standard operational tuning lever, not a fixed constant.</p>"
+  },
+  {
+    "id": "interview-ceph-q14",
+    "question_number": "14",
+    "question": "A hiring manager pushes back: \"We already use S3 and EBS — why would we ever run Ceph ourselves?\" Which response best reflects a realistic, senior-level understanding of the trade-off?",
+    "choices": [
+      "Ceph should always replace cloud-native storage because it is unconditionally cheaper and faster in every scenario",
+      "Ceph makes sense when there are specific drivers like avoiding cloud lock-in, cost at large scale, data sovereignty requirements, or needing unified block/file/object storage — but it trades that control for real operational responsibility, so the right choice depends on scale, constraints, and in-house expertise",
+      "There is never a good reason to run Ceph when cloud-native storage services exist",
+      "Ceph is only usable for block storage, so it can't be compared to S3 at all"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Ceph makes sense when there are specific drivers like avoiding cloud lock-in, cost at large scale, data sovereignty requirements, or needing unified block/file/object storage — but it trades that control for real operational responsibility, so the right choice depends on scale, constraints, and in-house expertise</strong></p><p>A strong senior-level answer acknowledges genuine trade-offs rather than absolute claims: self-run Ceph can win on cost at scale, avoiding lock-in, regulatory/data-sovereignty needs, and unifying multiple storage types under one system, but it requires real operational investment (capacity planning, hardware, staff who understand CRUSH/PGs/failure domains). Framing it as \"it depends\" demonstrates judgment an interviewer is looking for.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> Claiming unconditional superiority ignores real operational costs and is not accurate — managed cloud storage is often the right choice for many teams.</p><p><strong>Option C:</strong> This overstates the case in the opposite direction; there are well-documented, legitimate reasons organizations run Ceph themselves.</p><p><strong>Option D:</strong> Ceph provides object storage via RGW (S3/Swift-compatible) in addition to block and file storage, so it is a direct and common comparison point to S3.</p>"
+  },
+  {
+    "id": "interview-ceph-q15",
+    "question_number": "15",
+    "question": "You're troubleshooting a Ceph cluster where CephFS clients report slow file access, but 'ceph status' shows all PGs active+clean and no OSDs down. Where would you look next, given what MDS is responsible for?",
+    "choices": [
+      "Assume the issue is a hardware disk failure, since PG health always reflects file-level performance issues",
+      "Check MDS-specific health and load, since CephFS metadata operations (opening files, resolving paths, managing capabilities) are handled by the MDS independently of RADOS/PG data health",
+      "Restart all MON daemons, since MONs control CephFS performance directly",
+      "Conclude nothing can be wrong since PG status is healthy, and take no further action"
+    ],
+    "correct_answer_indices": [1],
+    "explanation_html": "<p><strong>Correct: Check MDS-specific health and load, since CephFS metadata operations are handled by the MDS independently of RADOS/PG data health</strong></p><p>Healthy PGs mean the underlying RADOS data layer is fine, but CephFS performance also depends on the MDS, which handles metadata operations like path resolution and file capabilities separately from bulk data I/O. An overloaded or backed-up MDS (e.g. too many open file capabilities, a large metadata cache, or insufficient MDS resources) can cause slow file access even when PG/OSD health looks perfect, since PG status doesn't reflect MDS-layer bottlenecks at all.</p><p><strong>Incorrect options:</strong></p><p><strong>Option A:</strong> PG health specifically reflects RADOS data placement/replication status, not metadata-layer performance, so it wouldn't necessarily surface an MDS bottleneck.</p><p><strong>Option C:</strong> MONs maintain the cluster map and consensus; they are not in the CephFS metadata or data path and restarting them would not address MDS-layer slowness.</p><p><strong>Option D:</strong> Healthy PGs rule out one class of problems (data placement/replication) but do not rule out MDS-layer issues, so further investigation is warranted.</p>"
+  }
+]
