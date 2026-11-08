@@ -1,0 +1,23 @@
+// Used by .github/workflows/release.yml: ./gradlew --init-script <this file> :app:bundleRelease
+// `expo prebuild` regenerates android/ (gitignored) and signs release with the debug key at versionCode 1,
+// so signing and versionCode are injected here instead of editing generated files.
+// Env: VERSION_CODE, KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD. Unset = leave the build as-is.
+allprojects {
+    afterEvaluate { p ->
+        if (!p.plugins.hasPlugin('com.android.application')) return
+        def env = System.getenv()
+        def android = p.extensions.getByName('android')
+
+        if (env.VERSION_CODE) {
+            android.defaultConfig.versionCode = env.VERSION_CODE.toInteger()
+        }
+        if (env.KEYSTORE_FILE) {
+            def release = android.signingConfigs.create('release')
+            release.storeFile = new File(env.KEYSTORE_FILE)
+            release.storePassword = env.KEYSTORE_PASSWORD
+            release.keyAlias = env.KEY_ALIAS
+            release.keyPassword = env.KEY_PASSWORD
+            android.buildTypes.getByName('release').signingConfig = release
+        }
+    }
+}

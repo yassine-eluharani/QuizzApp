@@ -1,0 +1,54 @@
+# Merge dev -> main: test, build the signed AAB, upload to the Play closed-testing track (alpha).
+# Promote to production with the "Promote" workflow. versionName = app.json version, versionCode = run number + 100.
+# (Prior EAS builds used versionCode up to 7, so +100 stays above them.)
+name: Release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency: release
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --no-install
+      - name: Build signed AAB
+        working-directory: android
+        env:
+          VERSION_CODE: ${{ github.run_number + 100 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          export KEYSTORE_FILE="$RUNNER_TEMP/release.keystore"
+          ./gradlew :app:bundleRelease --init-script ../.github/android-release.init.gradle --no-daemon
+      - uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.levisine.CloudPrep
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: alpha
+          status: completed
+          whatsNewDirectory: distribution/whatsnew

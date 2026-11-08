@@ -1,0 +1,21 @@
+# Manual: Actions > Promote > Run workflow. Moves the current alpha release to production (staged by default).
+name: Promote
+on:
+  workflow_dispatch:
+    inputs:
+      rollout:
+        description: 'Fraction of users (0.2 = 20%, 1 = everyone)'
+        default: '0.2'
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - run: sudo gem install fastlane --no-document
+      - env:
+          KEY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          fastlane supply --package_name com.levisine.CloudPrep --json_key_data "$KEY" \
+            --track alpha --track_promote_to production --rollout "${{ inputs.rollout }}" \
+            --skip_upload_metadata --skip_upload_images --skip_upload_screenshots --skip_upload_changelogs
