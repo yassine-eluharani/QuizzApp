@@ -17,7 +17,7 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -42,8 +42,11 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
           export VERSION_CODE=$((GITHUB_RUN_NUMBER + 100))
+          # prebuild caps Gradle at 512m Metaspace; a cold CI build OOMs and hangs, so override it here.
           export KEYSTORE_FILE="$RUNNER_TEMP/release.keystore"
-          ./gradlew :app:bundleRelease --init-script ../.github/android-release.init.gradle --no-daemon
+          ./gradlew :app:bundleRelease --init-script ../.github/android-release.init.gradle --no-daemon \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
+            -Pkotlin.daemon.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=1g"
       - uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
