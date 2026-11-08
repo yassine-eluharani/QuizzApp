@@ -13,6 +13,12 @@
 import { detectClockManipulation } from './security';
 
 const FREE_SUFFIXES = ['-sample', '-quiz-1'] as const;
+const FREE_CLAUDE_QUIZZES = new Set([
+  'claude-ccdvf-quiz-2',
+  'claude-ccdvf-quiz-3',
+  'claude-ccdvf-quiz-4',
+  'claude-ccdvf-quiz-5',
+]);
 
 // Quiz IDs are kebab-cased: `{platform-segments}-(quiz-N|sample)`. The
 // platform/cert prefix may itself contain hyphens (e.g. `azure-az900-quiz-1`
@@ -22,7 +28,7 @@ const QUIZ_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)+-(?:quiz-\d+|sample)$/;
 const FREE_BOOKMARK_LIMIT = 25;
 
 function isFreeQuiz(quizId: string): boolean {
-  return FREE_SUFFIXES.some((suffix) => quizId.endsWith(suffix));
+  return FREE_CLAUDE_QUIZZES.has(quizId) || FREE_SUFFIXES.some((suffix) => quizId.endsWith(suffix));
 }
 
 export function isValidQuizId(quizId: string): boolean {

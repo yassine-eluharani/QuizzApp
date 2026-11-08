@@ -19,7 +19,10 @@
     "prepare": "husky"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    }
   },
   "lint-staged": {
     "*.{ts,tsx}": [

@@ -68,7 +68,9 @@ export default function CertificationScreen() {
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="checkmark-circle-outline" size={14} color={Colors.textMuted} />
-              <ThemedText variant="caption"> Pass: {examInfo.passingScore}%</ThemedText>
+              <ThemedText variant="caption">
+                {examInfo.practicePassingScore ? ' Goal:' : ' Pass:'} {examInfo.passingScore}%
+              </ThemedText>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="help-circle-outline" size={14} color={Colors.textMuted} />
@@ -236,7 +238,7 @@ export default function CertificationScreen() {
                 </View>
                 <View style={styles.freeQuizBody}>
                   <ThemedText variant="bodyLarge" style={styles.freeQuizTitle}>
-                    Quiz 1 — No Purchase Needed
+                    {freeQuiz.name} — No Purchase Needed
                   </ThemedText>
                   <ThemedText variant="caption" style={styles.freeQuizSub}>
                     {freeQuiz.questionCount} questions · Self-paced · Instant feedback
@@ -258,7 +260,7 @@ export default function CertificationScreen() {
             )}
 
             {/* Coming-soon strip — only shown to free users when there are more quizzes */}
-            {!isPro && cert.quizzes.length > 1 && (
+            {!isPro && cert.quizzes.slice(1).some((quiz) => !isQuizAccessible(quiz.id, isPro)) && (
               <View style={styles.proUpsell}>
                 <Ionicons name="sparkles-outline" size={14} color={Colors.primary} />
                 <ThemedText variant="caption" style={styles.proUpsellText}>
@@ -377,7 +379,7 @@ export default function CertificationScreen() {
                   {examInfo.passingScore}%
                 </ThemedText>
                 <ThemedText variant="caption" style={styles.examStatLabel}>
-                  To Pass
+                  {examInfo.practicePassingScore ? 'Practice Goal' : 'To Pass'}
                 </ThemedText>
               </View>
             </View>

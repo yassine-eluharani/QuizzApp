@@ -3,6 +3,75 @@ import { Colors } from '@/constants/Colors';
 
 export const platforms: Platform[] = [
   {
+    id: 'claude',
+    name: 'Claude by Anthropic',
+    shortName: 'Claude',
+    color: '#D97757',
+    icon: 'sparkles',
+    certifications: [
+      {
+        id: 'claude-ccdvf',
+        name: 'Claude Certified Developer – Foundations',
+        code: 'CCDV-F',
+        platformId: 'claude',
+        examInfo: {
+          questionCount: 53,
+          duration: 120,
+          passingScore: 70,
+          practicePassingScore: true,
+          questionTypes: ['Multiple Choice', 'Multiple Response'],
+          delivery: ['Online Proctored', 'Testing Center'],
+          note: 'Unofficial questions based on the July 2026 blueprint. The 70% practice goal is not the official pass mark (720 on a 100–1,000 scale). The exam updates on December 7, 2026; consult the revised guide.',
+          domains: [
+            { name: 'Agents and Workflows', percentage: 14.7 },
+            { name: 'Applications and Integration', percentage: 33.1 },
+            { name: 'Claude Code', percentage: 3.1 },
+            { name: 'Eval, Testing, and Debugging', percentage: 2.6 },
+            { name: 'Model Selection and Optimization', percentage: 16.8 },
+            { name: 'Prompt and Context Engineering', percentage: 11.0 },
+            { name: 'Security and Safety', percentage: 8.1 },
+            { name: 'Tools and MCPs', percentage: 10.6 },
+          ],
+        },
+        quizzes: [
+          {
+            id: 'claude-ccdvf-quiz-1',
+            name: 'Exam Prep 1',
+            certificationId: 'claude-ccdvf',
+            questionCount: 53,
+          },
+          {
+            id: 'claude-ccdvf-quiz-2',
+            name: 'Exam Prep 2',
+            certificationId: 'claude-ccdvf',
+            questionCount: 53,
+          },
+          {
+            id: 'claude-ccdvf-quiz-3',
+            name: 'Learn: API & Integration',
+            certificationId: 'claude-ccdvf',
+            questionCount: 20,
+            includeInExam: false,
+          },
+          {
+            id: 'claude-ccdvf-quiz-4',
+            name: 'Learn: Agents, Tools & Security',
+            certificationId: 'claude-ccdvf',
+            questionCount: 20,
+            includeInExam: false,
+          },
+          {
+            id: 'claude-ccdvf-quiz-5',
+            name: 'Learn: Claude Code, Prompts & Evals',
+            certificationId: 'claude-ccdvf',
+            questionCount: 20,
+            includeInExam: false,
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: 'aws',
     name: 'Amazon Web Services',
     shortName: 'AWS',

@@ -23,7 +23,7 @@ export default function BrowseScreen() {
         <View style={styles.header}>
           <ThemedText variant="heading">Bubbled</ThemedText>
           <ThemedText variant="body" style={styles.subtitle}>
-            Master your cloud certifications
+            Master cloud and AI certifications
           </ThemedText>
         </View>
 

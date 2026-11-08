@@ -1,0 +1,801 @@
+[
+  {
+    "id": "claude-ccdvf-q1",
+    "question_number": "1",
+    "question": "A chat application must remember earlier turns when a customer asks a follow-up. What should its next Messages API request include?",
+    "choices": [
+      "The relevant prior user and assistant messages along with the new user message",
+      "Only the new user message because Claude automatically stores every conversation",
+      "Only the assistant's last answer, with no new user input",
+      "An API key embedded in the conversation text"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: The relevant prior user and assistant messages along with the new user message.</strong></p><p>Messages are supplied as a structured conversation; the application manages the history it sends. Retain only context appropriate to the task and privacy policy.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Only the new user message because Claude automatically stores every conversation — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Only the assistant&#x27;s last answer, with no new user input — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> An API key embedded in the conversation text — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/messages\">Supporting documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q2",
+    "question_number": "2",
+    "question": "A support UI needs to display an answer as it is generated rather than wait for completion. Which approach fits?",
+    "choices": [
+      "Use the batch endpoint and wait for a results file",
+      "Enable streaming and process the server-sent events incrementally",
+      "Increase max_tokens and wait for a non-streaming response",
+      "Submit each character as a separate API request"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Enable streaming and process the server-sent events incrementally.</strong></p><p>Streaming emits content deltas as the response is produced; a batch is an asynchronous job rather than an interactive token stream.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Use the batch endpoint and wait for a results file — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Increase max_tokens and wait for a non-streaming response — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Submit each character as a separate API request — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/streaming\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q3",
+    "question_number": "3",
+    "question": "An SSE client receives HTTP 200 and later gets an error event. What should it do?",
+    "choices": [
+      "Assume HTTP 200 guarantees the entire response succeeded",
+      "Ignore all non-text events and save the partial text as final",
+      "Handle the stream error and avoid treating the incomplete answer as a completed response",
+      "Retry the same event locally without contacting the API"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Handle the stream error and avoid treating the incomplete answer as a completed response.</strong></p><p>An error can arrive after the HTTP response begins, so stream consumers must inspect events through completion as well as the initial status.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Assume HTTP 200 guarantees the entire response succeeded — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Ignore all non-text events and save the partial text as final — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Retry the same event locally without contacting the API — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/streaming\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q4",
+    "question_number": "4",
+    "question": "A production request returns 429 with a retry-after header because of a temporary rate limit. What is the best client behavior?",
+    "choices": [
+      "Retry continuously in a tight loop",
+      "Replace the API key in the prompt and retry immediately",
+      "Treat the error as a successful empty response",
+      "Honor the header and retry with bounded backoff"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Honor the header and retry with bounded backoff.</strong></p><p>A 429 can reflect rate limiting; honoring retry-after and using bounded backoff reduces pressure. Spend-cap errors may need a different remedy.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Retry continuously in a tight loop — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Replace the API key in the prompt and retry immediately — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Treat the error as a successful empty response — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/errors\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q5",
+    "question_number": "5",
+    "question": "A malformed request receives a 400 invalid request error. What should the developer do first?",
+    "choices": [
+      "Inspect the error and correct the request before retrying",
+      "Retry the identical request indefinitely",
+      "Treat 400 as a transient overload",
+      "Automatically increase all token limits"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Inspect the error and correct the request before retrying.</strong></p><p>Invalid requests need a change in the request; blind retries cannot repair invalid parameters or message structure.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Retry the identical request indefinitely — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Treat 400 as a transient overload — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Automatically increase all token limits — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/errors\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q6",
+    "question_number": "6",
+    "question": "An application intermittently sees 529 overloaded errors. How should it respond?",
+    "choices": [
+      "Interpret the response as proof the API key is invalid",
+      "Use bounded retries with backoff and surface failure if retries are exhausted",
+      "Retry without delay forever",
+      "Assume the model returned an empty answer"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Use bounded retries with backoff and surface failure if retries are exhausted.</strong></p><p>A 529 indicates temporary service overload. Bounded exponential backoff is appropriate for transient failures, unlike a tight retry loop.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Interpret the response as proof the API key is invalid — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Retry without delay forever — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Assume the model returned an empty answer — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/errors\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q7",
+    "question_number": "7",
+    "question": "A company must summarize a large archive asynchronously. Results can arrive within 24 hours, and the team can handle expired requests. Which API pattern best matches the workload?",
+    "choices": [
+      "Open one interactive stream for every document and require instant completion",
+      "Place all documents in one unlimited prompt",
+      "Submit independent requests using Message Batches and retrieve the results later",
+      "Use token counting as the summarization endpoint"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Submit independent requests using Message Batches and retrieve the results later.</strong></p><p>Message Batches process requests asynchronously and suit noninteractive workloads. Individual requests remain independently processed.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Open one interactive stream for every document and require instant completion — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Place all documents in one unlimited prompt — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Use token counting as the summarization endpoint — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/batch-processing\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q8",
+    "question_number": "8",
+    "question": "Batch results are returned in a different order from input requests. How should the application associate results with source records?",
+    "choices": [
+      "Assume array positions always remain identical",
+      "Match using the length of the generated text",
+      "Use the timestamp as the only unique identifier",
+      "Assign each request a unique custom_id and match results by that identifier"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Assign each request a unique custom_id and match results by that identifier.</strong></p><p>Each batch request has a custom identifier so results can be reconciled without assuming ordering.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Assume array positions always remain identical — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Match using the length of the generated text — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Use the timestamp as the only unique identifier — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/batch-processing\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q9",
+    "question_number": "9",
+    "question": "A document service needs an estimate of prompt size before sending a supported request. Which capability should it use?",
+    "choices": [
+      "The token-counting endpoint with the intended model and request content",
+      "The generated response's stop reason before making the request",
+      "The HTTP status code of a previous unrelated request",
+      "A fixed character count treated as the exact billed token count"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: The token-counting endpoint with the intended model and request content.</strong></p><p>Token counting estimates input size before generation. Counts can differ slightly from actual usage and vary by model and content.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> The generated response&#x27;s stop reason before making the request — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> The HTTP status code of a previous unrelated request — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> A fixed character count treated as the exact billed token count — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/token-counting\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q10",
+    "question_number": "10",
+    "question": "A response ends with stop_reason max_tokens and cuts off a JSON answer. What is the safest interpretation?",
+    "choices": [
+      "The answer is guaranteed complete and valid JSON",
+      "The output limit was reached; handle the incomplete result and consider a larger limit or continuation",
+      "The API key has expired",
+      "The model executed all requested client tools"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: The output limit was reached; handle the incomplete result and consider a larger limit or continuation.</strong></p><p>max_tokens indicates generation stopped at the output limit, not that an unfinished structure is valid. Validate before consuming it.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> The answer is guaranteed complete and valid JSON — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> The API key has expired — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> The model executed all requested client tools — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons\">Supporting documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q11",
+    "question_number": "11",
+    "question": "A developer adds each reported streaming usage count to an accumulator and discovers inflated totals. Why?",
+    "choices": [
+      "Every event is a separate billable conversation",
+      "The counts are characters rather than tokens",
+      "Usage counts in message_delta events are cumulative, so summing them double-counts",
+      "Streaming always reports zero usage"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Usage counts in message_delta events are cumulative, so summing them double-counts.</strong></p><p>The message_delta usage figures are cumulative; use the latest appropriate value instead of summing successive cumulative totals.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Every event is a separate billable conversation — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> The counts are characters rather than tokens — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Streaming always reports zero usage — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/streaming\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q12",
+    "question_number": "12",
+    "question": "A team investigates intermittent API errors and needs evidence for support. What should its logs capture without logging secrets?",
+    "choices": [
+      "The API key and every private customer document",
+      "Only the generated text",
+      "A randomly invented error identifier",
+      "The request ID and relevant sanitized error details"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: The request ID and relevant sanitized error details.</strong></p><p>Anthropic error responses include a request ID that helps investigation. Log it with sanitized context, not credentials or unnecessary sensitive data.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> The API key and every private customer document — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Only the generated text — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> A randomly invented error identifier — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/errors\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q13",
+    "question_number": "13",
+    "question": "A request fails with 413 request_too_large. Which change directly addresses the error?",
+    "choices": [
+      "Reduce the request payload or split the work into smaller requests",
+      "Repeat the identical payload faster",
+      "Increase the output temperature",
+      "Convert the error into an assistant message and assume it succeeded"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Reduce the request payload or split the work into smaller requests.</strong></p><p>A 413 means the request exceeds the endpoint&#x27;s request size limit; retrying the same oversized payload does not reduce its size.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Repeat the identical payload faster — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Increase the output temperature — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Convert the error into an assistant message and assume it succeeded — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/errors\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q14",
+    "question_number": "14",
+    "question": "A developer has set a maximum output token count and expects every answer to use exactly that many tokens. What is correct?",
+    "choices": [
+      "It forces exactly that many tokens in every response",
+      "It is an upper bound; a response can stop earlier",
+      "It sets the amount of input history retained by the server",
+      "It guarantees that the response is factually correct"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: It is an upper bound; a response can stop earlier.</strong></p><p>max_tokens caps generated tokens; completion can occur earlier, so applications should interpret the stop reason as well.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> It forces exactly that many tokens in every response — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> It sets the amount of input history retained by the server — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> It guarantees that the response is factually correct — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/messages\">Supporting documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q15",
+    "question_number": "15",
+    "question": "A streaming parser encounters a new event type after an API upgrade. What is the most robust approach?",
+    "choices": [
+      "Crash whenever any unknown event appears",
+      "Treat every unknown event as a text delta",
+      "Handle unknown event types gracefully while preserving known event handling",
+      "Drop all subsequent messages permanently"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Handle unknown event types gracefully while preserving known event handling.</strong></p><p>The streaming documentation notes event types can expand. A forward-compatible parser should safely handle unknown types without inventing their meaning.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Crash whenever any unknown event appears — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Treat every unknown event as a text delta — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Drop all subsequent messages permanently — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/streaming\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q16",
+    "question_number": "16",
+    "question": "A team wants Claude Code to automate a repository task in a script. Which approach is appropriate?",
+    "choices": [
+      "Use Claude Code non-interactive print mode and inspect the result and process status",
+      "Assume the chat interface must remain open for every script",
+      "Place credentials in the source repository",
+      "Disable all tests after generating the patch"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> Use Claude Code non-interactive print mode and inspect the result and process status.</p><p>Claude Code supports non-interactive use with print mode. Automation should capture output, check exit status and verify changes with suitable tests.</p><p>Reference: <a href=\"https://code.claude.com/docs/en/headless\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q17",
+    "question_number": "17",
+    "question": "A chat request needs a persistent application instruction separate from ordinary conversation turns. Where should it be supplied?",
+    "choices": [
+      "In the request's system parameter",
+      "As a fabricated tool result",
+      "As the API key header value",
+      "In an HTTP status code"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: In the request&#x27;s system parameter.</strong></p><p>The Messages API accepts system instructions separately from the messages array. This separates application-level context from ordinary conversation content.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> As a fabricated tool result — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> As the API key header value — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> In an HTTP status code — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/api/messages\">Supporting documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q18",
+    "question_number": "18",
+    "question": "A long-running generation loses idle network connections before a non-streaming response arrives. What should the developer consider?",
+    "choices": [
+      "Disable all error handling",
+      "Use streaming for interactive work or Message Batches for suitable asynchronous work",
+      "Assume longer max_tokens prevents network timeouts",
+      "Place the entire request into the API key"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Use streaming for interactive work or Message Batches for suitable asynchronous work.</strong></p><p>The API error guidance recommends streaming or batches for long requests because networks may drop idle connections.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Disable all error handling — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Assume longer max_tokens prevents network timeouts — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Place the entire request into the API key — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/streaming\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q19",
+    "question_number": "19",
+    "question": "A helpdesk sends the same long policy document with many different user questions. What prompt layout best supports caching?",
+    "choices": [
+      "Put the changing question before the policy and cache the whole varying request",
+      "Randomize the policy on every request",
+      "Put the stable policy before the changing question and cache the stable prefix",
+      "Cache only the model's final answer in the API request"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Put the stable policy before the changing question and cache the stable prefix.</strong></p><p>Prompt caching matches reusable prefixes. Stable instructions and documents before variable user content make reuse more likely.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Put the changing question before the policy and cache the whole varying request — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Randomize the policy on every request — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Cache only the model&#x27;s final answer in the API request — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-caching\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q20",
+    "question_number": "20",
+    "question": "A team changes a timestamp inside a cached prefix on every call. Cache hits disappear. Why?",
+    "choices": [
+      "The timestamp automatically extends cache lifetime",
+      "Caching only works when every user question is identical",
+      "The API caches only output tokens",
+      "Changing content at or before the breakpoint changes the prefix being matched"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Changing content at or before the breakpoint changes the prefix being matched.</strong></p><p>Cache entries correspond to the prefix through a breakpoint. Changing an earlier block changes that prefix and prevents the expected match.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> The timestamp automatically extends cache lifetime — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Caching only works when every user question is identical — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> The API caches only output tokens — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-caching\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q21",
+    "question_number": "21",
+    "question": "A repeated prompt has a cache breakpoint, but the team sees no expected caching benefit. Which diagnostic is appropriate?",
+    "choices": [
+      "Check prefix stability, cache lifetime, and the model's minimum cacheable length",
+      "Assume every request is automatically a cache hit",
+      "Move a per-request random value into the cached prefix",
+      "Delete all error monitoring"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Check prefix stability, cache lifetime, and the model&#x27;s minimum cacheable length.</strong></p><p>Cache reuse depends on stable content, a matching existing entry within its lifetime, and applicable minimum lengths. Inspect usage and configuration.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Assume every request is automatically a cache hit — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Move a per-request random value into the cached prefix — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Delete all error monitoring — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-caching\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q22",
+    "question_number": "22",
+    "question": "A finance team can wait for a nightly classification job and wants lower inference cost. Which option is worth evaluating?",
+    "choices": [
+      "A real-time stream for each record with no batching",
+      "Message Batches for independent, asynchronous requests",
+      "Repeatedly retrying successful requests",
+      "Removing validation to save token cost"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Message Batches for independent, asynchronous requests.</strong></p><p>The batch API is designed for asynchronous processing and offers discounted processing. Confirm suitability and current terms for the workload.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> A real-time stream for each record with no batching — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Repeatedly retrying successful requests — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Removing validation to save token cost — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/batch-processing\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q23",
+    "question_number": "23",
+    "question": "A routing service compares prompt length against a budget. Which measurement is more reliable?",
+    "choices": [
+      "Divide character count by a fixed constant and assume exactness",
+      "Use the previous request's output token count",
+      "Count the structured input using the intended model, subject to endpoint limitations",
+      "Count only the final user message and ignore tools and system content"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Count the structured input using the intended model, subject to endpoint limitations.</strong></p><p>Token counting accounts for supported structured request content; tokenization depends on model and content, and the result is an estimate.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Divide character count by a fixed constant and assume exactness — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Use the previous request&#x27;s output token count — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Count only the final user message and ignore tools and system content — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/token-counting\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q24",
+    "question_number": "24",
+    "question": "An agent's context fills with lengthy tool definitions, most rarely needed. What feature should the team evaluate?",
+    "choices": [
+      "Adding more copies of every tool definition",
+      "Appending unrelated documents to each request",
+      "Treating model output as an unlimited context store",
+      "Tool search to load relevant tool definitions when needed"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Tool search to load relevant tool definitions when needed.</strong></p><p>Tool search targets the context cost of many upfront tool definitions. The team should check model and platform availability and measure its impact.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Adding more copies of every tool definition — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Appending unrelated documents to each request — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Treating model output as an unlimited context store — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q25",
+    "question_number": "25",
+    "question": "A workflow repeatedly passes large tool outputs back into a long conversation. What should the team consider?",
+    "choices": [
+      "Manage or reduce tool-result context while preserving information needed for the task",
+      "Assume tool results never consume context",
+      "Copy every result twice for reliability",
+      "Delete all user requirements without checking consequences"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Manage or reduce tool-result context while preserving information needed for the task.</strong></p><p>Tool results consume context. Context management can reduce bloat, but removing information required for correct decisions can degrade results.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Assume tool results never consume context — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Copy every result twice for reliability — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Delete all user requirements without checking consequences — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q26",
+    "question_number": "26",
+    "question": "A team wants to reduce costs without unacceptable accuracy loss. How should it choose among available models?",
+    "choices": [
+      "Always use the most expensive model without measurement",
+      "Benchmark representative tasks for quality, latency, and cost before routing or changing models",
+      "Choose solely from model name length",
+      "Assume a smaller model always matches a larger one"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Benchmark representative tasks for quality, latency, and cost before routing or changing models.</strong></p><p>Model choice is a workload-specific tradeoff. Use representative examples and acceptance thresholds rather than assuming quality or cost from names alone.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Always use the most expensive model without measurement — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Choose solely from model name length — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Assume a smaller model always matches a larger one — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q27",
+    "question_number": "27",
+    "question": "A model produces unnecessarily long answers in a high-volume workflow. What is an appropriate first optimization?",
+    "choices": [
+      "Remove the task instructions altogether",
+      "Assume output length cannot affect cost or latency",
+      "Specify a concise output format and evaluate quality and token usage",
+      "Increase verbosity and output limits for all requests"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Specify a concise output format and evaluate quality and token usage.</strong></p><p>Clear output requirements can reduce unnecessary generation, but the team should measure whether important information is still retained.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Remove the task instructions altogether — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Assume output length cannot affect cost or latency — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Increase verbosity and output limits for all requests — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q28",
+    "question_number": "28",
+    "question": "A team wants Claude Code to follow repository-wide coding conventions on every session. Which approach is appropriate?",
+    "choices": [
+      "Document the conventions in a project CLAUDE.md file",
+      "Paste an API key into each source file",
+      "Assume a tool output automatically becomes a permanent project instruction",
+      "Disable repository context"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> Document the conventions in a project CLAUDE.md file.</p><p>A project CLAUDE.md supplies persistent project instructions to Claude Code. Keep instructions concise and avoid storing secrets in the file.</p><p>Reference: <a href=\"https://code.claude.com/docs/en/memory\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q29",
+    "question_number": "29",
+    "question": "An agent returns tool_use rather than a final answer. What should the orchestrator do?",
+    "choices": [
+      "Execute authorized requested client tools, append the assistant response and matching results, then continue",
+      "Display the raw tool input as the final answer and stop",
+      "Delete the assistant response before sending tool results",
+      "Assume the tool has already run locally"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Execute authorized requested client tools, append the assistant response and matching results, then continue.</strong></p><p>The client-tool loop continues by executing requested operations, preserving the assistant response, and returning matching tool results until the model finishes or another stop condition occurs.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Display the raw tool input as the final answer and stop — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Delete the assistant response before sending tool results — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Assume the tool has already run locally — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q30",
+    "question_number": "30",
+    "question": "An assistant requests two independent client tools in the same response. How should results be returned?",
+    "choices": [
+      "Return one result with a newly invented ID for both calls",
+      "Execute each authorized call and return a tool_result tied to each tool_use ID",
+      "Return only the first result and discard the other",
+      "Convert both tool calls into system instructions"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Execute each authorized call and return a tool_result tied to each tool_use ID.</strong></p><p>Each requested tool call has its own ID and needs its matching result. Independent calls can be executed concurrently when the application permits it.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Return one result with a newly invented ID for both calls — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Return only the first result and discard the other — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Convert both tool calls into system instructions — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q31",
+    "question_number": "31",
+    "question": "A developer needs a deterministic policy check before Claude Code executes a shell command. Which feature should they evaluate?",
+    "choices": [
+      "A Claude Code hook configured for the relevant tool event",
+      "A comment asking the model never to make mistakes",
+      "An unrelated user message in a previous session",
+      "Increasing the output token limit"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> A Claude Code hook configured for the relevant tool event.</p><p>Hooks can run configured commands at lifecycle events such as before a tool call. Implement and test the policy outside the model; choose appropriate fail behavior.</p><p>Reference: <a href=\"https://code.claude.com/docs/en/hooks\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q32",
+    "question_number": "32",
+    "question": "A tool-enabled workflow performs a destructive database update. Which control should the orchestrator enforce?",
+    "choices": [
+      "Execute every model-proposed write because tool calls are trusted commands",
+      "Ignore user permissions once a tool is listed",
+      "Ask the model to certify its own authorization",
+      "Authorize the specific action and require appropriate confirmation before executing it"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Authorize the specific action and require appropriate confirmation before executing it.</strong></p><p>A tool call is a proposal to the application, not a permission grant. Application-side authorization and approval protect consequential operations.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Execute every model-proposed write because tool calls are trusted commands — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Ignore user permissions once a tool is listed — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Ask the model to certify its own authorization — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q33",
+    "question_number": "33",
+    "question": "A long research task contains independent subquestions and a final synthesis. Which design best supports controlled parallelism?",
+    "choices": [
+      "Assign bounded subquestions to workers and aggregate their sourced results",
+      "Give every worker write access to all production systems",
+      "Run workers indefinitely without a coordinator",
+      "Discard all intermediate evidence before synthesis"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Assign bounded subquestions to workers and aggregate their sourced results.</strong></p><p>Decomposition can parallelize independent work; bounded tasks, clear outputs, and reviewable evidence help a coordinator synthesize safely.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Give every worker write access to all production systems — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Run workers indefinitely without a coordinator — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Discard all intermediate evidence before synthesis — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://www.anthropic.com/engineering/built-multi-agent-research-system\">Supporting documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q34",
+    "question_number": "34",
+    "question": "A long-running agent approaches its context limit. What should a continuation summary retain?",
+    "choices": [
+      "Only a random sentence from the latest tool result",
+      "The goal, decisions, relevant evidence, unresolved tasks, and constraints",
+      "Only the system clock time",
+      "A claim that all tasks are complete regardless of actual state"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: The goal, decisions, relevant evidence, unresolved tasks, and constraints.</strong></p><p>A useful compacted state preserves task-critical context and uncertainty. Verify that important constraints and pending work survive summarization.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Only a random sentence from the latest tool result — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Only the system clock time — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> A claim that all tasks are complete regardless of actual state — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q35",
+    "question_number": "35",
+    "question": "A tool call to an external payment provider times out after submission. What is the safest next action?",
+    "choices": [
+      "Immediately submit the same charge repeatedly",
+      "Tell the customer payment definitely failed without checking",
+      "Check transaction status or use the provider's idempotency mechanism before retrying a charge",
+      "Delete the payment audit record"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Check transaction status or use the provider&#x27;s idempotency mechanism before retrying a charge.</strong></p><p>A timeout does not establish whether a side effect occurred. Verify state or use an idempotent operation before retrying to avoid duplicate actions.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Immediately submit the same charge repeatedly — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Tell the customer payment definitely failed without checking — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Delete the payment audit record — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://stripe.com/blog/idempotency\">Supporting documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q36",
+    "question_number": "36",
+    "question": "A support assistant returns inconsistent fields for extracted tickets. Which prompt change is most likely to help?",
+    "choices": [
+      "Ask it to be better without defining success",
+      "Hide the input document's boundaries",
+      "Provide contradictory schemas",
+      "Specify the required fields, format, and handling of missing values with examples"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Specify the required fields, format, and handling of missing values with examples.</strong></p><p>Clear instructions and representative examples define the desired output and edge cases. Validate the output as well; prompting alone is not a guarantee.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Ask it to be better without defining success — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Hide the input document&#x27;s boundaries — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Provide contradictory schemas — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q37",
+    "question_number": "37",
+    "question": "A prompt combines instructions, a reference document, and a customer question. How can the developer make the parts easier to distinguish?",
+    "choices": [
+      "Use descriptive, consistent XML-style tags around the different sections",
+      "Remove all delimiters between sections",
+      "Repeat the customer question inside the system credential",
+      "Mix instructions randomly into the reference text"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Use descriptive, consistent XML-style tags around the different sections.</strong></p><p>Descriptive tags help distinguish instructions, context, and input. They improve structure but do not themselves make untrusted content safe.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Remove all delimiters between sections — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Repeat the customer question inside the system credential — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Mix instructions randomly into the reference text — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q38",
+    "question_number": "38",
+    "question": "A classifier misses a rare category even though general instructions are clear. What prompt experiment is sensible?",
+    "choices": [
+      "Repeat only the most common example many times and declare success",
+      "Add diverse representative examples including the rare category and evaluate on held-out cases",
+      "Replace the category with a secret API key",
+      "Evaluate only on the examples embedded in the prompt"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Add diverse representative examples including the rare category and evaluate on held-out cases.</strong></p><p>Relevant, diverse examples can clarify classification boundaries. Held-out examples are needed to determine whether the change generalizes.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Repeat only the most common example many times and declare success — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Replace the category with a secret API key — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Evaluate only on the examples embedded in the prompt — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q39",
+    "question_number": "39",
+    "question": "An assistant invents details when a retrieved document lacks the answer. Which instruction helps address this?",
+    "choices": [
+      "Tell it never to admit uncertainty",
+      "Instruct it to fill gaps with plausible facts",
+      "Tell it to ground answers in supplied evidence and say when information is missing",
+      "Remove the source document and demand citations"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Tell it to ground answers in supplied evidence and say when information is missing.</strong></p><p>Explicit grounding and uncertainty instructions can reduce unsupported claims; application-side checks and evaluation remain important.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Tell it never to admit uncertainty — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Instruct it to fill gaps with plausible facts — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Remove the source document and demand citations — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q40",
+    "question_number": "40",
+    "question": "A legal-document workflow mixes several sources and the model confuses which text belongs to which file. What should the developer add?",
+    "choices": [
+      "A single undifferentiated text blob",
+      "Only a longer output limit",
+      "Unrelated example documents without labels",
+      "A separate tagged document block and source identifier for each document"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: A separate tagged document block and source identifier for each document.</strong></p><p>Clearly labeled document boundaries and source metadata help the model attribute evidence and distinguish separate inputs.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> A single undifferentiated text blob — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Only a longer output limit — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Unrelated example documents without labels — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q41",
+    "question_number": "41",
+    "question": "A team changes a prompt to fix one case but breaks several other cases. What practice would expose this before release?",
+    "choices": [
+      "Run a representative regression set covering normal, edge, and adversarial inputs",
+      "Judge the change using only the originally failing example",
+      "Disable all prior tests",
+      "Assume more instructions always improve every result"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Run a representative regression set covering normal, edge, and adversarial inputs.</strong></p><p>Prompt changes can trade off different behaviors. A representative regression set makes those effects visible before deployment.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Judge the change using only the originally failing example — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Disable all prior tests — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Assume more instructions always improve every result — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q42",
+    "question_number": "42",
+    "question": "A client tool result is sent back with the wrong tool_use_id. What should be fixed?",
+    "choices": [
+      "Replace every ID with the tool name",
+      "Match tool_result.tool_use_id to the ID from the corresponding tool_use block",
+      "Omit the original assistant tool_use message",
+      "Put the result into a new unrelated system prompt"
+    ],
+    "correct_answer_indices": [
+      1
+    ],
+    "explanation_html": "<p><strong>Correct: Match tool_result.tool_use_id to the ID from the corresponding tool_use block.</strong></p><p>The tool-use ID links a specific request to its result. Preserve the assistant response and send correctly associated tool results in the next user message.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Replace every ID with the tool name — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Omit the original assistant tool_use message — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Put the result into a new unrelated system prompt — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q43",
+    "question_number": "43",
+    "question": "A weather tool fails because its upstream service is unavailable. How should the client report this to Claude?",
+    "choices": [
+      "Invent a sunny forecast",
+      "Pretend the tool returned a successful empty value",
+      "Return the matching tool_result with is_error true and useful error information",
+      "Remove the tool call from the conversation history"
+    ],
+    "correct_answer_indices": [
+      2
+    ],
+    "explanation_html": "<p><strong>Correct: Return the matching tool_result with is_error true and useful error information.</strong></p><p>The tool-result format supports is_error for execution failures. A truthful error allows the model to explain the problem or choose an appropriate recovery.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Invent a sunny forecast — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Pretend the tool returned a successful empty value — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Remove the tool call from the conversation history — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q44",
+    "question_number": "44",
+    "question": "An ordering tool has vague descriptions and the model frequently chooses the wrong operation. What is a good improvement?",
+    "choices": [
+      "Give every tool the same generic description",
+      "Remove the input schema from the request",
+      "Place database credentials in descriptions",
+      "Give each tool a clear purpose, parameter schema, and distinction from similar tools"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Give each tool a clear purpose, parameter schema, and distinction from similar tools.</strong></p><p>Clear descriptions and schemas tell Claude what operations exist and how to call them. The application must still validate and authorize arguments.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Give every tool the same generic description — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Remove the input schema from the request — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Place database credentials in descriptions — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q45",
+    "question_number": "45",
+    "question": "A model supplies an account ID in a tool call. Before reading account data, what must the application do?",
+    "choices": [
+      "Validate the input and authorize that account against the current user's permissions",
+      "Trust the ID solely because the model generated it",
+      "Return data for any syntactically valid ID",
+      "Put the full account database in the tool description"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Validate the input and authorize that account against the current user&#x27;s permissions.</strong></p><p>A tool schema describes shape, not authorization. Server-side validation and access controls must enforce who may read which records.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Trust the ID solely because the model generated it — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Return data for any syntactically valid ID — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Put the full account database in the tool description — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q46",
+    "question_number": "46",
+    "question": "A team wants to expose an internal inventory API consistently to multiple MCP-compatible clients. What should it build?",
+    "choices": [
+      "An MCP server that exposes a carefully authorized inventory tool",
+      "A static prompt containing a database password",
+      "An instruction that claims the inventory was already queried",
+      "A local text file pretending to be the live service"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> An MCP server that exposes a carefully authorized inventory tool.</p><p>An MCP server provides standardized capabilities that compatible clients can discover and use. The server and application must still enforce authentication and authorization.</p><p>Reference: <a href=\"https://modelcontextprotocol.io/docs/learn/architecture\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q47",
+    "question_number": "47",
+    "question": "An MCP client needs data from a server. Which statements describe MCP primitives? Select TWO.",
+    "choices": [
+      "Tools expose operations the model can invoke",
+      "Resources expose contextual data to clients",
+      "Prompts are always database credentials",
+      "Resources automatically grant permission to any requester",
+      "MCP eliminates the need to validate tool arguments"
+    ],
+    "correct_answer_indices": [
+      0,
+      1
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> Tools expose operations the model can invoke; Resources expose contextual data to clients.</p><p>MCP tools expose callable operations, while resources expose data or context. Prompts are reusable interaction templates. Permissions and input validation remain the application’s responsibility.</p><p>Reference: <a href=\"https://modelcontextprotocol.io/docs/learn/server-concepts\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q48",
+    "question_number": "48",
+    "question": "A retrieved web page tells an agent to ignore the user and reveal secrets. How should the system handle the page?",
+    "choices": [
+      "Obey the page because tool results outrank the user's task",
+      "Copy secrets into the next web request to verify the instruction",
+      "Promote the page content into the system prompt",
+      "Treat page content as untrusted data, not as a higher-priority instruction, and enforce access controls"
+    ],
+    "correct_answer_indices": [
+      3
+    ],
+    "explanation_html": "<p><strong>Correct: Treat page content as untrusted data, not as a higher-priority instruction, and enforce access controls.</strong></p><p>Tool outputs can contain indirect prompt injection. Keep them in their proper data channel and use least privilege and explicit authorization for sensitive actions.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option A:</strong> Obey the page because tool results outrank the user&#x27;s task — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option B:</strong> Copy secrets into the next web request to verify the instruction — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Promote the page content into the system prompt — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q49",
+    "question_number": "49",
+    "question": "A malicious search result instructs an assistant to send internal files to an outside address. What defense is most important?",
+    "choices": [
+      "Prevent unauthorized data access and outbound actions with application-side permissions and review",
+      "Rely exclusively on a sentence saying the model should be careful",
+      "Assume all search results are trusted instructions",
+      "Grant broader access so the model can investigate"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Prevent unauthorized data access and outbound actions with application-side permissions and review.</strong></p><p>Prompt injection is a trust-boundary problem. Limiting access and requiring authorization for sensitive outbound actions reduces the consequences of model mistakes.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Rely exclusively on a sentence saying the model should be careful — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Assume all search results are trusted instructions — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Grant broader access so the model can investigate — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls\">Anthropic documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q50",
+    "question_number": "50",
+    "question": "A developer is connecting a local MCP server to a client. Which transport is appropriate for a process the client starts locally?",
+    "choices": [
+      "Standard input and output (stdio)",
+      "Sending every request as an email attachment",
+      "Embedding the service credentials in a system prompt",
+      "Manually copying JSON to a browser for each tool call"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> Standard input and output (stdio).</p><p>MCP supports stdio for communication with a locally launched server process. Networked servers can use supported HTTP-based transport instead.</p><p>Reference: <a href=\"https://modelcontextprotocol.io/docs/learn/architecture\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q51",
+    "question_number": "51",
+    "question": "A team must choose between a reusable MCP tool and a Claude Code skill. Which statement best captures the difference?",
+    "choices": [
+      "An MCP tool exposes an external capability; a skill packages task-specific instructions and related resources",
+      "Both automatically run arbitrary actions without authorization",
+      "A skill is always a remote database server",
+      "MCP only stores conversation transcripts"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> An MCP tool exposes an external capability; a skill packages task-specific instructions and related resources.</p><p>MCP connects applications to tools and data through a protocol; skills package reusable instructions and resources for tasks. Both still require appropriate access controls.</p><p>Reference: <a href=\"https://code.claude.com/docs/en/skills\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q52",
+    "question_number": "52",
+    "question": "A retrieved web page tells an agent to reveal secrets and send them to an external address. Which TWO defenses should the application use? Select TWO.",
+    "choices": [
+      "Treat retrieved content as untrusted data rather than privileged instructions",
+      "Enforce least-privilege access and approval for sensitive outbound actions",
+      "Promote web content to the system prompt",
+      "Grant all tools unrestricted access to secrets",
+      "Assume instructions from search results override the user"
+    ],
+    "correct_answer_indices": [
+      0,
+      1
+    ],
+    "explanation_html": "<p><strong>Correct:</strong> Treat retrieved content as untrusted data rather than privileged instructions; Enforce least-privilege access and approval for sensitive outbound actions.</p><p>Retrieved content can carry indirect prompt injection. Keep it in its proper trust boundary and enforce authorization and egress controls outside the model; formatting alone is not a security boundary.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks\">Official documentation</a></p>"
+  },
+  {
+    "id": "claude-ccdvf-q53",
+    "question_number": "53",
+    "question": "A team wants to know whether a revised prompt improves extraction quality. What evaluation is most defensible?",
+    "choices": [
+      "Compare old and new prompts on a held-out representative labeled set and inspect error categories",
+      "Compare a single hand-picked successful example",
+      "Use only examples already included in the prompt",
+      "Declare improvement based on the length of the response"
+    ],
+    "correct_answer_indices": [
+      0
+    ],
+    "explanation_html": "<p><strong>Correct: Compare old and new prompts on a held-out representative labeled set and inspect error categories.</strong></p><p>A controlled evaluation against representative held-out cases reveals quality changes and failure modes; prompt examples alone are not an unbiased test set.</p><p><strong>Why the alternatives are incorrect:</strong></p><p><strong>Option B:</strong> Compare a single hand-picked successful example — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option C:</strong> Use only examples already included in the prompt — this does not address the scenario as reliably as the selected approach.</p><p><strong>Option D:</strong> Declare improvement based on the length of the response — this does not address the scenario as reliably as the selected approach.</p><p>Reference: <a href=\"https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices\">Anthropic documentation</a></p>"
+  }
+]

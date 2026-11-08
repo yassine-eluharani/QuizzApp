@@ -52,6 +52,7 @@ export default function QuizScreen() {
         <ScoreSummary
           attempt={completedAttempt}
           passingScore={meta?.certification.examInfo.passingScore || 70}
+          isPracticeGoal={meta?.certification.examInfo.practicePassingScore}
           accentColor={session.platformColor}
           onReview={() => {
             router.replace(`/review/${completedAttempt.id}` as Href);

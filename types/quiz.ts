@@ -16,6 +16,7 @@ export interface ExamInfo {
   questionCount: number;
   duration: number; // minutes
   passingScore: number; // percentage, e.g. 72
+  practicePassingScore?: boolean; // local goal, not an official exam pass percentage
   questionTypes: string[]; // e.g. ["Multiple Choice", "Multiple Select"]
   delivery: string[]; // e.g. ["Testing Center", "Online Proctored"]
   domains: ExamDomain[];
@@ -43,6 +44,7 @@ export interface QuizMeta {
   name: string;
   certificationId: string;
   questionCount: number;
+  includeInExam?: boolean; // false for focused learning sets
 }
 
 export interface EntitlementStatus {

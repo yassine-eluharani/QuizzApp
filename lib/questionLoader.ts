@@ -1,8 +1,15 @@
 import { Question } from '@/types/quiz';
 import { isQuizAccessible } from '@/lib/entitlements';
 import { canAccessContent, isValidQuizId } from '@/lib/accessControl';
+import { getQuizMeta } from '@/assets/data/catalog';
 
 const questionFiles: Record<string, Question[]> = {
+  // Claude Certified Developer – Foundations (original practice questions)
+  'claude-ccdvf-quiz-1': require('@/assets/data/questions/claude/developer-foundations/quiz-1.json'),
+  'claude-ccdvf-quiz-2': require('@/assets/data/questions/claude/developer-foundations/quiz-2.json'),
+  'claude-ccdvf-quiz-3': require('@/assets/data/questions/claude/developer-foundations/quiz-3.json'),
+  'claude-ccdvf-quiz-4': require('@/assets/data/questions/claude/developer-foundations/quiz-4.json'),
+  'claude-ccdvf-quiz-5': require('@/assets/data/questions/claude/developer-foundations/quiz-5.json'),
   // AWS Solutions Architect
   'aws-saa-quiz-1': require('@/assets/data/questions/aws/solutions-architect/quiz-1.json'),
   'aws-saa-quiz-2': require('@/assets/data/questions/aws/solutions-architect/quiz-2.json'),
@@ -92,6 +99,8 @@ export function loadCertQuestions(certId: string, isPro: boolean = true): Questi
   for (const [quizId, questions] of Object.entries(questionFiles)) {
     // Check if quiz belongs to this certification
     if (!quizId.startsWith(certId)) continue;
+    // Focused learning sets should not be mixed into timed mock exams.
+    if (getQuizMeta(quizId)?.quiz.includeInExam === false) continue;
 
     // Validate access for each quiz
     if (!validateAccess(quizId, isPro)) continue;

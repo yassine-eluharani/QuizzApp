@@ -14,6 +14,7 @@ import { QuizAttempt } from '@/types/quiz';
 interface ScoreSummaryProps {
   attempt: QuizAttempt;
   passingScore: number;
+  isPracticeGoal?: boolean;
   accentColor: string;
   onReview: () => void;
   onExit: () => void;
@@ -22,6 +23,7 @@ interface ScoreSummaryProps {
 export default function ScoreSummary({
   attempt,
   passingScore,
+  isPracticeGoal = false,
   accentColor,
   onReview,
   onExit,
@@ -46,7 +48,11 @@ export default function ScoreSummary({
       </ThemedText>
 
       <ThemedText variant="body" style={styles.subtitle}>
-        {passed ? 'You passed the quiz!' : `You need ${passingScore}% to pass. Try again!`}
+        {isPracticeGoal
+          ? `Practice goal: ${passingScore}%. This is not the official exam score.`
+          : passed
+            ? 'You passed the quiz!'
+            : `You need ${passingScore}% to pass. Try again!`}
       </ThemedText>
 
       {/* Score Circle */}

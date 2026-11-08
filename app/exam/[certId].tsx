@@ -62,6 +62,7 @@ export default function ExamScreen() {
         <ScoreSummary
           attempt={completedAttempt}
           passingScore={certResult?.certification.examInfo.passingScore || 70}
+          isPracticeGoal={certResult?.certification.examInfo.practicePassingScore}
           accentColor={session.platformColor}
           onReview={() => {
             router.replace(`/review/${completedAttempt.id}` as Href);

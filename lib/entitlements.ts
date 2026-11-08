@@ -70,6 +70,7 @@ export function getQuizAccessStatus(
 } {
   if (isSampleQuiz(quizId)) return { accessible: true, reason: 'sample' };
   if (isFirstQuiz(quizId)) return { accessible: true, reason: 'free' };
+  if (validateContentAccess(quizId, false)) return { accessible: true, reason: 'free' };
   if (isPro) return { accessible: true, reason: 'pro' };
   return { accessible: false, reason: 'locked' };
 }
