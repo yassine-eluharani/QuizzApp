@@ -33,6 +33,15 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="learn"
+          options={{
+            tabBarLabel: 'Learn',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="trail-sign" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="study"
           options={{
             tabBarLabel: 'Study',

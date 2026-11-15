@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import '../global.css';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
@@ -7,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { AppProvider, useAppContext } from '@/context/AppContext';
 import { PurchaseProvider } from '@/context/PurchaseContext';
+import { LearnProvider } from '@/context/LearnContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Paywall from '@/components/paywall/Paywall';
 import { Colors } from '@/constants/Colors';
 import { SplashScreen } from '@/components/ui/SplashScreen';
@@ -44,16 +47,20 @@ export default function RootLayout() {
   }
 
   return (
-    <AppErrorBoundary>
-      <AppProvider>
-        <PurchaseProvider>
-          <StatusBar style="light" />
-          <OfflineBanner />
-          <RootNavigator />
-          <Paywall />
-        </PurchaseProvider>
-      </AppProvider>
-    </AppErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppErrorBoundary>
+        <AppProvider>
+          <LearnProvider>
+            <PurchaseProvider>
+              <StatusBar style="light" />
+              <OfflineBanner />
+              <RootNavigator />
+              <Paywall />
+            </PurchaseProvider>
+          </LearnProvider>
+        </AppProvider>
+      </AppErrorBoundary>
+    </GestureHandlerRootView>
   );
 }
 
@@ -93,6 +100,11 @@ function RootNavigator() {
         options={{ title: '', headerBackTitle: 'Back' }}
       />
       <Stack.Screen name="interview/[topicId]" options={{ title: '', headerBackTitle: 'Back' }} />
+      <Stack.Screen name="learn/unit/[unitId]" options={{ title: '', headerBackTitle: 'Learn' }} />
+      <Stack.Screen
+        name="learn/[lessonId]"
+        options={{ headerShown: false, presentation: 'fullScreenModal', gestureEnabled: false }}
+      />
       <Stack.Screen
         name="quiz/[quizId]"
         options={{ headerShown: false, presentation: 'fullScreenModal' }}
