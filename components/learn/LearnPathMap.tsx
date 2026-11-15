@@ -212,19 +212,21 @@ export default function LearnPathMap({ path, states, stars, currentFraction, onP
           ? { right: W - n.x + r + 14, alignItems: 'flex-end' as const }
           : { left: n.x + r + 14, alignItems: 'flex-start' as const };
         const dim = st === 'locked';
+        const align = { textAlign: labelOnLeft ? ('right' as const) : ('left' as const) };
         return (
           <React.Fragment key={u.id}>
             <View pointerEvents="none" style={[styles.label, { top: n.y - 24 }, labelStyle]}>
               <Text
                 style={[
                   styles.kicker,
+                  align,
                   { color: dim ? '#6A6157' : st === 'current' ? Colors.primary : Colors.textMuted },
                 ]}
               >
                 UNIT {i + 1}
               </Text>
               <Text
-                style={[styles.title, { color: dim ? '#6A6157' : Colors.textPrimary }]}
+                style={[styles.title, align, { color: dim ? '#6A6157' : Colors.textPrimary }]}
                 numberOfLines={2}
               >
                 {u.title}
@@ -236,7 +238,9 @@ export default function LearnPathMap({ path, states, stars, currentFraction, onP
                   ))}
                 </View>
               )}
-              {st === 'current' && <Text style={styles.sub}>{u.lessons.length} lessons</Text>}
+              {st === 'current' && (
+                <Text style={[styles.sub, align]}>{u.lessons.length} lessons</Text>
+              )}
             </View>
             <PressableScale
               onPress={() => onPressUnit(i)}
