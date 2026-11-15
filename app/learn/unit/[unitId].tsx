@@ -67,7 +67,8 @@ export default function UnitScreen() {
 
         {unit.lessons.map((l, i) => {
           const finished = isLessonDone(progress, l.id);
-          const open = state !== 'locked' ? lessonUnlocked(progress, unit, i) : !!l.boss;
+          // The boss lesson is the test-out, so it is open even when the unit is not.
+          const open = !!l.boss || (state !== 'locked' && lessonUnlocked(progress, unit, i));
           const stars = progress.lessons[l.id]?.stars ?? 0;
           return (
             <Reveal key={l.id} index={i}>

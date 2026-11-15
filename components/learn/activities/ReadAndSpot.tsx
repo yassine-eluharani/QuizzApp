@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import StepFooter from '../StepFooter';
 import { Colors } from '@/constants/Colors';
-import Mono from './Mono';
+import Mono, { NO_WRAP } from './Mono';
 import type { ReadStep, SpotStep } from '@/lib/learn/types';
 import type { ActivityProps } from './types';
 
@@ -71,7 +71,7 @@ export function SpotView({ step, onMistake, onDone }: ActivityProps<SpotStep>) {
     state === 'right'
       ? `Correct. ${step.bugs.length} risk${step.bugs.length === 1 ? '' : 's'} found.`
       : state === 'wrong'
-        ? `${found} of ${step.bugs.length} real risks flagged${falseFlags ? `, ${falseFlags} line${falseFlags === 1 ? '' : 's'} are fine` : ''}. Adjust and try again.`
+        ? `${found} of ${step.bugs.length} real risks flagged${falseFlags ? `, ${falseFlags} ${falseFlags === 1 ? 'line is' : 'lines are'} fine` : ''}. Adjust and try again.`
         : undefined;
 
   return (
@@ -81,30 +81,40 @@ export function SpotView({ step, onMistake, onDone }: ActivityProps<SpotStep>) {
         <Text style={styles.title}>{step.title}</Text>
         <Text style={styles.body}>{step.prompt}</Text>
         <View style={styles.code}>
-          {step.lines.map((l, i) => {
-            const on = picked.has(i);
-            const revealed = state === 'right';
-            const isBug = bugSet.has(i);
-            return (
-              <TouchableOpacity
-                key={i}
-                activeOpacity={0.7}
-                onPress={() => toggle(i)}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: on }}
-                accessibilityLabel={`Line ${i + 1}: ${l}`}
-                style={[
-                  styles.spotLine,
-                  on && styles.spotOn,
-                  revealed && isBug && styles.spotBug,
-                  state === 'wrong' && on && !isBug && styles.spotFalse,
-                ]}
-              >
-                <Text style={styles.lineNo}>{i + 1}</Text>
-                <Text style={[styles.mono, { flex: 1 }]}>{l === '' ? ' ' : l}</Text>
-              </TouchableOpacity>
-            );
-          })}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.spotContent}
+          >
+            <View style={styles.spotCol}>
+              {step.lines.map((l, i) => {
+                const on = picked.has(i);
+                const revealed = state === 'right';
+                const isBug = bugSet.has(i);
+                return (
+                  <TouchableOpacity
+                    key={i}
+                    activeOpacity={0.7}
+                    onPress={() => toggle(i)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: on }}
+                    accessibilityLabel={`Line ${i + 1}: ${l}`}
+                    style={[
+                      styles.spotLine,
+                      on && styles.spotOn,
+                      revealed && isBug && styles.spotBug,
+                      state === 'wrong' && on && !isBug && styles.spotFalse,
+                    ]}
+                  >
+                    <Text style={styles.lineNo}>{i + 1}</Text>
+                    <Text style={[styles.mono, NO_WRAP, { flexShrink: 0 }]}>
+                      {l === '' ? ' ' : l}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </ScrollView>
         </View>
         {state === 'right' && (
           <View style={styles.callout}>
@@ -171,7 +181,10 @@ const styles = StyleSheet.create({
   calloutHead: { color: Colors.primary, fontSize: 10.5, fontWeight: '800', letterSpacing: 1.3 },
   calloutText: { color: Colors.textSecondary, fontSize: 14.5, lineHeight: 21 },
   lineRef: { color: Colors.textPrimary, fontFamily: 'SpaceMono', fontSize: 12, fontWeight: '700' },
+  spotContent: { minWidth: '100%' },
+  spotCol: { flexGrow: 1 },
   spotLine: {
+    alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,

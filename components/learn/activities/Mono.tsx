@@ -3,7 +3,7 @@ import { Platform, ScrollView, StyleSheet, Text, TextStyle } from 'react-native'
 import { Colors } from '@/constants/Colors';
 
 // Web wraps Text unless told not to; native Text inside a horizontal ScrollView never wraps.
-const NO_WRAP = Platform.select({
+export const NO_WRAP = Platform.select({
   web: { whiteSpace: 'pre' } as unknown as TextStyle,
   default: {},
 });

@@ -225,7 +225,7 @@ export default function LearnPathMap({ path, states, stars, currentFraction, onP
               </Text>
               <Text
                 style={[styles.title, { color: dim ? '#6A6157' : Colors.textPrimary }]}
-                numberOfLines={1}
+                numberOfLines={2}
               >
                 {u.title}
               </Text>
