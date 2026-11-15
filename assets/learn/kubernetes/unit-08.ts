@@ -7,12 +7,12 @@ import {
   gap,
   lesson,
   order,
-  read,
   spot,
   terminal,
   triage,
   unit,
 } from '@/lib/learn/dsl';
+import { evidence, metrics, slo, trace } from './scenes-08';
 
 export const unit8 = unit({
   id: 'k8s-u8',
@@ -23,18 +23,7 @@ export const unit8 = unit({
   badge: { id: 'badge-always-watching', title: 'Always watching' },
   lessons: [
     lesson('k8s-8-1', 'Logs, events and metrics', [
-      read(
-        'k8s-8-1-a',
-        'Three kinds of evidence',
-        [
-          'Logs say what happened in one place. Containers write to stdout and stderr, a node agent (Fluent Bit, Vector) ships them to a store, and kubectl logs reads the latest. After a crash use --previous to see the container that died.',
-          'Events are the cluster’s own diary (scheduling, probes, evictions) and expire after about an hour. Metrics are numbers over time: Prometheus scrapes /metrics endpoints on an interval, and Grafana draws them. Tracing adds the story of a single request across services.',
-        ],
-        {
-          callout:
-            'Log structured JSON with a request or trace id, and never log secrets or personal data. Logs outlive the incident, and so do their leaks.',
-        }
-      ),
+      evidence,
       spot(
         'k8s-8-1-b',
         'Spot the bad log lines',
@@ -86,6 +75,7 @@ export const unit8 = unit({
         ],
         'Go from cheap and general to expensive and specific. Status and events usually name the problem before you ever open a dashboard.'
       ),
+      metrics,
       fill(
         'k8s-8-1-e',
         'Teach Prometheus to scrape checkout',
@@ -144,18 +134,7 @@ spec:
     ]),
 
     lesson('k8s-8-2', 'Alerts, SLOs and traces', [
-      read(
-        'k8s-8-2-a',
-        'Alert on pain, not on causes',
-        [
-          'An SLO is a promise in numbers: for example 99.9% of checkout requests succeed over 30 days. The remaining 0.1% is the error budget (about 43 minutes a month), and you page when you are burning it too fast.',
-          'Alert on symptoms users feel (errors, latency), not on causes (high CPU). High CPU with happy users is a ticket, not a 3 a.m. page. Traces then show where the time went across services.',
-        ],
-        {
-          callout:
-            'Every page should be urgent, real and actionable. If it is not, delete it or turn it into a ticket.',
-        }
-      ),
+      slo,
       order(
         'k8s-8-2-b',
         'Define an SLO',
@@ -206,6 +185,7 @@ Dashboard: 47 panels, no owner`,
           2: 'This pages for CPU spikes users may never notice. Page on SLO burn rate instead.',
         }
       ),
+      trace,
       triage(
         'k8s-8-2-e',
         'Checkout is slow',

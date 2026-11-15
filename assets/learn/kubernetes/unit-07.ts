@@ -1,15 +1,5 @@
-import {
-  choice,
-  cmd,
-  fill,
-  lesson,
-  order,
-  read,
-  spot,
-  terminal,
-  triage,
-  unit,
-} from '@/lib/learn/dsl';
+import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
+import { hardening, netpol, rbac } from './scenes-07';
 
 export const unit7 = unit({
   id: 'k8s-u7',
@@ -20,18 +10,7 @@ export const unit7 = unit({
   badge: { id: 'badge-locked-down', title: 'Locked down' },
   lessons: [
     lesson('k8s-7-1', 'Identity and hardened pods', [
-      read(
-        'k8s-7-1-a',
-        'Least privilege, everywhere',
-        [
-          'Every request to the API server is authenticated, then authorised by RBAC: a Role lists allowed verbs on resources, and a RoleBinding attaches it to a user or ServiceAccount. Pods use a ServiceAccount to talk to the API.',
-          'Give each workload its own ServiceAccount with only what it needs, and turn off the token if it needs nothing. Then harden the pod itself: run as non-root, drop Linux capabilities, block privilege escalation and use a read-only root filesystem.',
-        ],
-        {
-          callout:
-            'kubectl auth can-i --as=system:serviceaccount:ns:name tests what an identity is really allowed to do. Use it in reviews.',
-        }
-      ),
+      rbac,
       fill(
         'k8s-7-1-b',
         'Let checkout read ConfigMaps',
@@ -105,6 +84,7 @@ roleRef:
           ),
         ]
       ),
+      hardening,
       fill(
         'k8s-7-1-e',
         'Harden the container',
@@ -157,18 +137,7 @@ volumes:
     ]),
 
     lesson('k8s-7-2', 'Network rules and supply chain', [
-      read(
-        'k8s-7-2-a',
-        'Default allow is the problem',
-        [
-          'By default every pod can talk to every other pod. NetworkPolicies change that, but only if your CNI enforces them. The standard approach is a default-deny policy per namespace, then explicit allows (the ingress controller to checkout, checkout to payments, everything to DNS).',
-          'The other front door is the image itself. Pull from a private registry, pin by digest, scan for known vulnerabilities in CI, and sign images so the cluster can verify them at admission.',
-        ],
-        {
-          callout:
-            'If you add egress policies, remember DNS. Blocking egress without allowing CoreDNS breaks name resolution for every pod.',
-        }
-      ),
+      netpol,
       fill(
         'k8s-7-2-b',
         'Only the ingress may call checkout',

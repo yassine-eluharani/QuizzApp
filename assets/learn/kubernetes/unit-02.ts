@@ -7,12 +7,12 @@ import {
   gap,
   lesson,
   order,
-  read,
   spot,
   terminal,
   triage,
   unit,
 } from '@/lib/learn/dsl';
+import { badGateway, ingressFlow, serviceStable } from './scenes-02';
 
 export const unit2 = unit({
   id: 'k8s-u2',
@@ -23,19 +23,7 @@ export const unit2 = unit({
   badge: { id: 'badge-traffic-in', title: 'Front door' },
   lessons: [
     lesson('k8s-2-1', 'Services: a stable address', [
-      read(
-        'k8s-2-1-a',
-        'Pods come and go, a Service stays',
-        [
-          'Every pod gets its own IP, and it changes whenever the pod is replaced. Nothing should call a pod IP directly.',
-          'A Service gives a set of pods one stable virtual IP and a DNS name (checkout.shop.svc.cluster.local). It picks pods by label and only sends traffic to pods that are Ready.',
-          'ClusterIP (the default) is reachable only inside the cluster. NodePort and LoadBalancer expose it outside, but in production most services stay ClusterIP and a single Ingress sits in front.',
-        ],
-        {
-          callout:
-            'A Service with no matching ready pods has empty endpoints. Requests then fail even though every pod looks healthy.',
-        }
-      ),
+      serviceStable,
       fill(
         'k8s-2-1-b',
         'Give checkout a Service',
@@ -133,18 +121,7 @@ The Service selects app=checkout-api, the pods carry app=checkout.`,
     ]),
 
     lesson('k8s-2-2', 'Ingress, TLS and the 502', [
-      read(
-        'k8s-2-2-a',
-        'One front door for everything',
-        [
-          'An Ingress is a set of HTTP routing rules: this host and path goes to that Service. It does nothing by itself. An ingress controller (NGINX, Traefik, a cloud controller) watches Ingress objects and does the routing.',
-          'The controller sits behind one cloud load balancer, so many services share a single public IP. TLS is terminated at the ingress, and cert-manager can request and renew certificates automatically from Let’s Encrypt.',
-        ],
-        {
-          callout:
-            'Gateway API is the successor to Ingress. The ideas (listeners, routes, TLS at the edge) are the same.',
-        }
-      ),
+      ingressFlow,
       diagram(
         'k8s-2-2-b',
         'Draw the front door',
@@ -241,6 +218,7 @@ spec:
           13: 'The backend port must be the Service port (80), not the container port. 8080 matches no Service port, so the controller has no upstream.',
         }
       ),
+      badGateway,
       order(
         'k8s-2-2-e',
         'Debugging a 502',

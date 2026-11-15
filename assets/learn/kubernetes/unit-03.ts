@@ -1,15 +1,5 @@
-import {
-  choice,
-  cmd,
-  fill,
-  lesson,
-  order,
-  read,
-  spot,
-  terminal,
-  triage,
-  unit,
-} from '@/lib/learn/dsl';
+import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
+import { configEnv, rotation, secretEncoded } from './scenes-03';
 
 export const unit3 = unit({
   id: 'k8s-u3',
@@ -20,18 +10,7 @@ export const unit3 = unit({
   badge: { id: 'badge-config-secrets', title: 'Secret keeper' },
   lessons: [
     lesson('k8s-3-1', 'ConfigMaps and Secrets', [
-      read(
-        'k8s-3-1-a',
-        'The same image everywhere',
-        [
-          'One image should run in dev, staging and production. What differs (log level, URLs, feature flags) lives in a ConfigMap and reaches the pod as environment variables or files.',
-          'Environment variables are read once, when the container starts. Change the ConfigMap and running pods keep the old values until they restart. Mounted files do update, after a delay, but most apps never re-read them.',
-        ],
-        {
-          callout:
-            'Treat a config change like a release: roll the pods (rollout restart or a checksum annotation) so every pod runs the same values.',
-        }
-      ),
+      configEnv,
       fill(
         'k8s-3-1-b',
         'Wire a ConfigMap in',
@@ -102,17 +81,7 @@ The ConfigMap says debug, but this pod still has info: environment variables are
           }),
         ]
       ),
-      read(
-        'k8s-3-1-e',
-        'Secrets are not encrypted',
-        [
-          'A Secret looks like a ConfigMap, but its values are base64 encoded. That is encoding, not encryption: anyone who can read the object can decode it.',
-          'Protect them with RBAC (who can read Secrets), encryption at rest for etcd, and by never committing them to git. Prefer mounting a Secret as a file over an environment variable, because env vars show up in crash dumps and to anyone who can exec into the pod.',
-        ],
-        {
-          code: 'echo -n sk_live_51Mabc123 | base64\n# c2tfbGl2ZV81MU1hYmMxMjM=\necho c2tfbGl2ZV81MU1hYmMxMjM= | base64 -d\n# sk_live_51Mabc123',
-        }
-      ),
+      secretEncoded,
       terminal(
         'k8s-3-1-f',
         'Read a Secret',
@@ -143,18 +112,7 @@ type: Opaque`
     ]),
 
     lesson('k8s-3-2', 'External secrets and rotation', [
-      read(
-        'k8s-3-2-a',
-        'Keep the source of truth outside the cluster',
-        [
-          'Most teams keep secrets in a manager (Key Vault, AWS Secrets Manager, Vault) and sync them in. The External Secrets Operator reads from the manager using a workload identity and creates the Kubernetes Secret for you.',
-          'That gives you audit logs, access policies and rotation in one place, and nothing sensitive in git. Rotating means updating the manager, letting the operator sync, and reloading the pods.',
-        ],
-        {
-          callout:
-            'Prefer workload identity over a long-lived key stored in the cluster. The thing that fetches secrets should not need a secret to do it.',
-        }
-      ),
+      rotation,
       fill(
         'k8s-3-2-b',
         'Sync a secret in',

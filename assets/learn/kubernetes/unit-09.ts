@@ -1,15 +1,5 @@
-import {
-  choice,
-  cmd,
-  fill,
-  lesson,
-  order,
-  read,
-  spot,
-  terminal,
-  triage,
-  unit,
-} from '@/lib/learn/dsl';
+import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
+import { scheduling, shutdown, zones } from './scenes-09';
 
 export const unit9 = unit({
   id: 'k8s-u9',
@@ -20,18 +10,7 @@ export const unit9 = unit({
   badge: { id: 'badge-well-placed', title: 'Well placed' },
   lessons: [
     lesson('k8s-9-1', 'Where pods land', [
-      read(
-        'k8s-9-1-a',
-        'How the scheduler chooses',
-        [
-          'The scheduler works in two phases. Filtering removes nodes that cannot run the pod (not enough requested CPU or memory, untolerated taints, node selectors that do not match, unbound volumes). Scoring ranks the rest, and the pod is bound to the best node.',
-          'A pod that stays Pending has failed filtering on every node, and kubectl describe pod prints the reasons: for example "0/6 nodes are available: 6 Insufficient cpu".',
-        ],
-        {
-          callout:
-            'Taints keep pods off nodes (a dedicated pool); tolerations let chosen pods onto them; nodeSelector or affinity pull pods to them. You usually need both a taint and a selector for a dedicated pool.',
-        }
-      ),
+      scheduling,
       order(
         'k8s-9-1-b',
         'The scheduling cycle',
@@ -105,18 +84,7 @@ node-2   2400m        60%    58%`
     ]),
 
     lesson('k8s-9-2', 'Spread, drain and shutdown', [
-      read(
-        'k8s-9-2-a',
-        'Survive a node, survive a zone',
-        [
-          'Three replicas on one node are one replica of availability. topologySpreadConstraints spread pods across nodes or zones, and anti-affinity can forbid sharing a node. A zone outage then takes a third of capacity instead of all of it.',
-          'Voluntary disruptions (drains, upgrades) respect PodDisruptionBudgets. Involuntary ones (node failure) do not. And when a pod is stopped, graceful shutdown decides whether in-flight requests finish: SIGTERM, then a grace period, then SIGKILL.',
-        ],
-        {
-          callout:
-            'Use soft preferences (ScheduleAnyway, preferred anti-affinity) for spreading unless imbalance is truly unacceptable. Hard rules can leave pods Pending during a capacity crunch.',
-        }
-      ),
+      zones,
       fill(
         'k8s-9-2-b',
         'Spread across zones',
@@ -176,6 +144,7 @@ replicas: 12
         ],
         'Failure handling is slow by design (minutes) to avoid reacting to blips, which is why spreading and spare capacity matter more than recovery speed.'
       ),
+      shutdown,
       fill(
         'k8s-9-2-e',
         'Shut down gracefully',

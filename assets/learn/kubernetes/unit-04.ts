@@ -7,12 +7,12 @@ import {
   gap,
   lesson,
   order,
-  read,
   spot,
   terminal,
   triage,
   unit,
 } from '@/lib/learn/dsl';
+import { hpa, qosEvict, twoScalers } from './scenes-04';
 
 export const unit4 = unit({
   id: 'k8s-u4',
@@ -23,18 +23,7 @@ export const unit4 = unit({
   badge: { id: 'badge-scale-out', title: 'Scale-out' },
   lessons: [
     lesson('k8s-4-1', 'Sizing pods', [
-      read(
-        'k8s-4-1-a',
-        'Requests, limits and who gets evicted',
-        [
-          'The scheduler places pods using requests. Limits are enforced at runtime: exceed the memory limit and the container is OOMKilled (exit code 137), exceed the CPU limit and it is throttled.',
-          'Kubernetes derives a Quality of Service class from them. Guaranteed pods (limits equal requests for every container) are protected, Burstable pods (some requests) are next, and BestEffort pods (none) are the first to be evicted when a node runs out of memory.',
-        ],
-        {
-          callout:
-            'Right-sizing is empirical. Watch real usage over a week (kubectl top, Grafana), then set requests near the typical value and the memory limit with headroom.',
-        }
-      ),
+      qosEvict,
       order(
         'k8s-4-1-b',
         'Who goes first when a node is full?',
@@ -120,18 +109,7 @@ Requests:
     ]),
 
     lesson('k8s-4-2', 'Autoscaling', [
-      read(
-        'k8s-4-2-a',
-        'Let the load decide the replica count',
-        [
-          'The Horizontal Pod Autoscaler watches a metric (usually CPU as a percentage of the pod’s request) and adjusts the replica count between a minimum and a maximum. It needs metrics-server, and it needs CPU requests to be set, because the percentage is relative to the request.',
-          'More pods only help if there is room for them. When there is not, pods sit Pending until the cluster autoscaler (or Karpenter) adds nodes, which takes minutes. So autoscaling has two limits to check: replicas and nodes.',
-        ],
-        {
-          callout:
-            'Scale-up is fast, scale-down is deliberately slow (a 5 minute stabilisation window by default) to avoid flapping during bursty traffic.',
-        }
-      ),
+      hpa,
       fill(
         'k8s-4-2-b',
         'Write the HPA',
@@ -226,6 +204,7 @@ The percentage is relative to the CPU request, and the pod has none.`,
           ),
         ]
       ),
+      twoScalers,
       diagram(
         'k8s-4-2-f',
         'Two autoscalers',

@@ -7,12 +7,12 @@ import {
   gap,
   lesson,
   order,
-  read,
   spot,
   terminal,
   triage,
   unit,
 } from '@/lib/learn/dsl';
+import { badRollout, canary, rolling } from './scenes-06';
 
 export const unit6 = unit({
   id: 'k8s-u6',
@@ -23,18 +23,7 @@ export const unit6 = unit({
   badge: { id: 'badge-smooth-release', title: 'Smooth release' },
   lessons: [
     lesson('k8s-6-1', 'Rolling updates and rollbacks', [
-      read(
-        'k8s-6-1-a',
-        'Replace pods without a gap',
-        [
-          'The default Deployment strategy is a rolling update. A new ReplicaSet scales up while the old one scales down, and maxSurge and maxUnavailable control how many pods can be added or missing at any moment.',
-          'The readiness probe is the safety catch: a new pod only counts once it is Ready, so a broken version stalls the rollout instead of replacing healthy pods. With maxUnavailable set to 0, a bad release never reduces capacity.',
-        ],
-        {
-          callout:
-            'Rolling updates only work if the new and old versions can run side by side. That includes database schemas: add columns before code uses them, remove them after.',
-        }
-      ),
+      rolling,
       fill(
         'k8s-6-1-b',
         'Tune the rollout',
@@ -74,6 +63,7 @@ minReadySeconds: [[min]]`,
         ],
         'The cycle is surge, wait for Ready, retire one old pod. Keeping the old ReplicaSet around is what makes kubectl rollout undo fast.'
       ),
+      badRollout,
       spot(
         'k8s-6-1-d',
         'Which settings cause downtime?',
@@ -160,18 +150,7 @@ undo plan: kubectl rollout undo deployment/checkout`,
     ]),
 
     lesson('k8s-6-2', 'Canary releases', [
-      read(
-        'k8s-6-2-a',
-        'Try it on 5% first',
-        [
-          'A rolling update shifts every user eventually. A canary shifts a small share of traffic to the new version first, watches error rate and latency, and only then continues. If a metric regresses, traffic goes back to the stable version.',
-          'Tools like Argo Rollouts and Flagger automate the steps and can check metrics for you. Blue/green is the cousin: two full environments and one switch, faster to flip back but twice the capacity.',
-        ],
-        {
-          callout:
-            'A canary only helps if you can tell good from bad quickly. Decide the metrics (error rate, p99 latency, a business metric) before you ship.',
-        }
-      ),
+      canary,
       diagram(
         'k8s-6-2-b',
         'Split the traffic',

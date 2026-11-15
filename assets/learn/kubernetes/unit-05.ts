@@ -7,12 +7,12 @@ import {
   gap,
   lesson,
   order,
-  read,
   spot,
   terminal,
   triage,
   unit,
 } from '@/lib/learn/dsl';
+import { stateful, volumes } from './scenes-05';
 
 export const unit5 = unit({
   id: 'k8s-u5',
@@ -23,18 +23,7 @@ export const unit5 = unit({
   badge: { id: 'badge-state-holder', title: 'State holder' },
   lessons: [
     lesson('k8s-5-1', 'Volumes and claims', [
-      read(
-        'k8s-5-1-a',
-        'Data that outlives a pod',
-        [
-          'A container’s filesystem disappears with it. An emptyDir lives as long as the pod and is good for scratch space. Anything that must survive needs a PersistentVolume.',
-          'You do not create PersistentVolumes by hand. A pod asks for storage with a PersistentVolumeClaim, the claim names a StorageClass, and the provisioner creates a disk and a PV that binds to it. Access mode ReadWriteOnce means one node at a time, which is how most block disks work.',
-        ],
-        {
-          callout:
-            'Check the StorageClass reclaim policy. With Delete, removing the claim deletes the disk and its data. Databases usually want Retain.',
-        }
-      ),
+      volumes,
       order(
         'k8s-5-1-b',
         'Dynamic provisioning',
@@ -120,18 +109,7 @@ standard-hdd         ebs.csi.aws.com      Delete          WaitForFirstConsumer`
     ]),
 
     lesson('k8s-5-2', 'StatefulSets and backups', [
-      read(
-        'k8s-5-2-a',
-        'When pods need an identity',
-        [
-          'A Deployment treats pods as interchangeable. Databases, queues and caches that replicate do not: each member needs a stable name, a stable address and its own disk. That is a StatefulSet.',
-          'Pods are named redis-0, redis-1, redis-2 and start in order. A headless Service (clusterIP: None) gives each one its own DNS name. volumeClaimTemplates create one PVC per pod, and a pod that is rescheduled keeps its own volume.',
-        ],
-        {
-          callout:
-            'Many teams run Postgres outside the cluster (a managed service) and keep Kubernetes for stateless workloads. If you do run databases in-cluster, use an operator that handles failover and backups.',
-        }
-      ),
+      stateful,
       diagram(
         'k8s-5-2-b',
         'A three-node Redis',

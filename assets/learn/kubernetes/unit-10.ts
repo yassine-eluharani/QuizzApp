@@ -1,4 +1,5 @@
-import { choice, lesson, order, read, spot, triage, unit } from '@/lib/learn/dsl';
+import { choice, lesson, order, spot, triage, unit } from '@/lib/learn/dsl';
+import { backoff, dnsDown, statuses } from './scenes-10';
 
 export const unit10 = unit({
   id: 'k8s-u10',
@@ -9,18 +10,7 @@ export const unit10 = unit({
   badge: { id: 'badge-incident-commander', title: 'Incident commander' },
   lessons: [
     lesson('k8s-10-1', 'Pods that will not run', [
-      read(
-        'k8s-10-1-a',
-        'Read the status like a doctor',
-        [
-          'Most pod problems announce themselves in the STATUS column. Pending means no node (read the scheduling event). ImagePullBackOff means the image cannot be pulled (wrong tag, missing credentials). CrashLoopBackOff means it starts and dies (read the previous logs). CreateContainerConfigError means a referenced ConfigMap or Secret is missing.',
-          'OOMKilled means the memory limit was hit. Evicted means the node ran out of memory or disk. Each one points at a different first command, and the right first command is almost always kubectl describe pod or kubectl logs --previous.',
-        ],
-        {
-          callout:
-            'In an incident, mitigate first (roll back, scale, failover), investigate second. The customer cares about the outage, not the root cause.',
-        }
-      ),
+      statuses,
       spot(
         'k8s-10-1-b',
         'Exit codes',
@@ -37,6 +27,7 @@ Exit Code 127  Command not found in the image`,
           5: '127 means the command is not in the image at all. A wrong entrypoint or a broken build.',
         }
       ),
+      backoff,
       triage(
         'k8s-10-1-c',
         'catalog is crash-looping',
@@ -254,18 +245,7 @@ catalog-6b7f9c-9tz7m      0/1     CrashLoopBackOff   6`,
     ]),
 
     lesson('k8s-10-2', 'DNS and node incidents', [
-      read(
-        'k8s-10-2-a',
-        'The shared dependencies',
-        [
-          'Some failures hit many services at once. DNS is the classic one: every call starts with a lookup, and CoreDNS runs as a handful of pods. If it is saturated, every service looks broken at the same time.',
-          'Nodes are the other shared dependency. A node under memory pressure can starve the kubelet, evict pods or go NotReady, taking everything on it along. Pods with no memory limits are the usual cause.',
-        ],
-        {
-          callout:
-            'When many unrelated services fail together, look for the shared dependency: DNS, a node, a database, a config change, the network.',
-        }
-      ),
+      dnsDown,
       triage(
         'k8s-10-2-b',
         'Names do not resolve',

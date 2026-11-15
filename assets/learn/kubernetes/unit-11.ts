@@ -7,12 +7,12 @@ import {
   gap,
   lesson,
   order,
-  read,
   spot,
   terminal,
   triage,
   unit,
 } from '@/lib/learn/dsl';
+import { gitops, upgrade } from './scenes-11';
 
 export const unit11 = unit({
   id: 'k8s-u11',
@@ -23,18 +23,7 @@ export const unit11 = unit({
   badge: { id: 'badge-cluster-captain', title: 'Cluster captain' },
   lessons: [
     lesson('k8s-11-1', 'GitOps and Helm', [
-      read(
-        'k8s-11-1-a',
-        'Git is the source of truth',
-        [
-          'In GitOps every change is a commit. A controller (Argo CD, Flux) watches the repository and makes the cluster match it. You get review, history, rollback with git revert, and drift correction: a live change that is not in git is undone.',
-          'Helm packages Kubernetes manifests as charts with values per environment, and keeps a release history you can roll back. Kustomize overlays do something similar without templating. Either way, production differs from staging only by values, never by hand edits.',
-        ],
-        {
-          callout:
-            'Promote by merging, not by re-running commands. The same artefact moves from staging to production, and only the values change.',
-        }
-      ),
+      gitops,
       fill(
         'k8s-11-1-b',
         'Declare the shop app',
@@ -127,18 +116,7 @@ ingress:
     ]),
 
     lesson('k8s-11-2', 'Upgrades and quotas', [
-      read(
-        'k8s-11-2-a',
-        'Keep the platform current and fair',
-        [
-          'Kubernetes ships a minor version about every four months and supports only the latest few. Upgrades go one minor version at a time: control plane first, then node pools, because nodes may not be newer than the control plane. Check for removed APIs before you start, test in staging, and let PodDisruptionBudgets protect workloads while nodes are replaced.',
-          'A shared cluster also needs fairness. ResourceQuota caps what a namespace can request, and LimitRange sets defaults so pods without requests do not slip through. Without them one runaway team can starve everyone.',
-        ],
-        {
-          callout:
-            'Run kubectl get --raw /metrics (or a tool like pluto) to find calls to deprecated APIs before an upgrade removes them.',
-        }
-      ),
+      upgrade,
       order(
         'k8s-11-2-b',
         'A safe cluster upgrade',
