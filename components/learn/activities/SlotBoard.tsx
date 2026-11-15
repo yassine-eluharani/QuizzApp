@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { checkSlots, allTrue, seededShuffle, type SlotCheck } from '@/lib/learn/engine';
 import StepFooter from '../StepFooter';
-import { DragChip } from './dnd';
+import { DragChip, type Target } from './dnd';
 import { Colors } from '@/constants/Colors';
 
 export type SlotVariant = 'inline' | 'block';
@@ -18,14 +18,6 @@ interface Props {
   body: (slot: (id: string, variant?: SlotVariant) => React.ReactNode) => React.ReactNode;
   onMistake: () => void;
   onDone: () => void;
-}
-
-interface Rect {
-  id: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
 }
 
 /**
@@ -50,6 +42,7 @@ export default function SlotBoard({
   const [solved, setSolved] = useState(false);
   const [misses, setMisses] = useState(0);
   const [scrollOn, setScrollOn] = useState(true);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const refs = useRef<Record<string, View | null>>({});
   const pool = useMemo(() => seededShuffle(chips, seed), [chips, seed]);
   const usedChips = new Set(Object.values(placed).filter(Boolean) as string[]);
@@ -75,27 +68,20 @@ export default function SlotBoard({
     }
   };
 
-  const dropAt = async (chip: string, x: number, y: number) => {
-    const rects = await Promise.all(
+  const measureTargets = () =>
+    Promise.all(
       slotIds.map(
         (id) =>
-          new Promise<Rect | null>((res) => {
+          new Promise<Target | null>((res) => {
             const v = refs.current[id];
             if (!v) return res(null);
-            v.measureInWindow((rx, ry, w, h) => res({ id, x: rx, y: ry, w, h }));
+            v.measureInWindow((x, y, w, h) => res({ id, x, y, w, h }));
           })
       )
-    );
-    const slop = 14;
-    let best: { id: string; d: number } | null = null;
-    for (const r of rects) {
-      if (!r) continue;
-      if (x >= r.x - slop && x <= r.x + r.w + slop && y >= r.y - slop && y <= r.y + r.h + slop) {
-        const d = Math.hypot(x - (r.x + r.w / 2), y - (r.y + r.h / 2));
-        if (!best || d < best.d) best = { id: r.id, d };
-      }
-    }
-    if (best && !solved) place(chip, best.id);
+    ).then((list) => list.filter((t): t is Target => !!t));
+
+  const dropOn = (chip: string, slotId: string) => {
+    if (!solved) place(chip, slotId);
   };
 
   const check = () => {
@@ -136,6 +122,7 @@ export default function SlotBoard({
             styles.slot,
             variant === 'block' && styles.slotBlock,
             !text && selected && styles.slotTarget,
+            hoverId === id && styles.slotHover,
             text && styles.slotFilled,
             status === 'right' && text && styles.slotRight,
             status === 'wrong' && styles.slotWrong,
@@ -190,7 +177,9 @@ export default function SlotBoard({
                 label={c}
                 state={usedChips.has(c) ? 'used' : selected === c ? 'selected' : 'free'}
                 onTap={() => setSelected((s) => (s === c ? null : c))}
-                onDrop={(x, y) => dropAt(c, x, y)}
+                measureTargets={measureTargets}
+                onHover={setHoverId}
+                onDrop={(id) => dropOn(c, id)}
                 onDragState={(d) => setScrollOn(!d)}
               />
             ))}
@@ -253,6 +242,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   slotTarget: { backgroundColor: 'rgba(255,90,31,0.1)' },
+  slotHover: {
+    borderStyle: 'solid',
+    borderColor: Colors.primary,
+    backgroundColor: 'rgba(255,90,31,0.18)',
+  },
   slotFilled: {
     borderStyle: 'solid',
     borderColor: Colors.borderLight,
