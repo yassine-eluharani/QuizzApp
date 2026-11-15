@@ -1,5 +1,6 @@
 import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
 import { scheduling, shutdown, zones } from './scenes-09';
+import { taints, spreadRules, nodeDeath } from './cards-09';
 
 export const unit9 = unit({
   id: 'k8s-u9',
@@ -11,6 +12,7 @@ export const unit9 = unit({
   lessons: [
     lesson('k8s-9-1', 'Where pods land', [
       scheduling,
+      taints,
       order(
         'k8s-9-1-b',
         'The scheduling cycle',
@@ -85,6 +87,7 @@ node-2   2400m        60%    58%`
 
     lesson('k8s-9-2', 'Spread, drain and shutdown', [
       zones,
+      spreadRules,
       fill(
         'k8s-9-2-b',
         'Spread across zones',
@@ -131,6 +134,7 @@ replicas: 12
           7: 'Twelve replicas on six nodes with one pod per node allowed means six pods can never be scheduled.',
         }
       ),
+      nodeDeath,
       order(
         'k8s-9-2-d',
         'When a node dies',

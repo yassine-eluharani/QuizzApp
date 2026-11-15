@@ -13,6 +13,7 @@ import {
   unit,
 } from '@/lib/learn/dsl';
 import { gitops, upgrade } from './scenes-11';
+import { argoApplication, helmBasics, quotas } from './cards-11';
 
 export const unit11 = unit({
   id: 'k8s-u11',
@@ -24,6 +25,7 @@ export const unit11 = unit({
   lessons: [
     lesson('k8s-11-1', 'GitOps and Helm', [
       gitops,
+      argoApplication,
       fill(
         'k8s-11-1-b',
         'Declare the shop app',
@@ -34,6 +36,7 @@ metadata:
   name: shop
   namespace: argocd
 spec:
+  project: default
   source:
     repoURL: https://github.com/bubbled-shop/deploy
     targetRevision: [[rev]]
@@ -72,6 +75,7 @@ spec:
         ],
         'The pipeline never touches the cluster with kubectl. It only changes git, and the controller does the rest, so every change is reviewed and reversible.'
       ),
+      helmBasics,
       spot(
         'k8s-11-1-d',
         'Review the Helm values',
@@ -147,6 +151,7 @@ step 4: ignore deprecated API warnings`,
           4: 'Deprecated APIs that are removed in the target version break your manifests and controllers.',
         }
       ),
+      quotas,
       fill(
         'k8s-11-2-d',
         'Give the shop a fair share',

@@ -179,7 +179,7 @@ export const shutdown = scene(
   [
     beat(
       'Deleting a pod is not instant. Kubernetes gives it a **grace period** to finish its work. Try both a clean stop and an abrupt kill.',
-      all(show('sp', 'inf', 'out'), show(...steps.map((_, i) => `g${i}`))),
+      all(show('sp', 'inf'), show(...steps.map((_, i) => `g${i}`))),
       {
         title: 'Stop a pod two ways',
         poke: poke(
@@ -188,7 +188,13 @@ export const shutdown = scene(
             press('Stop gracefully', [
               frame(
                 0,
-                { g0: { tone: 'accent' } },
+                {
+                  g0: { tone: 'accent' },
+                  g3: { tone: 'dim' },
+                  sp: { tone: 'accent', opacity: 1 },
+                  inf: { label: 'in-flight requests: 3', tone: 'accent' },
+                  out: { opacity: 0 },
+                },
                 '**Terminating**: the pod is removed from the Service so no new requests arrive.'
               ),
               frame(
@@ -207,7 +213,7 @@ export const shutdown = scene(
                   g2: { tone: 'normal' },
                   g3: { tone: 'ok' },
                   inf: { label: 'in-flight requests: 0', tone: 'ok' },
-                  out: { label: 'all 3 requests finished', tone: 'ok' },
+                  out: { opacity: 1, label: 'all 3 requests finished', tone: 'ok' },
                 },
                 'The app finishes its requests and exits **before** the grace period ends. Nobody noticed.'
               ),
@@ -217,8 +223,12 @@ export const shutdown = scene(
                 0,
                 {
                   sp: { tone: 'danger', opacity: 0.3 },
+                  g0: { tone: 'dim' },
+                  g1: { tone: 'dim' },
+                  g2: { tone: 'dim' },
+                  g3: { tone: 'dim' },
                   inf: { label: '3 requests dropped', tone: 'danger' },
-                  out: { label: 'users saw errors', tone: 'danger' },
+                  out: { opacity: 1, label: 'users saw errors', tone: 'danger' },
                 },
                 'No grace period: the process is **killed on the spot** and the requests in flight are lost.'
               ),

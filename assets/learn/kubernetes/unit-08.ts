@@ -13,6 +13,7 @@ import {
   unit,
 } from '@/lib/learn/dsl';
 import { evidence, metrics, slo, trace } from './scenes-08';
+import { serviceMonitor, sloTerms, alertRules, alertRouting, incidentRoutine } from './cards-08';
 
 export const unit8 = unit({
   id: 'k8s-u8',
@@ -76,6 +77,7 @@ export const unit8 = unit({
         'Go from cheap and general to expensive and specific. Status and events usually name the problem before you ever open a dashboard.'
       ),
       metrics,
+      serviceMonitor,
       fill(
         'k8s-8-1-e',
         'Teach Prometheus to scrape checkout',
@@ -135,6 +137,7 @@ spec:
 
     lesson('k8s-8-2', 'Alerts, SLOs and traces', [
       slo,
+      sloTerms,
       order(
         'k8s-8-2-b',
         'Define an SLO',
@@ -148,6 +151,7 @@ spec:
         ],
         'The SLI says what to measure, the SLO says how good is good enough, and the budget turns reliability into a decision tool for releases.'
       ),
+      alertRouting,
       fill(
         'k8s-8-2-c',
         'Route the alerts',
@@ -186,6 +190,8 @@ Dashboard: 47 panels, no owner`,
         }
       ),
       trace,
+      alertRules,
+      incidentRoutine,
       triage(
         'k8s-8-2-e',
         'Checkout is slow',
@@ -295,9 +301,9 @@ Dashboard: 47 panels, no owner`,
           },
           fraud: {
             output: `NAME                    CPU(cores)
-fraud-service-6d7c-x9   1000m   (limit 1000m, throttled 94%)
+fraud-service-6d7c-x9   1000m
 
-A CPU limit was lowered in yesterday's deploy.`,
+Pinned at its 1000m CPU limit, and the throttling metric on the dashboard shows 94% of periods throttled. The limit was lowered in yesterday's deploy.`,
             question: 'fraud-service is CPU throttled. Fix?',
             choices: [
               choice(

@@ -34,9 +34,9 @@ export const tagged = (
   text: string,
   parent?: string
 ): SceneActor[] => [
-  sPod(id, { parent, x, y, w: 80, h: 72, tone: 'accent' }),
-  sCtr(`${id}c`, { parent: id, x: 27, y: 8, w: 26, h: 26, label: 'app', color: 'orange' }),
-  sTag(`${id}t`, { parent: id, x: 4, y: 44, w: 72, h: 20, label: text }),
+  sPod(id, { parent, x, y, w: 100, h: 72, tone: 'accent' }),
+  sCtr(`${id}c`, { parent: id, x: 37, y: 8, w: 26, h: 26, label: 'app', color: 'orange' }),
+  sTag(`${id}t`, { parent: id, x: 4, y: 44, w: 92, h: 20, label: text }),
 ];
 
 /**

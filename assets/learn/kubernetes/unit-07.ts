@@ -1,5 +1,13 @@
 import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
 import { hardening, netpol, rbac } from './scenes-07';
+import {
+  bindingScope,
+  enforceLevels,
+  reviewBlocks,
+  networkPolicyYaml,
+  trustedImage,
+  compromised,
+} from './cards-07';
 
 export const unit7 = unit({
   id: 'k8s-u7',
@@ -29,10 +37,12 @@ metadata:
   name: checkout-config-reader
   namespace: shop
 roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: config-reader
 subjects:
   - kind: ServiceAccount
+    namespace: shop
     name: [[sa]]`,
         {
           res: [
@@ -47,6 +57,7 @@ subjects:
         },
         ['["*"]', '["secrets"]', 'default']
       ),
+      bindingScope,
       spot(
         'k8s-7-1-c',
         'Review this binding',
@@ -85,6 +96,7 @@ roleRef:
         ]
       ),
       hardening,
+      enforceLevels,
       fill(
         'k8s-7-1-e',
         'Harden the container',
@@ -114,6 +126,7 @@ roleRef:
         },
         ['Unconfined', '["NET_ADMIN"]', 'root']
       ),
+      reviewBlocks,
       spot(
         'k8s-7-1-f',
         'A pod that is asking for trouble',
@@ -138,6 +151,7 @@ volumes:
 
     lesson('k8s-7-2', 'Network rules and supply chain', [
       netpol,
+      networkPolicyYaml,
       fill(
         'k8s-7-2-b',
         'Only the ingress may call checkout',
@@ -195,6 +209,7 @@ checkout-allow   app=checkout   2d`
           ),
         ]
       ),
+      trustedImage,
       order(
         'k8s-7-2-d',
         'A trustworthy image pipeline',
@@ -222,6 +237,7 @@ containers:
           3: 'IfNotPresent with latest means a node may keep running a stale copy. Pin an immutable tag or digest.',
         }
       ),
+      compromised,
     ]),
 
     lesson(
@@ -335,7 +351,7 @@ containers:
             },
             isolated: {
               output:
-                'pod/catalog-7f9c-x2k4q labeled. It left the Service and the ReplicaSet. A clean replacement is starting. The suspect pod keeps running for forensics.',
+                'pod/catalog-7f9c-x2k4q labeled. It left the Service and the ReplicaSet, and the quarantine NetworkPolicy that selects app=quarantine now blocks all of its traffic. A clean replacement is starting. The suspect pod keeps running for forensics.',
               question: 'Contained. Next?',
               choices: [
                 choice(

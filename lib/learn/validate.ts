@@ -65,6 +65,7 @@ function checkScene(s: SceneStep, at: string, errs: string[]) {
       if (st.tone && !TONES.includes(st.tone)) errs.push(`${at}: ${where} bad tone for ${id}`);
       const a = s.actors[ids.get(id) ?? -1];
       if (st.hl && a?.kind !== 'code') errs.push(`${at}: ${where} hl on non-code ${id}`);
+      if (st.lines && a?.kind !== 'code') errs.push(`${at}: ${where} lines on non-code ${id}`);
       if (st.hl && a?.lines && st.hl.some((n: number) => n < 0 || n >= a.lines!.length))
         errs.push(`${at}: ${where} hl out of range on ${id}`);
     }

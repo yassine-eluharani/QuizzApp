@@ -1,5 +1,6 @@
 import { choice, lesson, order, spot, triage, unit } from '@/lib/learn/dsl';
 import { backoff, dnsDown, statuses } from './scenes-10';
+import { exitCodes, nodeTrouble, dontWorsen } from './cards-10';
 
 export const unit10 = unit({
   id: 'k8s-u10',
@@ -11,6 +12,7 @@ export const unit10 = unit({
   lessons: [
     lesson('k8s-10-1', 'Pods that will not run', [
       statuses,
+      exitCodes,
       spot(
         'k8s-10-1-b',
         'Exit codes',
@@ -31,7 +33,7 @@ Exit Code 127  Command not found in the image`,
       triage(
         'k8s-10-1-c',
         'catalog is crash-looping',
-        'After a deploy, catalog is in CrashLoopBackOff and product pages are empty.',
+        'After a deploy that used the Recreate strategy, catalog is in CrashLoopBackOff and product pages are empty.',
         2,
         {
           start: {
@@ -317,10 +319,10 @@ catalog-6b7f9c-9tz7m      0/1     CrashLoopBackOff   6`,
           },
           dns: {
             output: `NAME                       CPU(cores)
-coredns-5d78c9869d-4rkzp   998m   (limit 1000m)
-coredns-5d78c9869d-mq8zt   1000m  (limit 1000m)
+coredns-5d78c9869d-4rkzp   998m
+coredns-5d78c9869d-mq8zt   1000m
 
-2 replicas, both at their CPU limit.`,
+2 replicas, both pinned at their 1000m CPU limit.`,
             question: 'CoreDNS is saturated. Fix it.',
             choices: [
               choice(
@@ -366,6 +368,7 @@ coredns-5d78c9869d-mq8zt   1000m  (limit 1000m)
           },
         }
       ),
+      nodeTrouble,
       triage(
         'k8s-10-2-c',
         'Node not ready',
@@ -447,6 +450,7 @@ Normal   Pulled    Container image already present on machine`,
           0: 'The pod used 1.2 GiB against a 256 MiB request, so it was the first to be evicted when the node ran low on memory.',
         }
       ),
+      dontWorsen,
     ]),
 
     lesson(
@@ -511,10 +515,13 @@ Normal   Pulled    Container image already present on machine`,
               ],
             },
             events: {
-              output: `10:58  Normal  ConfigMap redis-config updated (shop)
-10:58  Normal  Pod redis-0 restarted
-11:00  Warning cache miss ratio 91%`,
-              question: 'A Redis config change four minutes before the incident. Next?',
+              output: `10:58  Normal  Killing  pod/redis-0  Stopping container redis
+10:58  Normal  Started  pod/redis-0  Started container redis
+
+Dashboard: cache hit ratio fell from 95% to 9% at 10:58.
+Argo CD: redis-config synced from commit a3f9c1 at 10:57.`,
+              question:
+                'Redis restarted right after a config sync, four minutes before the incident. Next?',
               choices: [
                 choice(
                   'kubectl get configmap redis-config -n shop -o yaml',

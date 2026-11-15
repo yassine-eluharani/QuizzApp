@@ -13,6 +13,7 @@ import {
   unit,
 } from '@/lib/learn/dsl';
 import { hpa, qosEvict, twoScalers } from './scenes-04';
+import { rightSizing, hpaNeeds, maintenance } from './cards-04';
 
 export const unit4 = unit({
   id: 'k8s-u4',
@@ -70,6 +71,7 @@ Limits:
           2: 'Exit code 137 is 128 + 9, a SIGKILL. Together with OOMKilled it confirms a memory limit hit, not an app crash.',
         }
       ),
+      rightSizing,
       terminal(
         'k8s-4-1-e',
         'Raise the ceiling',
@@ -110,6 +112,7 @@ Requests:
 
     lesson('k8s-4-2', 'Autoscaling', [
       hpa,
+      hpaNeeds,
       fill(
         'k8s-4-2-b',
         'Write the HPA',
@@ -205,6 +208,7 @@ The percentage is relative to the CPU request, and the pod has none.`,
         ]
       ),
       twoScalers,
+      maintenance,
       diagram(
         'k8s-4-2-f',
         'Two autoscalers',

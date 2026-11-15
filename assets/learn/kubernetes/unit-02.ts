@@ -13,17 +13,19 @@ import {
   unit,
 } from '@/lib/learn/dsl';
 import { badGateway, ingressFlow, serviceStable } from './scenes-02';
+import { serviceAnatomy, nameLookup, ingressYaml } from './cards-02';
 
 export const unit2 = unit({
   id: 'k8s-u2',
   title: 'Traffic in',
   blurb:
-    'Checkout runs, but nobody can reach it. Give it a stable address, put it behind a front door with TLS, and learn to debug the classic 502.',
+    'Checkout runs, but nobody can reach it. Give it a stable address, put it behind a front door with TLS, and learn to debug the classic 503 and 502.',
   icon: 'gate',
   badge: { id: 'badge-traffic-in', title: 'Front door' },
   lessons: [
     lesson('k8s-2-1', 'Services: a stable address', [
       serviceStable,
+      serviceAnatomy,
       fill(
         'k8s-2-1-b',
         'Give checkout a Service',
@@ -53,6 +55,7 @@ spec:
         },
         ['LoadBalancer', 'NodePort', 'cart', '80']
       ),
+      nameLookup,
       order(
         'k8s-2-1-c',
         'How cart finds checkout',
@@ -120,8 +123,9 @@ The Service selects app=checkout-api, the pods carry app=checkout.`,
       ),
     ]),
 
-    lesson('k8s-2-2', 'Ingress, TLS and the 502', [
+    lesson('k8s-2-2', 'Ingress, TLS and 5xx errors', [
       ingressFlow,
+      ingressYaml,
       diagram(
         'k8s-2-2-b',
         'Draw the front door',
@@ -221,7 +225,7 @@ spec:
       badGateway,
       order(
         'k8s-2-2-e',
-        'Debugging a 502',
+        'Debugging a 5xx from the ingress',
         'Order the checks from the outside in, the way you would on call.',
         [
           'Reproduce it: curl the public URL and note the status code',
@@ -230,7 +234,7 @@ spec:
           'Pods: are they Ready and do their labels match the selector?',
           'App: read the container logs',
         ],
-        'Walk the request path outermost to innermost. Each layer you prove healthy narrows the search, and a 502 from the ingress almost always means the upstream (Service or pods) is the problem.'
+        'Walk the request path outermost to innermost. Each layer you prove healthy narrows the search, and a 502 or 503 from the ingress almost always means the upstream (Service or pods) is the problem.'
       ),
     ]),
 
@@ -275,12 +279,12 @@ readiness probe: none`,
         ),
         triage(
           'k8s-2-3-c',
-          'Checkout returns 502',
-          'Black Friday, 09:02. Customers see 502 Bad Gateway from shop.example.com/checkout.',
+          'Checkout returns 503',
+          'Black Friday, 09:02. Customers see 503 Service Temporarily Unavailable from shop.example.com/checkout.',
           3,
           {
             start: {
-              output: '$ curl -I https://shop.example.com/checkout\nHTTP/2 502\nserver: nginx',
+              output: '$ curl -I https://shop.example.com/checkout\nHTTP/2 503\nserver: nginx',
               question: 'Where do you look first?',
               choices: [
                 choice(
@@ -308,7 +312,7 @@ readiness probe: none`,
             },
             edgerestart: {
               output:
-                'Ingress controller pods restarted. Still 502: the upstream is the problem, not the edge.',
+                'Ingress controller pods restarted. Still 503: the upstream is the problem, not the edge.',
               question: 'Same error. Next?',
               choices: [
                 choice(
@@ -353,9 +357,9 @@ readiness probe: none`,
               question: 'No endpoints. What next?',
               choices: [
                 choice(
-                  'kubectl get pods -l app=checkout -n shop',
-                  'Are the pods Ready?',
-                  'notready',
+                  'kubectl describe svc checkout -n shop',
+                  'What does the Service select?',
+                  'selector',
                   true,
                   1
                 ),
@@ -370,13 +374,13 @@ readiness probe: none`,
             },
             scaled: {
               output:
-                '10 pods requested. They all start, and none become Ready. More of a broken thing is still broken.',
-              question: 'Look at why they are not Ready.',
+                '10 pods requested. They all start and become Ready, but the Service still has no endpoints. More pods do not fix a selector.',
+              question: 'Look at what the Service selects.',
               choices: [
                 choice(
-                  'kubectl get pods -l app=checkout -n shop',
-                  'Inspect the pods',
-                  'notready',
+                  'kubectl describe svc checkout -n shop',
+                  'Inspect the Service',
+                  'selector',
                   true,
                   1
                 ),
@@ -389,18 +393,18 @@ readiness probe: none`,
                 ),
               ],
             },
-            notready: {
-              output: `NAME                       READY   STATUS    RESTARTS   AGE
-checkout-6c9d7b8f5-2lqvx   0/1     Running   0          5m
-checkout-6c9d7b8f5-9fz4k   0/1     Running   0          5m
+            selector: {
+              output: `Name:       checkout
+Selector:   app=checkout-api
+Type:       ClusterIP
+Endpoints:  <none>
 
-Readiness probe failed: HTTP probe failed with statuscode: 404 (GET /readyz)`,
-              question:
-                'Probes hit /readyz, the app serves /ready. How do you restore service fastest?',
+The pods carry app=checkout. The selector has a typo.`,
+              question: 'The Service selector is wrong. How do you restore service fastest?',
               choices: [
                 choice(
-                  'kubectl rollout undo deployment/checkout -n shop',
-                  'Roll back the bad probe path',
+                  'kubectl apply -f service.yaml',
+                  'Re-apply the correct Service from git',
                   'fixed',
                   true,
                   1
@@ -408,22 +412,21 @@ Readiness probe failed: HTTP probe failed with statuscode: 404 (GET /readyz)`,
                 choice(
                   'kubectl delete pod -l app=checkout -n shop',
                   'Delete the pods',
-                  'notready',
+                  'selector',
                   false,
                   3
                 ),
               ],
             },
             fixed: {
-              output: `deployment.apps/checkout rolled back
-checkout-5f7b8c9d4-hq2lw   1/1   Running
+              output: `service/checkout configured
 Endpoints: 10.244.1.7:8080,10.244.2.4:8080`,
               end: {
                 rootCause:
-                  'A release changed the readiness path to /readyz. Pods never became Ready, the Service had no endpoints and the ingress returned 502.',
-                fix: 'Roll back to the last good revision, then fix the probe path in git and redeploy through the pipeline.',
+                  'A release shipped the Service with the selector app=checkout-api (a typo). No pod matched, so the Service had no endpoints and the ingress returned 503.',
+                fix: 'Re-apply the correct Service from git, and review any selector change in the pull request.',
                 lesson:
-                  'A 502 from the ingress points at the upstream. Walk Service, endpoints and pod readiness before touching the edge.',
+                  'A 503 from the ingress means it has nothing to send to. A 502 means a pod was reached but the connection failed. Either way, walk Service, endpoints, selector and readiness before touching the edge.',
               },
             },
           }

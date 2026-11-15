@@ -45,6 +45,14 @@ export const rbac = scene(
     }),
     sTag('api', { x: 266, y: 112, w: 64, h: 26, label: 'API' }),
     sTag('res', { x: 30, y: 218, w: 280, h: 30, label: '', tone: 'ok' }),
+    sTag('adm', {
+      x: 60,
+      y: 258,
+      w: 220,
+      h: 28,
+      label: 'cluster-admin: never on a pod',
+      tone: 'danger',
+    }),
   ],
   [
     beat(
@@ -84,13 +92,13 @@ export const rbac = scene(
     }),
     beat(
       'Bind pods to **small, specific roles**. Never bind cluster-admin to a ServiceAccount a pod uses.',
-      undefined,
+      show('adm'),
       {
         title: 'Keep roles small',
       }
     ),
   ],
-  264
+  296
 );
 
 // ---------------------------------------------------------------------------------------------

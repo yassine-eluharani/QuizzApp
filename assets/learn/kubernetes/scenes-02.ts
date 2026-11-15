@@ -35,9 +35,9 @@ export const serviceStable = scene(
       tone: 'ok',
     }),
     ...[0, 1, 2].map((i) =>
-      sArrow(`f${i}`, { x: 51 + i * 114, y: 122, w: 10, h: 60, dir: 'down' })
+      sArrow(`f${i}`, { x: 55 + i * 110, y: 122, w: 10, h: 60, dir: 'down' })
     ),
-    ...[0, 1, 2].flatMap((i) => tagged(`p${i}`, 18 + i * 114, 190, ips[i])),
+    ...[0, 1, 2].flatMap((i) => tagged(`p${i}`, 10 + i * 110, 190, ips[i])),
   ],
   [
     beat(
@@ -47,7 +47,7 @@ export const serviceStable = scene(
     ),
     beat(
       'A **Service** is a stable name and IP in front of a set of pods. Callers use it, and it spreads requests across the pods behind it.',
-      all(show('svc', 'f0', 'f1', 'f2'), { svc: { tone: 'accent' } }),
+      all(show('svc', 'svcip', 'f0', 'f1', 'f2'), { svc: { tone: 'accent' } }),
       { title: 'A stable front' }
     ),
     beat('Replace a pod and watch what the caller sees.', undefined, {
@@ -94,6 +94,15 @@ export const ingressFlow = scene(
     sBox('ing', { x: 20, y: 74, w: 300, h: 72, label: 'INGRESS CONTROLLER' }),
     sTag('r1', { parent: 'ing', x: 10, y: 34, w: 136, h: 26, label: '/checkout → checkout' }),
     sTag('r2', { parent: 'ing', x: 154, y: 34, w: 136, h: 26, label: '/cart → cart' }),
+    sTag('tls', {
+      parent: 'ing',
+      x: 164,
+      y: 6,
+      w: 128,
+      h: 22,
+      label: 'TLS · cert-manager',
+      tone: 'ok',
+    }),
     sArrow('a2', { x: 90, y: 150, w: 10, h: 34, dir: 'down' }),
     sArrow('a3', { x: 240, y: 150, w: 10, h: 34, dir: 'down' }),
     sTag('s1', { x: 40, y: 188, w: 120, h: 28, label: 'Service checkout' }),
@@ -102,7 +111,7 @@ export const ingressFlow = scene(
     sArrow('a5', { x: 240, y: 220, w: 10, h: 26, dir: 'down' }),
     ...mini('c1', 67, 250),
     ...mini('c2', 217, 250),
-    sDot('pk', { x: 94, y: 22, w: 10, h: 10, color: 'teal' }),
+    sDot('pk', { x: 192, y: 21, w: 10, h: 10, color: 'teal' }),
   ],
   [
     beat(
@@ -134,48 +143,48 @@ export const ingressFlow = scene(
           press('Request /checkout', [
             frame(
               0,
-              { pk: { opacity: 1, x: 190, y: 22 } },
+              { pk: { opacity: 1, x: 192, y: 21 } },
               'The request reaches the **load balancer**.'
             ),
             frame(
               900,
-              { pk: { x: 186, y: 94 }, r1: { tone: 'accent' } },
+              { pk: { x: 93, y: 116 }, r1: { tone: 'accent' } },
               'The ingress matches the **/checkout** rule.'
             ),
             frame(
               1800,
-              { pk: { x: 94, y: 196 }, r1: { tone: 'normal' }, s1: { tone: 'accent' } },
+              { pk: { x: 95, y: 197 }, r1: { tone: 'normal' }, s1: { tone: 'accent' } },
               'It goes to **Service checkout**.'
             ),
             frame(
               2700,
-              { pk: { x: 94, y: 268 }, s1: { tone: 'normal' }, c1: { tone: 'ok' } },
+              { pk: { x: 90, y: 272 }, s1: { tone: 'normal' }, c1: { tone: 'ok' } },
               'And lands on a ready checkout pod.'
             ),
-            frame(3700, { pk: { opacity: 0 }, c1: { tone: 'accent' } }),
+            frame(3700, { pk: { opacity: 0 } }),
           ]),
           press('Request /cart', [
             frame(
               0,
-              { pk: { opacity: 1, x: 190, y: 22 } },
+              { pk: { opacity: 1, x: 192, y: 21 } },
               'The request reaches the **load balancer**.'
             ),
             frame(
               900,
-              { pk: { x: 186, y: 94 }, r2: { tone: 'accent' } },
+              { pk: { x: 237, y: 116 }, r2: { tone: 'accent' } },
               'The ingress matches the **/cart** rule.'
             ),
             frame(
               1800,
-              { pk: { x: 244, y: 196 }, r2: { tone: 'normal' }, s2: { tone: 'accent' } },
+              { pk: { x: 235, y: 197 }, r2: { tone: 'normal' }, s2: { tone: 'accent' } },
               'It goes to **Service cart**.'
             ),
             frame(
               2700,
-              { pk: { x: 244, y: 268 }, s2: { tone: 'normal' }, c2: { tone: 'ok' } },
+              { pk: { x: 240, y: 272 }, s2: { tone: 'normal' }, c2: { tone: 'ok' } },
               'And lands on a ready cart pod.'
             ),
-            frame(3700, { pk: { opacity: 0 }, c2: { tone: 'accent' } }),
+            frame(3700, { pk: { opacity: 0 } }),
           ]),
         ],
         'all'
@@ -183,7 +192,7 @@ export const ingressFlow = scene(
     }),
     beat(
       'TLS is terminated here too: **cert-manager** can request and renew the certificate for you. Without a controller installed, an Ingress object does nothing.',
-      undefined,
+      all(show('tls'), { a0: { tone: 'ok' } }),
       { title: 'Certificates live at the door' }
     ),
   ],
@@ -193,16 +202,16 @@ export const ingressFlow = scene(
 // ---------------------------------------------------------------------------------------------
 export const badGateway = scene(
   'k8s-2-2-s2',
-  'Why a 502?',
+  'Why a 503?',
   [
-    sTag('ing', { x: 110, y: 10, w: 120, h: 28, label: 'ingress', tone: 'accent' }),
-    sTag('res', { x: 230, y: 10, w: 100, h: 28, label: '200 OK', tone: 'ok' }),
-    sArrow('a1', { x: 165, y: 40, w: 10, h: 24, dir: 'down' }),
+    sTag('ing', { x: 70, y: 10, w: 100, h: 28, label: 'ingress', tone: 'accent' }),
+    sTag('res', { x: 190, y: 10, w: 140, h: 28, label: '200 OK', tone: 'ok' }),
+    sArrow('a1', { x: 115, y: 40, w: 10, h: 24, dir: 'down' }),
     sTag('svc', { x: 50, y: 68, w: 240, h: 28, label: 'Service · selector app=checkout' }),
     sTag('ep', { x: 90, y: 112, w: 160, h: 24, label: 'endpoints: 2 pods', tone: 'ok' }),
     sArrow('a2', { x: 165, y: 140, w: 10, h: 26, dir: 'down' }),
-    ...tagged('b1', 60, 174, 'app=checkout'),
-    ...tagged('b2', 200, 174, 'app=checkout'),
+    ...tagged('b1', 50, 174, 'app=checkout'),
+    ...tagged('b2', 190, 174, 'app=checkout'),
   ],
   [
     beat(
@@ -225,16 +234,14 @@ export const badGateway = scene(
               1000,
               {
                 ep: { label: 'endpoints: none', tone: 'danger' },
-                b1: { tone: 'dim' },
-                b2: { tone: 'dim' },
                 a2: { tone: 'danger' },
               },
               'No pod matches, so the Service has **no endpoints**.'
             ),
             frame(
               2000,
-              { res: { label: '502 Bad Gateway', tone: 'danger' }, ing: { tone: 'danger' } },
-              'The ingress has nowhere to send the request: **502**. The pods themselves are perfectly healthy.'
+              { res: { label: '503 Unavailable', tone: 'danger' }, ing: { tone: 'danger' } },
+              'The ingress has nowhere to send the request: **503**. The pods themselves are perfectly healthy.'
             ),
           ]),
           press('Fix the selector', [
@@ -253,7 +260,7 @@ export const badGateway = scene(
                 res: { label: '200 OK', tone: 'ok' },
                 ing: { tone: 'accent' },
               },
-              'Endpoints return and requests flow again. A 502 usually means: look **downstream** of the ingress.'
+              'Endpoints return and requests flow again. **503**: nothing to send to. **502**: a pod was reached but the connection failed. Either way, look **downstream** of the ingress.'
             ),
           ]),
         ],

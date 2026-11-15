@@ -13,6 +13,7 @@ export interface ResolvedState {
   tone: Tone;
   label?: string;
   hl: number[];
+  lines?: string[];
   fill: number;
 }
 
@@ -30,6 +31,7 @@ function baseState(a: SceneActor): ResolvedState {
     tone: a.tone ?? 'normal',
     label: a.label,
     hl: [],
+    lines: a.lines,
     fill: 0,
   };
 }

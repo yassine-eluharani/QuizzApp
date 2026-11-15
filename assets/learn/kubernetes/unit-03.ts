@@ -1,5 +1,6 @@
 import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
 import { configEnv, rotation, secretEncoded } from './scenes-03';
+import { wiringConfig, externalSecrets, rotationTraps } from './cards-03';
 
 export const unit3 = unit({
   id: 'k8s-u3',
@@ -11,6 +12,7 @@ export const unit3 = unit({
   lessons: [
     lesson('k8s-3-1', 'ConfigMaps and Secrets', [
       configEnv,
+      wiringConfig,
       fill(
         'k8s-3-1-b',
         'Wire a ConfigMap in',
@@ -113,11 +115,12 @@ type: Opaque`
 
     lesson('k8s-3-2', 'External secrets and rotation', [
       rotation,
+      externalSecrets,
       fill(
         'k8s-3-2-b',
         'Sync a secret in',
         'Pull the Stripe key from Azure Key Vault into the shop namespace.',
-        `apiVersion: external-secrets.io/v1beta1
+        `apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: stripe-key
@@ -163,6 +166,7 @@ spec:
         ],
         'Overlap is the whole trick: both keys are valid while the change propagates. Revoking the old key first takes payments down for as long as the sync takes.'
       ),
+      rotationTraps,
       spot(
         'k8s-3-2-d',
         'Review the rotation script',
@@ -232,8 +236,8 @@ env:
         triage(
           'k8s-3-3-c',
           'Pod will not start',
-          'After a deploy, the new checkout pods show CreateContainerConfigError. Payments are down.',
-          4,
+          'After a deploy, the new checkout pods show CreateContainerConfigError and the rollout is stuck.',
+          3,
           {
             start: {
               output: `NAME                        READY   STATUS                       RESTARTS

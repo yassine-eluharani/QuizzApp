@@ -19,6 +19,7 @@ import {
   tap,
 } from '@/lib/learn/sceneDsl';
 import type { SceneActor } from '@/lib/learn/types';
+import { kubectlBasics } from './cards-00';
 
 /** A pod with an app container and a log container. Children are sCtr actors named <id>a / <id>b. */
 const pod = (id: string, parent: string | undefined, x: number, y: number): SceneActor[] => [
@@ -41,7 +42,9 @@ const dockerToCluster = scene(
     ...pod('p1', 'nA', 11, 36),
     ...pod('p2', 'nB', 11, 36),
     ...pod('p3', 'nC', 11, 36),
-    ...pod('pn', undefined, 0, 0),
+    ...pod('n1', undefined, 243, 160),
+    ...pod('n2', undefined, 23, 160),
+    ...pod('n3', undefined, 133, 160),
     sTag('tag', {
       x: 60,
       y: 8,
@@ -54,7 +57,7 @@ const dockerToCluster = scene(
   [
     beat(
       'With Docker you run **containers** on one machine. You already know this part.',
-      show('machine'),
+      all(show('machine'), hide('p1', 'p2', 'p3')),
       {
         title: 'From Docker to a cluster',
       }
@@ -84,15 +87,15 @@ const dockerToCluster = scene(
       all(show('p2', 'p3', 'tag'), { p1: { label: '' } }),
       { title: 'Say what you want' }
     ),
-    beat('Tap any pod to kill it, like a crashed process or a dead node.', undefined, {
+    beat('Tap any pod to kill it, like a dead node or an evicted pod.', undefined, {
       title: 'Now break it',
       poke: poke(
         'Tap a pod to break it',
         [
-          ['p1', 243, 160],
-          ['p2', 23, 160],
-          ['p3', 133, 160],
-        ].map(([id, x, y]) =>
+          ['p1', 'n1'],
+          ['p2', 'n2'],
+          ['p3', 'n3'],
+        ].map(([id, next]) =>
           tap(id as string, [
             frame(
               0,
@@ -104,7 +107,10 @@ const dockerToCluster = scene(
             ),
             frame(
               1000,
-              { pn: { x: x as number, y: y as number, opacity: 1 } },
+              {
+                [id as string]: { opacity: 0 },
+                [next as string]: { opacity: 1 },
+              },
               'It **starts a replacement** on another node.'
             ),
             frame(
@@ -169,7 +175,7 @@ const insideAPod = scene(
             1100,
             {
               pd: { tone: 'accent', opacity: 1, scale: 1 },
-              ip: { tone: 'ok', label: 'new pod IP 10.244.2.9' },
+              ip: { tone: 'ok', label: 'new pod IP 10.244.1.12' },
             },
             'It came back with a **new IP**. Never rely on a pod’s IP. That is why Services exist, later in this course.'
           ),
@@ -183,18 +189,18 @@ const controlPlane = scene(
   'k8s-0-2-a',
   'Inside the cluster',
   [
-    sUser('you', { x: 140, y: 6, w: 60, h: 28, label: 'kubectl', color: 'paper' }),
-    sArrow('yArrow', { x: 165, y: 34, w: 10, h: 22, dir: 'down' }),
-    sBox('cp', { x: 10, y: 58, w: 320, h: 118, label: 'CONTROL PLANE' }),
-    sBox('api', { parent: 'cp', x: 8, y: 30, w: 68, h: 76, label: 'API SERVER' }),
-    sBox('etcd', { parent: 'cp', x: 82, y: 30, w: 52, h: 76, label: 'ETCD' }),
-    sBox('sch', { parent: 'cp', x: 140, y: 30, w: 80, h: 76, label: 'SCHEDULER' }),
-    sBox('ctl', { parent: 'cp', x: 226, y: 30, w: 88, h: 76, label: 'CONTROLLERS' }),
-    sBox('nA', { x: 10, y: 196, w: 155, h: 134, label: 'NODE 1' }),
+    sUser('you', { x: 262, y: 6, w: 60, h: 28, label: 'kubectl', color: 'paper' }),
+    sArrow('yArrow', { x: 287, y: 34, w: 10, h: 54, dir: 'down' }),
+    sBox('cp', { x: 10, y: 58, w: 320, h: 104, label: 'CONTROL PLANE' }),
+    sBox('etcd', { parent: 'cp', x: 6, y: 30, w: 50, h: 60, label: 'ETCD' }),
+    sBox('sch', { parent: 'cp', x: 60, y: 30, w: 82, h: 60, label: 'SCHEDULER' }),
+    sBox('ctl', { parent: 'cp', x: 146, y: 30, w: 94, h: 60, label: 'CONTROLLERS' }),
+    sBox('api', { parent: 'cp', x: 244, y: 30, w: 68, h: 60, label: 'API SERVER' }),
+    sBox('nA', { x: 10, y: 182, w: 155, h: 134, label: 'NODE 1' }),
     sBox('klA', { parent: 'nA', x: 10, y: 28, w: 135, h: 28, label: 'KUBELET' }),
     sBox('rtA', { parent: 'nA', x: 10, y: 60, w: 135, h: 28, label: 'CONTAINER RUNTIME' }),
     sPod('poA', { parent: 'nA', x: 10, y: 94, w: 70, h: 32, label: 'POD', tone: 'accent' }),
-    sBox('nB', { x: 175, y: 196, w: 155, h: 134, label: 'NODE 2' }),
+    sBox('nB', { x: 175, y: 182, w: 155, h: 134, label: 'NODE 2' }),
     sBox('klB', { parent: 'nB', x: 10, y: 28, w: 135, h: 28, label: 'KUBELET' }),
     sBox('rtB', { parent: 'nB', x: 10, y: 60, w: 135, h: 28, label: 'CONTAINER RUNTIME' }),
     sPod('poB', { parent: 'nB', x: 10, y: 94, w: 70, h: 32, label: 'POD', tone: 'accent' }),
@@ -250,12 +256,58 @@ const controlPlane = scene(
       }
     ),
     beat(
-      'That is the whole model: **you declare**, the control plane **decides**, and the kubelets **do**.',
-      { you: { tone: 'accent' }, yArrow: { tone: 'accent' } },
-      { title: 'Declare, decide, do' }
+      'Press the button and follow one declaration through the cluster.',
+      {
+        you: { tone: 'normal' },
+        yArrow: { tone: 'normal' },
+        api: { tone: 'normal' },
+        etcd: { tone: 'normal' },
+        sch: { tone: 'normal' },
+        ctl: { tone: 'normal' },
+        klA: { tone: 'normal' },
+        klB: { tone: 'normal' },
+      },
+      {
+        title: 'Declare, decide, do',
+        poke: poke('Press the button', [
+          press('Declare 3 pods', [
+            frame(
+              0,
+              { you: { tone: 'accent' }, yArrow: { tone: 'accent' }, api: { tone: 'accent' } },
+              '**You declare** through the API server.'
+            ),
+            frame(
+              1400,
+              { api: { tone: 'ok' }, etcd: { tone: 'accent' } },
+              'The API server stores it in **etcd**.'
+            ),
+            frame(
+              2800,
+              { etcd: { tone: 'ok' }, ctl: { tone: 'accent' } },
+              '**Controllers** notice the gap and create the pods.'
+            ),
+            frame(
+              4200,
+              { ctl: { tone: 'ok' }, sch: { tone: 'accent' } },
+              'The **scheduler** picks a node for each pod.'
+            ),
+            frame(
+              5600,
+              {
+                sch: { tone: 'ok' },
+                klA: { tone: 'accent' },
+                klB: { tone: 'accent' },
+                poA: { tone: 'ok' },
+                poB: { tone: 'ok' },
+              },
+              'The **kubelet** on each node starts the containers. You declared, the rest was automatic.'
+            ),
+          ]),
+        ]),
+      }
     ),
   ],
-  340
+  326
 );
 
 const reconcile = scene(
@@ -381,13 +433,12 @@ export const unit0 = unit({
       insideAPod,
       order(
         'k8s-0-1-c',
-        'When a node dies',
+        'When a pod dies',
         'You just watched it. Now put it in order.',
         [
-          'A node stops responding',
-          'Kubernetes marks its pods as lost',
-          'The Deployment sees fewer pods than you declared',
-          'New pods are started on healthy nodes',
+          'A pod stops working (or its whole node does)',
+          'Kubernetes sees fewer pods running than you declared',
+          'A replacement is started on a healthy node',
           'The count matches what you declared again',
         ],
         'Nobody restarts anything by hand. A controller compares what is running with what you declared and closes the gap.'
@@ -409,6 +460,7 @@ export const unit0 = unit({
     lesson('k8s-0-2', 'Inside the cluster', [
       controlPlane,
       reconcile,
+      kubectlBasics,
       diagram(
         'k8s-0-2-c',
         'Label the control plane',

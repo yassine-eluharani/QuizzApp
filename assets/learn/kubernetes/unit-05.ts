@@ -13,6 +13,7 @@ import {
   unit,
 } from '@/lib/learn/dsl';
 import { stateful, volumes } from './scenes-05';
+import { readingClaim, backups, restoring } from './cards-05';
 
 export const unit5 = unit({
   id: 'k8s-u5',
@@ -33,10 +34,11 @@ export const unit5 = unit({
           'The claim names a StorageClass',
           'The provisioner creates a disk and a PersistentVolume',
           'The PV binds to the claim',
-          'The kubelet attaches and mounts the volume into the pod',
+          'The volume is attached to the node and the kubelet mounts it into the pod',
         ],
         'The claim is a request, the StorageClass says how to fulfil it, and the provisioner does the work. The pod only ever sees the mounted path.'
       ),
+      readingClaim,
       fill(
         'k8s-5-1-c',
         'Claim 20 GiB',
@@ -58,7 +60,7 @@ spec:
             'The disk attaches to one node at a time, which is what block storage supports.',
           ],
           sc: ['fast-ssd', 'Names the class that provisions an SSD-backed disk on demand.'],
-          size: ['20Gi', 'Units are required. A bare 20 is not valid storage syntax.'],
+          size: ['20Gi', 'Always write the unit. A bare 20 would mean 20 bytes, not 20 GiB.'],
         },
         ['ReadWriteMany', 'default', '20']
       ),
@@ -152,9 +154,10 @@ spec:
             claimName: pg-data`,
         {
           0: 'A Deployment gives pods no stable identity or per-pod storage. A database needs a StatefulSet (or an operator).',
-          2: 'Three replicas pointing at one ReadWriteOnce claim cannot all mount it, and three writers on one data directory would corrupt it.',
+          2: 'A ReadWriteOnce claim can be mounted from one node only, so replicas on other nodes cannot attach it, and three writers on one data directory would corrupt it.',
         }
       ),
+      backups,
       fill(
         'k8s-5-2-d',
         'Snapshot the orders database',
@@ -197,6 +200,7 @@ snapshot: crash-consistent only`,
           5: 'A crash-consistent snapshot of a busy database may need recovery or fail. Add application-aware backups (WAL archiving, pg_dump).',
         }
       ),
+      restoring,
       order(
         'k8s-5-2-f',
         'Restore after data loss',

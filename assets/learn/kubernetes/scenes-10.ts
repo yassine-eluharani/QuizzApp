@@ -110,8 +110,8 @@ export const dnsDown = scene(
     svc('s1', 125, 'cart'),
     svc('s2', 235, 'payments'),
     ...[0, 1, 2].map((i) => sArrow(`d${i}`, { x: 55 + i * 110, y: 48, w: 10, h: 50, dir: 'down' })),
-    sBox('dns', { x: 115, y: 102, w: 110, h: 80, label: 'CoreDNS' }),
-    sBar('db', { parent: 'dns', x: 10, y: 40, w: 90, h: 12 }),
+    sBox('dns', { x: 30, y: 102, w: 280, h: 80, label: 'CoreDNS · 2 pods' }),
+    sBar('db', { parent: 'dns', x: 90, y: 40, w: 100, h: 12 }),
     sTag('res', { x: 30, y: 200, w: 280, h: 28, label: 'all lookups succeed', tone: 'ok' }),
   ],
   [
@@ -152,7 +152,7 @@ export const dnsDown = scene(
               0,
               {
                 db: { fill: 0.3, tone: 'ok' },
-                dns: { tone: 'normal' },
+                dns: { tone: 'normal', label: 'CoreDNS · 6 pods' },
                 s0: { label: 'checkout', tone: 'normal' },
                 s1: { label: 'cart', tone: 'normal' },
                 s2: { label: 'payments', tone: 'normal' },

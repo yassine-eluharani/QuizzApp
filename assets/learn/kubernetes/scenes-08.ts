@@ -19,19 +19,19 @@ export const metrics = scene(
   'k8s-8-1-s1',
   'Metrics, dashboards and alerts',
   [
-    ...mini('m1', 10, 20),
-    ...mini('m2', 10, 100),
-    sTag('mt1', { x: 70, y: 38, w: 70, h: 20, label: '/metrics' }),
-    sTag('mt2', { x: 70, y: 118, w: 70, h: 20, label: '/metrics' }),
-    sBox('prom', { x: 150, y: 20, w: 90, h: 120, label: 'PROMETHEUS' }),
+    ...mini('m1', 6, 20),
+    ...mini('m2', 6, 100),
+    sTag('mt1', { x: 66, y: 38, w: 62, h: 20, label: '/metrics' }),
+    sTag('mt2', { x: 66, y: 118, w: 62, h: 20, label: '/metrics' }),
+    sBox('prom', { x: 136, y: 20, w: 90, h: 120, label: 'PROMETHEUS' }),
     sBar('err', { parent: 'prom', x: 10, y: 56, w: 70, h: 12 }),
     sText('errt', { parent: 'prom', x: 10, y: 74, w: 70, label: 'error rate', fontSize: 8.5 }),
-    sArrow('ar1', { x: 142, y: 40, w: 8, h: 12, dir: 'right' }),
-    sTag('graf', { x: 256, y: 20, w: 78, h: 26, label: 'Grafana' }),
-    sTag('am', { x: 256, y: 96, w: 78, h: 26, label: 'Alertmanager' }),
-    sArrow('ar2', { x: 244, y: 28, w: 10, h: 12, dir: 'right' }),
-    sArrow('ar3', { x: 244, y: 104, w: 10, h: 12, dir: 'right' }),
-    sArrow('ar4', { x: 290, y: 124, w: 10, h: 44, dir: 'down' }),
+    sArrow('ar1', { x: 128, y: 40, w: 8, h: 12, dir: 'right' }),
+    sTag('graf', { x: 240, y: 20, w: 94, h: 26, label: 'Grafana' }),
+    sTag('am', { x: 240, y: 96, w: 94, h: 26, label: 'Alertmanager' }),
+    sArrow('ar2', { x: 228, y: 27, w: 10, h: 12, dir: 'right' }),
+    sArrow('ar3', { x: 228, y: 103, w: 10, h: 12, dir: 'right' }),
+    sArrow('ar4', { x: 282, y: 124, w: 10, h: 44, dir: 'down' }),
     sTag('page', { x: 226, y: 172, w: 108, h: 28, label: 'on-call phone', tone: 'dim' }),
   ],
   [
@@ -55,7 +55,7 @@ export const metrics = scene(
           ),
           frame(
             2600,
-            { am: { tone: 'accent', label: 'alert firing' } },
+            { am: { tone: 'danger' } },
             '**Alertmanager** groups it with related alerts and routes it.'
           ),
           frame(
@@ -114,9 +114,9 @@ export const slo = scene(
               {
                 bud: { fill: 0.4, tone: 'danger' },
                 burn: { label: 'burn rate: 14x', tone: 'danger' },
-                pg: { label: 'PAGE: budget gone in about 2 hours', tone: 'danger' },
+                pg: { label: 'PAGE: budget gone in about 2 days', tone: 'danger' },
               },
-              'At this speed the month’s budget is gone in hours. **Page.** That is the alert users care about.'
+              'At this speed the whole month’s budget is gone in about two days. **Page.** That is the alert users care about.'
             ),
           ]),
         ],
@@ -151,27 +151,32 @@ export const trace = scene(
         tone: i === 4 ? 'danger' : i === 3 ? 'warn' : 'normal',
       })
     ),
+    sText('d0', { x: 110, y: 23, w: 100, label: '4.2 s total', fontSize: 10 }),
+    sText('d1', { x: 118, y: 53, w: 60, label: '12 ms', fontSize: 10 }),
+    sText('d2', { x: 142, y: 83, w: 60, label: '40 ms', fontSize: 10 }),
+    sText('d3', { x: 148, y: 113, w: 60, label: '4.0 s', fontSize: 10 }),
+    sText('d4', { x: 152, y: 143, w: 60, label: '3.9 s', fontSize: 10 }),
   ],
   [
     beat(
       'A **trace** follows one request across services. Each bar is a **span**: the longer the bar, the slower the step.',
-      show('tl0', 'tl1', 'tl2', 'tl3', 'tl4', 't0'),
+      show('tl0', 'tl1', 'tl2', 'tl3', 'tl4', 't0', 'd0'),
       { title: 'One request, many services' }
     ),
     beat('Latency is high. Open a slow trace.', undefined, {
       title: 'Find the slow step',
       poke: poke('Press the button', [
         press('Open the slow trace', [
-          frame(0, { t1: { opacity: 1 } }, '**cart** answers in 12 ms.'),
-          frame(900, { t2: { opacity: 1 } }, '**catalog** takes 40 ms.'),
+          frame(0, { t1: { opacity: 1 }, d1: { opacity: 1 } }, '**cart** answers in 12 ms.'),
+          frame(900, { t2: { opacity: 1 }, d2: { opacity: 1 } }, '**catalog** takes 40 ms.'),
           frame(
             1800,
-            { t3: { opacity: 1 } },
+            { t3: { opacity: 1 }, d3: { opacity: 1 } },
             '**payments** takes 4.0 seconds. That is the slow part.'
           ),
           frame(
             2800,
-            { t4: { opacity: 1 } },
+            { t4: { opacity: 1 }, d4: { opacity: 1 } },
             'And almost all of it is **fraud-service** (3.9 s). Found in seconds, without guessing or restarting anything.'
           ),
         ]),

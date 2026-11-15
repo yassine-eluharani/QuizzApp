@@ -1,5 +1,6 @@
 import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
 import { anatomy, applyChain, labels, lifecycle, limits, probes, requests } from './scenes-01';
+import { shopCommands, standardLabels, podStatus, sizingNumbers, probeSettings } from './cards-01';
 
 export const unit1 = unit({
   id: 'k8s-u1',
@@ -97,6 +98,7 @@ spec:
           16: 'The latest tag is mutable. Two pods can run different code, and you cannot roll back to a known version.',
         }
       ),
+      shopCommands,
       terminal(
         'k8s-1-1-e',
         'Ship it',
@@ -132,6 +134,7 @@ checkout   3/3     3            3           24s`,
 
     lesson('k8s-1-2', 'Labels, selectors and pod states', [
       labels,
+      standardLabels,
       fill(
         'k8s-1-2-b',
         'Label it properly',
@@ -171,6 +174,7 @@ checkout   3/3     3            3           24s`,
         ],
         'Running does not mean ready. A pod only joins a Service once its readiness probe passes, which is why READY shows 0/1 for a pod that is Running.'
       ),
+      podStatus,
       spot(
         'k8s-1-2-d',
         'Which pods need you?',
@@ -229,6 +233,7 @@ The tag 1.4.22 does not exist. The deploy had a typo.`,
     lesson('k8s-1-3', 'Resources and health probes', [
       requests,
       limits,
+      sizingNumbers,
       fill(
         'k8s-1-3-b',
         'Size the container',
@@ -253,6 +258,7 @@ The tag 1.4.22 does not exist. The deploy had a typo.`,
         ['2000m', '64Gi', '1']
       ),
       probes,
+      probeSettings,
       fill(
         'k8s-1-3-c',
         'Wire up the probes',
@@ -375,23 +381,22 @@ spec:
       containers:
         - name: checkout
           image: shop/checkout:latest
-          env:
-            - name: STRIPE_SECRET_KEY
-              value: sk_live_51Mabc123
+          resources:
+            requests: { cpu: 250m }
           livenessProbe:
             httpGet: { path: /healthz, port: 8080 }
             initialDelaySeconds: 0`,
           {
             6: 'The latest tag is mutable and impossible to roll back to.',
-            9: 'A live payment secret in plain YAML ends up in git and in every kubectl get. Secrets come from a Secret or an external store (unit 3).',
-            12: 'No initial delay: a slow start gets killed and restarted in a loop.',
+            8: 'No memory request and no memory limit: the scheduler cannot place the pod properly, and a leak can eat the whole node.',
+            11: 'No initial delay: a slow start gets killed and restarted in a loop.',
           }
         ),
         triage(
           'k8s-1-4-c',
           'Launch stuck',
           'You applied the checkout Deployment 6 minutes ago. Zero pods are ready and the launch call is waiting.',
-          6,
+          3,
           {
             start: {
               output: `NAME                        READY   STATUS         RESTARTS   AGE
@@ -484,8 +489,8 @@ checkout-7c8d9f5b6-cj5vz    0/1     ErrImagePull   0          6m`,
             },
             podedit: {
               output:
-                'error: pods "checkout-7c8d9f5b6-2xqtl" is invalid: spec: Forbidden: pod updates may not change fields other than the image. The Deployment would recreate the pod anyway.',
-              question: 'Edit the owner, not the pod.',
+                'pod/checkout-7c8d9f5b6-2xqtl edited. That one pod runs 1.4.2 now, but the other two still fail, the Deployment template still has the typo, and the next pod it creates fails again.',
+              question: 'A hand-edit on one pod does not last. Edit the owner, not the pod.',
               choices: [
                 choice(
                   'kubectl set image deployment/checkout checkout=shop/checkout:1.4.2 -n shop',

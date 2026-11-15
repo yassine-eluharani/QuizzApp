@@ -53,7 +53,7 @@ export const qosEvict = scene(
           frame(
             2600,
             { mem: { fill: 0.78, tone: 'warn' }, qm: { tone: 'danger', opacity: 0.25 } },
-            '**Burstable** pods using more than they requested go next.'
+            '**Burstable** pods using more than they requested go next, then the rest of the Burstable pods.'
           ),
           frame(
             4000,

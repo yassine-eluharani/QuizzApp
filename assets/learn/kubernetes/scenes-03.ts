@@ -104,9 +104,13 @@ export const secretEncoded = scene(
     sTag('g3', { x: 228, y: 190, w: 92, h: 28, label: 'not in git', tone: 'ok' }),
   ],
   [
-    beat('A Secret looks safe, but its values are only **base64 encoded**.', show('sec', 'val'), {
-      title: 'A Secret',
-    }),
+    beat(
+      'A Secret looks safe, but its values are only **base64 encoded**. kubectl get secret NAME -o yaml prints them.',
+      show('sec', 'val'),
+      {
+        title: 'A Secret',
+      }
+    ),
     beat('Anyone who can read the object can reverse it. Try it.', undefined, {
       title: 'Decode it',
       poke: poke('Press the button', [

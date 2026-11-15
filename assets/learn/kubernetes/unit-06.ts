@@ -13,6 +13,7 @@ import {
   unit,
 } from '@/lib/learn/dsl';
 import { badRollout, canary, rolling } from './scenes-06';
+import { rolloutSettings, rolloutCommands, canarySteps } from './cards-06';
 
 export const unit6 = unit({
   id: 'k8s-u6',
@@ -24,6 +25,7 @@ export const unit6 = unit({
   lessons: [
     lesson('k8s-6-1', 'Rolling updates and rollbacks', [
       rolling,
+      rolloutSettings,
       fill(
         'k8s-6-1-b',
         'Tune the rollout',
@@ -80,6 +82,7 @@ containers:
           5: 'Without a readiness probe a pod counts as available the moment it starts, so traffic reaches cold or broken pods.',
         }
       ),
+      rolloutCommands,
       terminal(
         'k8s-6-1-e',
         'Roll out 1.5.0',
@@ -151,6 +154,7 @@ undo plan: kubectl rollout undo deployment/checkout`,
 
     lesson('k8s-6-2', 'Canary releases', [
       canary,
+      canarySteps,
       diagram(
         'k8s-6-2-b',
         'Split the traffic',
@@ -334,7 +338,7 @@ p99 latency  stable 380ms  canary 1.9s`,
             },
             killall: {
               output:
-                'All checkout pods deleted. The ReplicaSet recreates them from the new template, and every one crashes. Full outage.',
+                'All checkout pods were deleted at once. Until replacements start there is nothing serving: a self-inflicted outage, and the new version is still crashing.',
               question: 'You turned a stuck rollout into an outage. Recover.',
               choices: [
                 choice(

@@ -226,7 +226,7 @@ function ActorView({ actor, st, u, reduced, tappable, onPress, children }: Actor
       };
       body = (
         <View>
-          {(actor.lines ?? []).map((line, i) => (
+          {(st.lines ?? actor.lines ?? []).map((line, i) => (
             <Text
               key={i}
               style={[

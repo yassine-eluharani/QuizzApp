@@ -24,6 +24,12 @@ export const volumes = scene(
     sArrow('ar', { x: 245, y: 134, w: 10, h: 52, dir: 'down' }),
     sBox('disk', { x: 176, y: 190, w: 150, h: 80, label: 'PERSISTENT VOLUME' }),
     sTag('dataR', { parent: 'disk', x: 10, y: 36, w: 130, h: 28, label: 'orders.db', tone: 'ok' }),
+    sTag('claim', { x: 10, y: 136, w: 148, h: 26, label: 'PersistentVolumeClaim', tone: 'accent' }),
+    sArrow('k1', { x: 79, y: 164, w: 10, h: 12, dir: 'down' }),
+    sTag('sc', { x: 10, y: 178, w: 148, h: 26, label: 'StorageClass: fast-ssd' }),
+    sArrow('k2', { x: 79, y: 206, w: 10, h: 12, dir: 'down' }),
+    sTag('prov', { x: 10, y: 220, w: 148, h: 26, label: 'provisioner builds it' }),
+    sArrow('k3', { x: 160, y: 227, w: 14, h: 12, dir: 'right' }),
   ],
   [
     beat(
@@ -55,7 +61,7 @@ export const volumes = scene(
     }),
     beat(
       'You do not create volumes by hand. A pod asks with a **PersistentVolumeClaim**, a **StorageClass** says how, and a provisioner builds the disk. Check the reclaim policy: **Delete** removes the data with the claim.',
-      undefined,
+      show('claim', 'k1', 'sc', 'k2', 'prov', 'k3'),
       { title: 'Claims and classes' }
     ),
   ],
@@ -64,10 +70,10 @@ export const volumes = scene(
 
 // ---------------------------------------------------------------------------------------------
 const rp = (i: number) => [
-  sPod(`r${i}`, { x: 14 + i * 112, y: 56, w: 100, h: 78, label: `redis-${i}`, tone: 'accent' }),
+  sPod(`r${i}`, { x: 8 + i * 106, y: 56, w: 100, h: 78, label: `redis-${i}`, tone: 'accent' }),
   sCtr(`r${i}c`, { parent: `r${i}`, x: 29, y: 30, w: 42, h: 26, label: 'redis', color: 'orange' }),
-  sArrow(`ra${i}`, { x: 59 + i * 112, y: 138, w: 10, h: 48, dir: 'down' }),
-  sBox(`d${i}`, { x: 14 + i * 112, y: 190, w: 100, h: 54, label: `data-redis-${i}` }),
+  sArrow(`ra${i}`, { x: 53 + i * 106, y: 138, w: 10, h: 48, dir: 'down' }),
+  sBox(`d${i}`, { x: 8 + i * 106, y: 190, w: 100, h: 54, label: `data-redis-${i}` }),
 ];
 export const stateful = scene(
   'k8s-5-2-s1',

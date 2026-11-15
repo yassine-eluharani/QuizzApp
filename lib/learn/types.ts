@@ -161,6 +161,7 @@ export interface SceneState {
   tone?: Tone;
   label?: string;
   hl?: number[]; // code: highlighted line indexes
+  lines?: string[]; // code: replace the text (same line count keeps highlights valid)
   fill?: number; // bar: 0-1
 }
 

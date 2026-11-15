@@ -117,7 +117,7 @@ export const badRollout = scene(
             frame(
               0,
               { n0: { opacity: 0 }, st: { label: 'rolled back to 1.4.2', tone: 'ok' } },
-              '**kubectl rollout undo** removes the broken ReplicaSet. Back to a known good state in seconds.'
+              '**kubectl rollout undo** returns to the previous revision: the broken ReplicaSet scales to zero and the old one is the live one again. Back to a known good state in seconds.'
             ),
           ]),
         ],

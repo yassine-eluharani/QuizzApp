@@ -41,6 +41,7 @@ export const applyChain = scene(
       lines: ['kind: Deployment', 'replicas: 3', 'image: checkout'],
       fontSize: 8.5,
     }),
+    sArrow('aApi', { x: 80, y: 19, w: 70, h: 12, dir: 'right' }),
     sDot('pkt', { x: 80, y: 20, w: 10, h: 10, color: 'orange' }),
     sBox('api', { x: 156, y: 8, w: 88, h: 40, label: 'API SERVER' }),
     sBox('etcd', { x: 252, y: 8, w: 78, h: 40, label: 'ETCD' }),
@@ -50,14 +51,14 @@ export const applyChain = scene(
     sBox('nA', { x: 10, y: 196, w: 100, h: 126, label: 'NODE 1' }),
     sBox('nB', { x: 120, y: 196, w: 100, h: 126, label: 'NODE 2' }),
     sBox('nC', { x: 230, y: 196, w: 100, h: 126, label: 'NODE 3' }),
-    ...mini('r1', 52, 86),
-    ...mini('r2', 142, 86),
-    ...mini('r3', 232, 86),
+    ...mini('r1', 150, 88),
+    ...mini('r2', 208, 88),
+    ...mini('r3', 266, 88),
   ],
   [
     beat(
       'You describe what you want in a YAML file. Press the button and follow what happens.',
-      show('you', 'yaml', 'api', 'etcd', 'dep', 'rs', 'sch', 'nA', 'nB', 'nC'),
+      show('you', 'yaml', 'aApi', 'api', 'etcd', 'dep', 'rs', 'sch', 'nA', 'nB', 'nC'),
       {
         title: 'You write what you want',
         poke: poke('Press the button', [
@@ -119,7 +120,16 @@ export const applyChain = scene(
     ),
     beat(
       'Remember the chain: **API server → controller → ReplicaSet → pods → scheduler → kubelet**. You declared. Everything else was automatic.',
-      undefined,
+      all(
+        {
+          api: { tone: 'ok' },
+          etcd: { tone: 'ok' },
+          dep: { tone: 'ok' },
+          rs: { tone: 'ok' },
+          sch: { tone: 'ok' },
+        },
+        { you: { tone: 'ok' } }
+      ),
       { title: 'The chain, in order' }
     ),
   ],
@@ -128,9 +138,31 @@ export const applyChain = scene(
 
 // ---------------------------------------------------------------------------------------------
 const labPod = (id: string, y: number): SceneActor[] => [
-  sPod(id, { parent: 'res', x: 8, y, w: 84, h: 62, tone: 'accent' }),
-  sCtr(`${id}c`, { parent: id, x: 8, y: 7, w: 68, h: 22, label: '1.4.2', color: 'orange' }),
-  sTag(`${id}t`, { parent: id, x: 6, y: 38, w: 72, h: 18, label: 'app=checkout' }),
+  sPod(id, { parent: 'res', x: 6, y, w: 108, h: 62, tone: 'accent' }),
+  sCtr(`${id}c`, { parent: id, x: 8, y: 7, w: 92, h: 22, label: '1.4.2', color: 'orange' }),
+  sTag(`${id}t`, { parent: id, x: 6, y: 38, w: 96, h: 18, label: 'app=checkout' }),
+];
+
+const anatomyLines = [
+  'apiVersion: apps/v1',
+  'kind: Deployment',
+  'spec:',
+  '  replicas: 3',
+  '  selector:',
+  '    matchLabels:',
+  '      app: checkout',
+  '  template:',
+  '    metadata:',
+  '      labels:',
+  '        app: checkout',
+  '    spec:',
+  '      containers:',
+  '        - name: checkout',
+  '          image: shop/checkout:1.4.2',
+];
+const withTag = (tag: string) => [
+  ...anatomyLines.slice(0, 14),
+  `          image: shop/checkout:${tag}`,
 ];
 
 export const anatomy = scene(
@@ -140,10 +172,11 @@ export const anatomy = scene(
     sCode('code', {
       x: 8,
       y: 8,
-      w: 216,
+      w: 196,
       h: 216,
-      fontSize: 8.5,
+      fontSize: 8,
       lines: [
+        'apiVersion: apps/v1',
         'kind: Deployment',
         'spec:',
         '  replicas: 3',
@@ -160,7 +193,7 @@ export const anatomy = scene(
         '          image: shop/checkout:1.4.2',
       ],
     }),
-    sBox('res', { x: 232, y: 8, w: 100, h: 230, label: 'CLUSTER' }),
+    sBox('res', { x: 212, y: 8, w: 120, h: 230, label: 'CLUSTER' }),
     ...labPod('a1', 26),
     ...labPod('a2', 94),
     ...labPod('a3', 162),
@@ -177,9 +210,14 @@ export const anatomy = scene(
       { title: 'A wish list in YAML' }
     ),
     beat(
-      '**replicas: 3** means three pods. Change the number and the cluster follows.',
+      '**apiVersion: apps/v1** says which API group the object belongs to. Deployments live in **apps/v1**.',
+      { code: { hl: [0, 1] } },
+      { title: 'Which API' }
+    ),
+    beat(
+      '**replicas: 3** means three pods. Change the number and the cluster follows. More than one means losing a pod or a node does not take checkout down.',
       all(show('a1', 'a2', 'a3'), {
-        code: { hl: [2] },
+        code: { hl: [3] },
         a1t: { opacity: 0 },
         a2t: { opacity: 0 },
         a3t: { opacity: 0 },
@@ -188,17 +226,17 @@ export const anatomy = scene(
     ),
     beat(
       'The **selector** and the pod **labels** must match. That is how the Deployment finds the pods that are its own.',
-      all({ code: { hl: [3, 4, 5, 8, 9] } }, show('a1t', 'a2t', 'a3t')),
+      all({ code: { hl: [4, 5, 6, 9, 10] } }, show('a1t', 'a2t', 'a3t')),
       { title: 'Which pods are mine' }
     ),
     beat(
       'The **image** is what runs in every pod. A pinned tag means every pod runs the same code.',
-      { code: { hl: [13] } },
+      { code: { hl: [14] } },
       { title: 'What to run' }
     ),
     beat(
       'Try changing the tag and see what the cluster would do.',
-      { code: { hl: [13] } },
+      { code: { hl: [14] } },
       {
         title: 'Pinned or latest?',
         poke: poke(
@@ -208,6 +246,7 @@ export const anatomy = scene(
               frame(
                 0,
                 {
+                  code: { lines: withTag('latest') },
                   a1c: { label: 'latest', tone: 'warn' },
                   a2c: { label: 'latest', tone: 'warn' },
                   a3c: { label: 'latest', tone: 'danger' },
@@ -224,6 +263,7 @@ export const anatomy = scene(
               frame(
                 0,
                 {
+                  code: { lines: withTag('1.4.2') },
                   a1c: { label: '1.4.2', tone: 'normal' },
                   a2c: { label: '1.4.2', tone: 'normal' },
                   a3c: { label: '1.4.2', tone: 'normal' },
@@ -241,11 +281,11 @@ export const anatomy = scene(
 );
 
 // ---------------------------------------------------------------------------------------------
-const slot = (i: number) => ({ x: 20 + i * 110, y: 100 });
+const slot = (i: number) => ({ x: 10 + i * 112, y: 100 });
 const lp = (id: string, i: number, hidden = false): SceneActor[] => [
-  sPod(id, { ...slot(i), w: 80, h: 84, tone: 'accent' }),
-  sCtr(`${id}c`, { parent: id, x: 27, y: 12, w: 26, h: 26, label: 'app', color: 'orange' }),
-  sTag(`${id}t`, { parent: id, x: 4, y: 52, w: 72, h: 18, label: 'app=checkout' }),
+  sPod(id, { ...slot(i), w: 100, h: 84, tone: 'accent' }),
+  sCtr(`${id}c`, { parent: id, x: 37, y: 12, w: 26, h: 26, label: 'app', color: 'orange' }),
+  sTag(`${id}t`, { parent: id, x: 4, y: 52, w: 92, h: 18, label: 'app=checkout' }),
 ];
 
 export const labels = scene(
@@ -254,7 +294,7 @@ export const labels = scene(
   [
     sTag('dep', { x: 80, y: 10, w: 180, h: 28, label: 'selector: app=checkout', tone: 'accent' }),
     ...[0, 1, 2].map((i) =>
-      sArrow(`ar${i}`, { x: 55 + i * 110, y: 42, w: 10, h: 50, dir: 'down' })
+      sArrow(`ar${i}`, { x: 55 + i * 112, y: 42, w: 10, h: 50, dir: 'down' })
     ),
     ...lp('p0', 0),
     ...lp('p1', 1),
@@ -265,7 +305,7 @@ export const labels = scene(
     sTag('count', { x: 100, y: 200, w: 140, h: 26, label: 'owned pods: 3 / 3', tone: 'ok' }),
     sText('orph', {
       x: 70,
-      y: 292,
+      y: 334,
       w: 200,
       label: 'orphaned: still running, no longer managed',
       fontSize: 9,
@@ -311,7 +351,7 @@ export const labels = scene(
       ),
     }),
   ],
-  352
+  356
 );
 
 // ---------------------------------------------------------------------------------------------
@@ -372,7 +412,11 @@ export const lifecycle = scene(
     ),
     beat(
       '**Running is not Ready.** A pod can run for a while before it can take traffic. Probes decide, and you will meet them soon.',
-      undefined,
+      {
+        tok: { y: 160, tone: 'warn' },
+        st3: { tone: 'warn', label: 'Running, 0/1 Ready' },
+        st4: { tone: 'dim' },
+      },
       {
         title: 'Running is not Ready',
       }
@@ -454,7 +498,8 @@ export const requests = scene(
           frame(
             1100,
             {
-              cap: { tone: 'danger' },
+              cap: { tone: 'warn' },
+              capl: { label: 'memory reserved by requests: 6 of 8 GiB, only 2 GiB free' },
               big: { tone: 'danger' },
               pend: { opacity: 1, tone: 'danger', label: 'Pending: no room' },
             },
@@ -534,7 +579,7 @@ export const limits = scene(
       { title: 'Memory kills, CPU slows' }
     ),
   ],
-  290
+  232
 );
 
 // ---------------------------------------------------------------------------------------------
