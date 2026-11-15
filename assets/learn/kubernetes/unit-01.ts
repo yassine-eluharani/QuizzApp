@@ -1,15 +1,5 @@
-import {
-  choice,
-  cmd,
-  fill,
-  lesson,
-  order,
-  read,
-  spot,
-  terminal,
-  triage,
-  unit,
-} from '@/lib/learn/dsl';
+import { choice, cmd, fill, lesson, order, spot, terminal, triage, unit } from '@/lib/learn/dsl';
+import { anatomy, applyChain, labels, lifecycle, limits, probes, requests } from './scenes-01';
 
 export const unit1 = unit({
   id: 'k8s-u1',
@@ -20,19 +10,7 @@ export const unit1 = unit({
   badge: { id: 'badge-first-deploy', title: 'First deploy' },
   lessons: [
     lesson('k8s-1-1', 'Pods, Deployments and your first rollout', [
-      read(
-        'k8s-1-1-a',
-        'Bubbled Shop goes live',
-        [
-          'Bubbled Shop is a small online store: checkout, cart, catalog and payments services, plus Postgres and Redis. Until now it ran on a few VMs. Today you move checkout onto a cluster.',
-          'A Pod is the smallest thing Kubernetes runs: one or more containers sharing a network address and storage. Pods are disposable. They get replaced, rescheduled and rotated all the time.',
-          'So you never create bare Pods for a service. You declare what you want (this image, three copies) in a Deployment, and Kubernetes keeps reality matching that declaration.',
-        ],
-        {
-          callout:
-            'Production teams treat pods as cattle, not pets. Anything you cannot lose (data, secrets, config) lives outside the pod.',
-        }
-      ),
+      applyChain,
       order(
         'k8s-1-1-b',
         'What happens when you apply a Deployment?',
@@ -47,6 +25,7 @@ export const unit1 = unit({
         'Kubernetes is a set of control loops. Each controller watches the desired state in the API server and acts on its own piece: Deployment to ReplicaSet to Pods, then the scheduler picks nodes and the kubelet runs them.',
         ['You SSH into a node and run docker run']
       ),
+      anatomy,
       fill(
         'k8s-1-1-c',
         'Write the checkout Deployment',
@@ -152,18 +131,7 @@ checkout   3/3     3            3           24s`,
     ]),
 
     lesson('k8s-1-2', 'Labels, selectors and pod states', [
-      read(
-        'k8s-1-2-a',
-        'Labels glue everything together',
-        [
-          'Kubernetes objects find each other through labels, not names. A Deployment owns the pods whose labels match its selector. Later a Service will send traffic to pods the same way.',
-          'That makes labels load-bearing. Change a label on a running pod and its ReplicaSet stops owning it, and a replacement is started. Teams use this on purpose to pull one pod out for debugging.',
-        ],
-        {
-          callout:
-            'Use the recommended app.kubernetes.io/* labels on everything. Dashboards, cost tools and policies all key off them.',
-        }
-      ),
+      labels,
       fill(
         'k8s-1-2-b',
         'Label it properly',
@@ -189,6 +157,7 @@ checkout   3/3     3            3           24s`,
         },
         ['default', 'prod', 'latest']
       ),
+      lifecycle,
       order(
         'k8s-1-2-c',
         'The life of a pod',
@@ -258,19 +227,8 @@ The tag 1.4.22 does not exist. The deploy had a typo.`,
     ]),
 
     lesson('k8s-1-3', 'Resources and health probes', [
-      read(
-        'k8s-1-3-a',
-        'Tell Kubernetes what your pod needs',
-        [
-          'Requests are what the scheduler reserves for a pod: it only places the pod on a node that has that much free. Limits are the ceiling enforced at runtime.',
-          'Go over a memory limit and the container is OOMKilled. Go over a CPU limit and it is throttled, which shows up as slow requests, not crashes.',
-          'Probes tell Kubernetes how to judge health. Readiness decides whether the pod gets traffic. Liveness decides whether it gets restarted. Startup gives slow apps time to boot.',
-        ],
-        {
-          callout:
-            'Always set memory requests and limits. Many teams skip CPU limits on latency-sensitive services to avoid throttling, but still set CPU requests.',
-        }
-      ),
+      requests,
+      limits,
       fill(
         'k8s-1-3-b',
         'Size the container',
@@ -294,6 +252,7 @@ The tag 1.4.22 does not exist. The deploy had a typo.`,
         },
         ['2000m', '64Gi', '1']
       ),
+      probes,
       fill(
         'k8s-1-3-c',
         'Wire up the probes',

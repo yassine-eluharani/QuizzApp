@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Defs, G, Path, Pattern, RadialGradient, Rect, Stop } from 'react-native-svg';
 import PressableScale from '@/components/ui/PressableScale';
+import { unitNumber } from '@/lib/learn/engine';
 import { Colors } from '@/constants/Colors';
 import { CheckIcon, LockIcon, StarIcon, UnitIcon } from './icons';
 import type { LearnPath } from '@/lib/learn/types';
@@ -223,7 +224,7 @@ export default function LearnPathMap({ path, states, stars, currentFraction, onP
                   { color: dim ? '#6A6157' : st === 'current' ? Colors.primary : Colors.textMuted },
                 ]}
               >
-                UNIT {i + 1}
+                UNIT {unitNumber(u, i)}
               </Text>
               <Text
                 style={[styles.title, align, { color: dim ? '#6A6157' : Colors.textPrimary }]}
@@ -245,7 +246,7 @@ export default function LearnPathMap({ path, states, stars, currentFraction, onP
             <PressableScale
               onPress={() => onPressUnit(i)}
               accessibilityRole="button"
-              accessibilityLabel={`Unit ${i + 1}, ${u.title}, ${st === 'done' ? 'completed' : st === 'current' ? 'current' : 'locked'}`}
+              accessibilityLabel={`Unit ${unitNumber(u, i)}, ${u.title}, ${st === 'done' ? 'completed' : st === 'current' ? 'current' : 'locked'}`}
               style={[
                 styles.nodeWrap,
                 { left: n.x - r - 6, top: n.y - r - 6, width: 2 * r + 12, height: 2 * r + 12 },

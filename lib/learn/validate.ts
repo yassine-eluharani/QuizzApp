@@ -1,6 +1,7 @@
 // Content validator. Run by the jest test over every lesson so a broken lesson fails CI, not a learner.
 import { parseSlots, runTerminal } from './engine';
-import type { LearnPath, Lesson, Step, TriageStep } from './types';
+import { TONES } from './scene';
+import type { LearnPath, Lesson, SceneStep, Step, TriageStep } from './types';
 
 function checkTriage(s: TriageStep, at: string, errs: string[]) {
   if (!s.nodes[s.start]) errs.push(`${at}: start node "${s.start}" missing`);
@@ -46,9 +47,59 @@ function checkTriage(s: TriageStep, at: string, errs: string[]) {
   else if (cost > s.par) errs.push(`${at}: best path costs ${cost} but par is ${s.par}`);
 }
 
+function checkScene(s: SceneStep, at: string, errs: string[]) {
+  const ids = new Map<string, number>();
+  s.actors.forEach((a, i) => {
+    if (ids.has(a.id)) errs.push(`${at}: duplicate actor ${a.id}`);
+    ids.set(a.id, i);
+    if (a.parent && !(ids.has(a.parent) && ids.get(a.parent)! < i))
+      errs.push(`${at}: parent of ${a.id} must be declared earlier`);
+    if (a.kind === 'arrow' && !a.dir) errs.push(`${at}: arrow ${a.id} needs dir`);
+    if (a.kind === 'code' && !a.lines?.length) errs.push(`${at}: code ${a.id} needs lines`);
+    if (a.tone && !TONES.includes(a.tone)) errs.push(`${at}: bad tone on ${a.id}`);
+  });
+  const known = (id: string) => ids.has(id);
+  const checkSet = (set: Record<string, any> | undefined, where: string) => {
+    for (const [id, st] of Object.entries(set ?? {})) {
+      if (!known(id)) errs.push(`${at}: ${where} sets unknown actor ${id}`);
+      if (st.tone && !TONES.includes(st.tone)) errs.push(`${at}: ${where} bad tone for ${id}`);
+      const a = s.actors[ids.get(id) ?? -1];
+      if (st.hl && a?.kind !== 'code') errs.push(`${at}: ${where} hl on non-code ${id}`);
+      if (st.hl && a?.lines && st.hl.some((n: number) => n < 0 || n >= a.lines!.length))
+        errs.push(`${at}: ${where} hl out of range on ${id}`);
+    }
+  };
+  if (s.beats.length < 2) errs.push(`${at}: needs 2+ beats`);
+  let anyShown = false;
+  s.beats.forEach((b, i) => {
+    if (!b.caption.trim()) errs.push(`${at}: beat ${i} has no caption`);
+    checkSet(b.set, `beat ${i}`);
+    if (Object.values(b.set ?? {}).some((x) => (x.opacity ?? 0) > 0)) anyShown = true;
+    if (b.poke) {
+      if (!b.poke.actions.length) errs.push(`${at}: poke in beat ${i} has no actions`);
+      for (const act of b.poke.actions) {
+        if (!act.target && !act.label)
+          errs.push(`${at}: poke action in beat ${i} needs a target or label`);
+        if (act.target && !known(act.target)) errs.push(`${at}: poke target ${act.target} unknown`);
+        if (!act.frames.length) errs.push(`${at}: poke action in beat ${i} has no frames`);
+        let last = -1;
+        for (const f of act.frames) {
+          if (f.after < last) errs.push(`${at}: poke frames in beat ${i} are not sorted`);
+          last = f.after;
+          checkSet(f.set, `poke frame in beat ${i}`);
+        }
+      }
+    }
+  });
+  if (!anyShown) errs.push(`${at}: nothing is ever shown`);
+}
+
 export function validateStep(step: Step, at: string): string[] {
   const errs: string[] = [];
   switch (step.type) {
+    case 'scene':
+      checkScene(step, at, errs);
+      break;
     case 'read':
       if (!step.body.length) errs.push(`${at}: empty body`);
       break;

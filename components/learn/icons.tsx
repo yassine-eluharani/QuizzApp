@@ -29,6 +29,7 @@ const PATHS: Record<IconName, string[]> = {
   eye: ['M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z'],
   grid: [],
   alert: ['M12 3 2.5 20h19z', 'M12 10v4', 'M12 17.2v.1'],
+  cluster: ['M10.8 7.1 6.3 15.9', 'M13.2 7.1l4.5 8.8', 'M8 18.5h8'],
   wheel: [
     'M12 4v5M12 15v5M4 12h5M15 12h5',
     'M6.3 6.3l3.5 3.5M14.2 14.2l3.5 3.5M17.7 6.3l-3.5 3.5M9.8 14.2l-3.5 3.5',
@@ -57,6 +58,14 @@ export function UnitIcon({
         <Circle cx={7.8} cy={16.2} r={4} stroke={color} strokeWidth={strokeWidth} />
       )}
       {name === 'eye' && <Circle cx={12} cy={12} r={3} stroke={color} strokeWidth={strokeWidth} />}
+      {name === 'cluster' &&
+        [
+          [12, 5],
+          [5.5, 18.5],
+          [18.5, 18.5],
+        ].map(([cx, cy], i) => (
+          <Circle key={i} cx={cx} cy={cy} r={2.6} stroke={color} strokeWidth={strokeWidth} />
+        ))}
       {name === 'wheel' && (
         <>
           <Circle cx={12} cy={12} r={8} stroke={color} strokeWidth={strokeWidth} />

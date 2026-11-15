@@ -1,6 +1,7 @@
 import React from 'react';
 import { DiagramView, FillView, OrderView } from './FillOrderDiagram';
 import { ReadView, SpotView } from './ReadAndSpot';
+import SceneView from './SceneView';
 import TerminalView from './TerminalView';
 import TriageView from './TriageView';
 import type { Step } from '@/lib/learn/types';
@@ -16,6 +17,8 @@ interface Props {
 export default function StepView({ step, challenge, onMistake, onDone }: Props) {
   const p = { challenge, onMistake, onDone };
   switch (step.type) {
+    case 'scene':
+      return <SceneView step={step} {...p} />;
     case 'read':
       return <ReadView step={step} {...p} />;
     case 'fill':

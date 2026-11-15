@@ -79,3 +79,9 @@ export function checkSlots(
 export function allTrue(c: Record<string, boolean>): boolean {
   return Object.values(c).every(Boolean);
 }
+
+/** Display number of a unit: taken from its id (k8s-u0 is "0"), so an introductory Unit 0 can exist. */
+export function unitNumber(unit: { id: string }, index: number): number {
+  const m = unit.id.match(/-u(\d+)$/);
+  return m ? Number(m[1]) : index + 1;
+}

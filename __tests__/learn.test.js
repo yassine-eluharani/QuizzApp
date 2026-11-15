@@ -19,7 +19,8 @@ import {
   starsFor,
   unitStates,
 } from '@/lib/learn/progress';
-import { validatePath } from '@/lib/learn/validate';
+import { validatePath, validateStep } from '@/lib/learn/validate';
+import { resolveStates, richParts } from '@/lib/learn/scene';
 
 describe('engine', () => {
   it('parses slot markers', () => {
@@ -132,5 +133,56 @@ describe('progress', () => {
 describe('learn content', () => {
   it.each(learnPaths.map((p) => [p.id, p]))('%s has no content errors', (_id, path) => {
     expect(validatePath(path)).toEqual([]);
+  });
+});
+
+describe('scenes', () => {
+  const sc = {
+    type: 'scene',
+    id: 's',
+    title: 't',
+    actors: [
+      { id: 'a', kind: 'box', x: 0, y: 0, w: 10, h: 10 },
+      { id: 'b', kind: 'ctr', x: 1, y: 1, w: 5, h: 5, parent: 'a' },
+    ],
+    beats: [
+      { caption: 'one', set: { a: { opacity: 1 } } },
+      {
+        caption: 'two',
+        poke: {
+          hint: 'tap',
+          actions: [{ target: 'a', frames: [{ after: 0, set: { a: { tone: 'danger', x: 50 } } }] }],
+        },
+      },
+      { caption: 'three', set: { a: { opacity: 0.5 } } },
+    ],
+  };
+
+  it('starts hidden, children follow the parent, later beats win', () => {
+    const s0 = resolveStates(sc, 0);
+    expect(s0.a.opacity).toBe(1);
+    expect(s0.b.opacity).toBe(1);
+    expect(resolveStates(sc, 2).a.opacity).toBe(0.5);
+  });
+
+  it('keeps poke frames that already played, for this and later beats', () => {
+    const applied = { 1: sc.beats[1].poke.actions[0].frames };
+    expect(resolveStates(sc, 1).a.tone).toBe('normal');
+    expect(resolveStates(sc, 1, applied).a.tone).toBe('danger');
+    expect(resolveStates(sc, 2, applied).a.x).toBe(50);
+  });
+
+  it('splits bold markup', () => {
+    expect(richParts('a **b** c')).toEqual([
+      { text: 'a ', bold: false },
+      { text: 'b', bold: true },
+      { text: ' c', bold: false },
+    ]);
+  });
+
+  it('validates scenes', () => {
+    expect(validateStep(sc, 'x')).toEqual([]);
+    const bad = { ...sc, beats: [{ caption: '', set: { zzz: { opacity: 1 } } }, sc.beats[1]] };
+    expect(validateStep(bad, 'x').length).toBeGreaterThan(1);
   });
 });

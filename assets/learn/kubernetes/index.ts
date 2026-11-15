@@ -1,4 +1,5 @@
 import type { LearnPath } from '@/lib/learn/types';
+import { unit0 } from './unit-00';
 import { unit1 } from './unit-01';
 import { unit2 } from './unit-02';
 import { unit3 } from './unit-03';
@@ -15,5 +16,5 @@ export const kubernetes: LearnPath = {
   id: 'kubernetes',
   title: 'Kubernetes',
   story: 'Run Bubbled Shop in production',
-  units: [unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, unit9, unit10, unit11],
+  units: [unit0, unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, unit9, unit10, unit11],
 };

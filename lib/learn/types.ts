@@ -12,7 +12,8 @@ export type IconName =
   | 'eye'
   | 'grid'
   | 'alert'
-  | 'wheel';
+  | 'wheel'
+  | 'cluster';
 
 export interface ReadStep {
   type: 'read';
@@ -114,7 +115,91 @@ export interface TerminalStep {
   commands: TerminalCommand[];
 }
 
+// ---- Visual lessons: animated scenes -------------------------------------------------------
+// A scene is a small stage with actors (boxes, pods, containers, dots...) and a list of beats.
+// Each beat changes some actors (they animate there) and shows a caption. A beat can also be a
+// "poke": the learner taps an actor or a button and a timed sequence of frames plays.
+
+export type Tone = 'normal' | 'accent' | 'ok' | 'warn' | 'danger' | 'dim';
+export type ActorKind =
+  | 'box'
+  | 'ctr'
+  | 'pod'
+  | 'tag'
+  | 'user'
+  | 'dot'
+  | 'arrow'
+  | 'text'
+  | 'code'
+  | 'bar';
+
+export interface SceneActor {
+  id: string;
+  kind: ActorKind;
+  x: number; // stage units (the stage is 340 wide); relative to `parent` when set
+  y: number;
+  w?: number;
+  h?: number;
+  label?: string;
+  tone?: Tone;
+  color?: 'orange' | 'paper' | 'teal' | 'blue';
+  parent?: string; // must be declared earlier
+  dir?: 'right' | 'down' | 'left' | 'up'; // arrow
+  lines?: string[]; // code
+  limit?: number; // bar: marker position 0-1
+  fontSize?: number;
+}
+
+/** Animatable state. Anything left out keeps its previous value. Actors start hidden (opacity 0). */
+export interface SceneState {
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+  opacity?: number;
+  scale?: number;
+  tone?: Tone;
+  label?: string;
+  hl?: number[]; // code: highlighted line indexes
+  fill?: number; // bar: 0-1
+}
+
+export interface SceneFrame {
+  after: number; // ms after the tap
+  set: Record<string, SceneState>;
+  caption?: string;
+}
+
+export interface ScenePokeAction {
+  target?: string; // tap this actor...
+  label?: string; // ...or press this button
+  frames: SceneFrame[];
+}
+
+export interface ScenePoke {
+  hint: string;
+  actions: ScenePokeAction[];
+  need?: 'any' | 'all'; // how many actions must run before Next unlocks (default any)
+}
+
+export interface SceneBeat {
+  title?: string;
+  caption: string; // **bold** is supported
+  set?: Record<string, SceneState>;
+  poke?: ScenePoke;
+}
+
+export interface SceneStep {
+  type: 'scene';
+  id: string;
+  title: string; // short, shown above the stage
+  stageHeight?: number; // stage units, default 300
+  actors: SceneActor[];
+  beats: SceneBeat[];
+}
+
 export type Step =
+  | SceneStep
   | ReadStep
   | FillStep
   | OrderStep

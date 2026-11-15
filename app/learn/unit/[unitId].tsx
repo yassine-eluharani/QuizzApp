@@ -7,6 +7,7 @@ import { CheckIcon, LockIcon, MedalIcon, StarIcon, UnitIcon } from '@/components
 import { findUnit } from '@/assets/learn/catalog';
 import { useLearn } from '@/context/LearnContext';
 import { isLessonDone, isUnitDone, lessonUnlocked, unitStates } from '@/lib/learn/progress';
+import { unitNumber } from '@/lib/learn/engine';
 import { Colors } from '@/constants/Colors';
 
 export default function UnitScreen() {
@@ -40,7 +41,7 @@ export default function UnitScreen() {
               strokeWidth={1.9}
             />
           </View>
-          <Text style={styles.kicker}>UNIT {idx + 1}</Text>
+          <Text style={styles.kicker}>UNIT {unitNumber(unit, idx)}</Text>
           <Text style={styles.title}>{unit.title}</Text>
           <Text style={styles.blurb}>{unit.blurb}</Text>
           <View style={styles.badgeRow}>
